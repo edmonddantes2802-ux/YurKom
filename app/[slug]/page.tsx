@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { landings } from '@/content/landings';
 import { legalServiceSchema, faqSchema } from '@/lib/schema';
+import ScrollReveal from '@/components/ScrollReveal';
 import Hero from '@/components/Hero';
 import Offer from '@/components/Offer';
 import Cases from '@/components/Cases';
@@ -49,6 +50,7 @@ export default async function LandingPage({ params }: Props) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
+      <ScrollReveal />
       <main>
         <Hero landing={landing} />
         <Offer offer={landing.offer} />

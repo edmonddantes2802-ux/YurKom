@@ -59,51 +59,52 @@ export default function Qualifier({ slug, prompt }: { slug: string; prompt: stri
 
   if (status === 'success') {
     return (
-      <div className="qualifier">
-        <h3>Заявка отправлена</h3>
-        <p className="qualifier-status success">
-          Мы изучим вашу ситуацию и свяжемся с вами в ближайшее время.
-        </p>
+      <div className="qualifier-wrap" data-reveal data-reveal-delay="3">
+        <div className="qualifier qualifier-success">
+          <h3>Заявка отправлена</h3>
+          <p className="qualifier-status success">
+            Мы изучим вашу ситуацию и свяжемся с вами в ближайшее время.
+          </p>
+        </div>
       </div>
     );
   }
 
   return (
-    <form className="qualifier" onSubmit={handleSubmit}>
-      <h3>Опишите ситуацию</h3>
-      <p className="muted" style={{ marginTop: '0.5rem', fontSize: '0.95rem' }}>
-        {prompt}
-      </p>
-      <textarea
-        name="message"
-        required
-        minLength={10}
-        maxLength={5000}
-        placeholder="Например: вчера банк заблокировал расчётный счёт…"
-        value={message}
-        onChange={(e) => setMessage(e.target.value)}
-        onFocus={handleFocus}
-      />
-      <input
-        name="phone"
-        type="tel"
-        maxLength={32}
-        placeholder="Телефон для связи (необязательно)"
-        value={phone}
-        onChange={(e) => setPhone(e.target.value)}
-        onFocus={handleFocus}
-      />
-      {/* Honeypot — люди его не видят и не заполняют */}
-      <div className="hp-field" aria-hidden="true">
-        <label>
-          Website
-          <input name="website" type="text" tabIndex={-1} autoComplete="off" />
-        </label>
-      </div>
-      <Button type="submit" disabled={status === 'sending'} style={{ marginTop: '1.25rem', width: '100%' }}>
-        {status === 'sending' ? 'Отправляем…' : 'Получить оценку ситуации'}
-      </Button>
-      {status === 'error' && <p className="qualifier-status error">{errorText}</p>}
-    </form>
+    <div className="qualifier-wrap" data-reveal data-reveal-delay="3">
+      <form className="qualifier" onSubmit={handleSubmit}>
+        <h3>Опишите ситуацию</h3>
+        <p className="qualifier-hint">{prompt}</p>
+        <textarea
+          name="message"
+          required
+          minLength={10}
+          maxLength={5000}
+          placeholder="Например: вчера банк заблокировал расчётный счёт…"
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          onFocus={handleFocus}
+        />
+        <input
+          name="phone"
+          type="tel"
+          maxLength={32}
+          placeholder="Телефон для связи (необязательно)"
+          value={phone}
+          onChange={(e) => setPhone(e.target.value)}
+          onFocus={handleFocus}
+        />
+        <div className="hp-field" aria-hidden="true">
+          <label>
+            Website
+            <input name="website" type="text" tabIndex={-1} autoComplete="off" />
+          </label>
+        </div>
+        <Button type="submit" disabled={status === 'sending'} style={{ width: '100%' }}>
+          {status === 'sending' ? 'Отправляем…' : 'Получить оценку ситуации'}
+        </Button>
+        {status === 'error' && <p className="qualifier-status error">{errorText}</p>}
+      </form>
+    </div>
   );
 }

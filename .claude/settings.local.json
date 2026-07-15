@@ -5,7 +5,11 @@
       "Bash(ls .env*)",
       "Bash(npm start:*)",
       "Bash(curl -s -X POST http://localhost:3000/api/lead -H \"Content-Type: application/json\" -d '{\"message\":\"тестовая заявка длиннее десяти символов\",\"slug\":\"arest-scheta\"}' -w \"\\\\nHTTP %{http_code}\\\\n\")",
-      "Bash(curl -s http://localhost:3000/arest-scheta)"
+      "Bash(curl -s http://localhost:3000/arest-scheta)",
+      "mcp__magic__21st_magic_component_inspiration",
+      "Bash(npx next:*)",
+      "Bash(curl -s http://localhost:3001/arest-scheta)",
+      "Bash(kill %1)"
     ]
   }
 }
