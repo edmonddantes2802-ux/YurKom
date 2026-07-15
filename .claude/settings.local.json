@@ -1,7 +1,11 @@
 {
   "permissions": {
     "allow": [
-      "Bash(npm run:*)"
+      "Bash(npm run:*)",
+      "Bash(ls .env*)",
+      "Bash(npm start:*)",
+      "Bash(curl -s -X POST http://localhost:3000/api/lead -H \"Content-Type: application/json\" -d '{\"message\":\"тестовая заявка длиннее десяти символов\",\"slug\":\"arest-scheta\"}' -w \"\\\\nHTTP %{http_code}\\\\n\")",
+      "Bash(curl -s http://localhost:3000/arest-scheta)"
     ]
   }
 }
