@@ -3,9 +3,11 @@ import { notFound } from 'next/navigation';
 import { landings } from '@/content/landings';
 import { legalServiceSchema, faqSchema } from '@/lib/schema';
 import ScrollReveal from '@/components/ScrollReveal';
+import Header from '@/components/Header';
 import Hero from '@/components/Hero';
 import Offer from '@/components/Offer';
 import Cases from '@/components/Cases';
+import RepeatCTA from '@/components/RepeatCTA';
 import Steps from '@/components/Steps';
 import FAQ from '@/components/FAQ';
 import Footer from '@/components/Footer';
@@ -51,12 +53,15 @@ export default async function LandingPage({ params }: Props) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <ScrollReveal />
+      <Header />
       <main>
         <Hero landing={landing} />
         <Offer offer={landing.offer} />
         <Cases cases={landing.cases} />
+        <RepeatCTA />
         <Steps steps={landing.steps} />
         <FAQ faq={landing.faq} />
+        <RepeatCTA />
       </main>
       <Footer />
     </>

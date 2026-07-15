@@ -6,18 +6,33 @@ import { reachGoal, collectUtm } from '@/lib/analytics';
 
 type Status = 'idle' | 'sending' | 'success' | 'error';
 
+const HINT_CHIPS = [
+  { label: 'Налоговая заблокировала', prefix: 'Налоговая заблокировала счёт: ' },
+  { label: 'Приставы / ФССП', prefix: 'Судебные приставы арестовали: ' },
+  { label: 'Банк 115-ФЗ', prefix: 'Банк заблокировал по 115-ФЗ: ' },
+];
+
 export default function Qualifier({ slug, prompt }: { slug: string; prompt: string }) {
   const [message, setMessage] = useState('');
   const [phone, setPhone] = useState('');
   const [status, setStatus] = useState<Status>('idle');
   const [errorText, setErrorText] = useState('');
   const startedRef = useRef(false);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   function handleFocus() {
     if (!startedRef.current) {
       startedRef.current = true;
       reachGoal('qualifier_started');
     }
+  }
+
+  function handleChipClick(prefix: string) {
+    if (!message) {
+      setMessage(prefix);
+    }
+    handleFocus();
+    textareaRef.current?.focus();
   }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -59,7 +74,7 @@ export default function Qualifier({ slug, prompt }: { slug: string; prompt: stri
 
   if (status === 'success') {
     return (
-      <div className="qualifier-wrap" data-reveal data-reveal-delay="3">
+      <div className="qualifier-wrap" id="qualifier" data-reveal data-reveal-delay="3">
         <div className="qualifier qualifier-success">
           <h3>Заявка отправлена</h3>
           <p className="qualifier-status success">
@@ -71,11 +86,24 @@ export default function Qualifier({ slug, prompt }: { slug: string; prompt: stri
   }
 
   return (
-    <div className="qualifier-wrap" data-reveal data-reveal-delay="3">
+    <div className="qualifier-wrap" id="qualifier" data-reveal data-reveal-delay="3">
       <form className="qualifier" onSubmit={handleSubmit}>
         <h3>Опишите ситуацию</h3>
         <p className="qualifier-hint">{prompt}</p>
+        <div className="qualifier-chips">
+          {HINT_CHIPS.map((chip) => (
+            <button
+              key={chip.label}
+              type="button"
+              className="qualifier-chip"
+              onClick={() => handleChipClick(chip.prefix)}
+            >
+              {chip.label}
+            </button>
+          ))}
+        </div>
         <textarea
+          ref={textareaRef}
           name="message"
           required
           minLength={10}
@@ -100,6 +128,9 @@ export default function Qualifier({ slug, prompt }: { slug: string; prompt: stri
             <input name="website" type="text" tabIndex={-1} autoComplete="off" />
           </label>
         </div>
+        <span className="urgency-badge">
+          Реагируем в течение 30 минут — при аресте каждый день на счету
+        </span>
         <Button type="submit" disabled={status === 'sending'} style={{ width: '100%' }}>
           {status === 'sending' ? 'Отправляем…' : 'Получить оценку ситуации'}
         </Button>

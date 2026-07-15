@@ -27,7 +27,8 @@
   --container-wide: 1200px;
   --radius:         10px;
   --radius-lg:      16px;
-  --section-gap:    clamp(5rem, 12vw, 9rem);
+  --section-gap:    clamp(3rem, 7vw, 5.5rem);
+  --header-h:       60px;
 
   /* Анимации */
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
@@ -38,7 +39,7 @@
    Сброс
    ========================================================================== */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; }
+html { scroll-behavior: smooth; scroll-padding-top: calc(var(--header-h) + 1rem); }
 
 body {
   background: var(--color-bg);
@@ -65,6 +66,7 @@ h1, h2, h3 {
 h1 {
   font-size: clamp(2.4rem, 5.5vw, 3.8rem);
   letter-spacing: -0.025em;
+  line-height: 1.25;
 }
 
 h2 {
@@ -151,7 +153,8 @@ a:hover { color: var(--color-accent-hover); }
   display: flex;
   align-items: center;
   justify-content: center;
-  padding-block: clamp(4rem, 10vh, 7rem) clamp(3rem, 8vh, 5rem);
+  padding-top: calc(var(--header-h) + clamp(2rem, 5vh, 4rem));
+  padding-bottom: clamp(2rem, 5vh, 4rem);
   position: relative;
 }
 
@@ -226,6 +229,169 @@ a:hover { color: var(--color-accent-hover); }
     align-items: center;
   }
 }
+
+/* ---- Trust markers (под подзаголовком) ---------------------------------- */
+.hero-trust {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 0.25rem 0;
+  margin-bottom: 2rem;
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+.hero-trust span {
+  white-space: nowrap;
+}
+
+.hero-trust .sep {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--color-border-strong);
+  display: inline-block;
+  margin: 0 0.75rem;
+  vertical-align: middle;
+}
+
+@media (max-width: 640px) {
+  .hero-trust { flex-direction: column; gap: 0.35rem; }
+  .hero-trust .sep { display: none; }
+}
+
+/* ---- Urgency badge (над кнопкой формы) --------------------------------- */
+.urgency-badge {
+  display: block;
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--color-accent);
+  margin-bottom: 1rem;
+  letter-spacing: 0.01em;
+  font-style: italic;
+}
+
+/* ==========================================================================
+   Header — sticky, blur backdrop
+   ========================================================================== */
+.site-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  height: var(--header-h);
+  display: flex;
+  align-items: center;
+  background: rgba(14, 15, 18, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--color-border);
+  transition: background 0.3s;
+}
+
+.header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: 0 clamp(1.5rem, 5vw, 3rem);
+}
+
+.header-logo {
+  font-family: var(--font-serif);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--color-text);
+  text-decoration: none;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  transition: color 0.2s;
+}
+
+.header-logo:hover { color: var(--color-accent); }
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.header-phone {
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  text-decoration: none;
+  transition: color 0.2s;
+  white-space: nowrap;
+}
+
+.header-phone:hover { color: var(--color-text); }
+
+.header-tg {
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-accent);
+  border: 1px solid var(--color-accent);
+  border-radius: 6px;
+  padding: 0.4rem 1rem;
+  text-decoration: none;
+  transition: background 0.2s, color 0.2s;
+  white-space: nowrap;
+}
+
+.header-tg:hover {
+  background: var(--color-accent);
+  color: var(--color-accent-contrast);
+}
+
+@media (max-width: 480px) {
+  .header-logo { font-size: 0.82rem; }
+}
+
+/* ==========================================================================
+   Qualifier hint chips
+   ========================================================================== */
+.qualifier-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.qualifier-chip {
+  background: var(--color-bg);
+  border: 1px solid var(--color-border-strong);
+  border-radius: 20px;
+  padding: 0.3rem 0.85rem;
+  font-family: var(--font-sans);
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s, background 0.2s;
+  white-space: nowrap;
+}
+
+.qualifier-chip:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+  background: var(--color-accent-soft);
+}
+
+/* ==========================================================================
+   Repeat CTA strip
+   ========================================================================== */
+.cta-strip {
+  text-align: center;
+  padding-block: clamp(2rem, 5vw, 3.5rem);
+}
+
+.cta-strip .btn { min-width: 280px; }
 
 /* ==========================================================================
    Qualifier — «консультационная панель» с золотым свечением
