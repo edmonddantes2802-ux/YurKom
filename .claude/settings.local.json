@@ -27,7 +27,25 @@
       "Bash(netstat -ano)",
       "Bash(taskkill //F //PID 5832)",
       "PowerShell(npm run *)",
-      "PowerShell(git *)"
+      "PowerShell(git *)",
+      "Bash(curl -s http://localhost:3000/arest-scheta -o /tmp/arest.html)",
+      "Bash(node -e \"const {landings}=require\\('esbuild-register'\\)||{};\")",
+      "Read(//c/Program Files/Google/Chrome/Application/**)",
+      "Bash(command -v msedge chrome)",
+      "Read(//c/Program Files \\\\\\(x86\\\\\\)/Microsoft/Edge/Application/**)",
+      "Bash(\"/c/Program Files/Google/Chrome/Application/chrome.exe\" --headless=new --disable-gpu --hide-scrollbars --window-size=1440,7000 --screenshot=before.png --virtual-time-budget=6000 \"http://localhost:3000/arest-scheta\")",
+      "PowerShell(Get-Process *)",
+      "Bash(\"/c/Program Files/Google/Chrome/Application/chrome.exe\" --headless=new --disable-gpu --hide-scrollbars --window-size=1440,6500 --screenshot=before.png \"http://localhost:3000/arest-scheta\")",
+      "Bash('/c/Program Files/Google/Chrome/Application/chrome.exe' --headless=new --disable-gpu --no-sandbox --hide-scrollbars --window-size=1440,6500 '--screenshot=C:\\\\Users\\\\edmon\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\C--Wibecoding-Work-YurKom\\\\2fa15f54-0ee8-4168-bf6c-4ac68078ee96\\\\scratchpad\\\\before.png' http://localhost:3000/arest-scheta)",
+      "Bash(node 'C:\\\\Users\\\\edmon\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\C--Wibecoding-Work-YurKom\\\\2fa15f54-0ee8-4168-bf6c-4ac68078ee96\\\\scratchpad\\\\shot.mjs' http://localhost:3000/arest-scheta 'C:\\\\Users\\\\edmon\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\C--Wibecoding-Work-YurKom\\\\2fa15f54-0ee8-4168-bf6c-4ac68078ee96\\\\scratchpad\\\\full2.png' 1440)",
+      "Bash(node 'C:\\\\Users\\\\edmon\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\C--Wibecoding-Work-YurKom\\\\2fa15f54-0ee8-4168-bf6c-4ac68078ee96\\\\scratchpad\\\\shot.mjs' http://localhost:3000/arest-scheta 'C:\\\\Users\\\\edmon\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\C--Wibecoding-Work-YurKom\\\\2fa15f54-0ee8-4168-bf6c-4ac68078ee96\\\\scratchpad\\\\full3.png' 1440)",
+      "Bash(break)",
+      "Bash(jobs)",
+      "Bash(powershell -NoProfile -Command \"Get-Date -Format 'yyyy-MM-dd HH:mm'\")",
+      "Bash(git add *)",
+      "Bash(git commit -q -m ' *)",
+      "Bash(sed -i 's|`<будет проставлен после коммита>`|`__TRACKED_VAR__`|' WORKLOG.md)",
+      "Bash(git commit *)"
     ]
   }
 }

@@ -66,7 +66,7 @@ h1, h2, h3 {
 h1 {
   font-size: clamp(2.4rem, 5.5vw, 3.8rem);
   letter-spacing: -0.025em;
-  line-height: 1.25;
+  line-height: 1.16;
 }
 
 h2 {
@@ -117,7 +117,10 @@ a:hover { color: var(--color-accent-hover); }
 /* ==========================================================================
    Scroll-reveal (работает через data-атрибут, см. ScrollReveal.tsx)
    ========================================================================== */
-[data-reveal] {
+/* По умолчанию контент ВИДИМ. Скрытое предстартовое состояние навешивает
+   только JS (класс .reveal-ready) — так при сбое JS/observer'а ничего не
+   застревает невидимым. */
+[data-reveal].reveal-ready {
   opacity: 0;
   transform: translateY(28px);
   transition:
@@ -125,7 +128,7 @@ a:hover { color: var(--color-accent-hover); }
     transform var(--duration-reveal) var(--ease-out-expo);
 }
 
-[data-reveal].visible {
+[data-reveal].reveal-ready.visible {
   opacity: 1;
   transform: translateY(0);
 }
@@ -149,12 +152,12 @@ a:hover { color: var(--color-accent-hover); }
    Hero — центрированная композиция, квалификатор = центральный элемент
    ========================================================================== */
 .hero {
-  min-height: 100dvh;
+  min-height: calc(100svh - var(--header-h));
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
-  padding-top: calc(var(--header-h) + clamp(2rem, 5vh, 4rem));
-  padding-bottom: clamp(2rem, 5vh, 4rem);
+  padding-top: calc(var(--header-h) + clamp(0.75rem, 2.5vh, 1.75rem));
+  padding-bottom: clamp(2.5rem, 6vh, 4.5rem);
   position: relative;
 }
 
@@ -284,10 +287,11 @@ a:hover { color: var(--color-accent-hover); }
   height: var(--header-h);
   display: flex;
   align-items: center;
-  background: rgba(14, 15, 18, 0.8);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: rgba(14, 15, 18, 0.92);
+  backdrop-filter: blur(14px) saturate(1.1);
+  -webkit-backdrop-filter: blur(14px) saturate(1.1);
   border-bottom: 1px solid var(--color-border);
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.35);
   transition: background 0.3s;
 }
 
@@ -388,7 +392,9 @@ a:hover { color: var(--color-accent-hover); }
    ========================================================================== */
 .cta-strip {
   text-align: center;
-  padding-block: clamp(2rem, 5vw, 3.5rem);
+  /* Меньше вертикали, чем у секций: strip стоит между секциями и не должен
+     удваивать межсекционный отступ (иначе вокруг кнопки появляется «дыра»). */
+  padding-block: clamp(1.5rem, 3.5vw, 2.5rem);
 }
 
 .cta-strip .btn { min-width: 280px; }
