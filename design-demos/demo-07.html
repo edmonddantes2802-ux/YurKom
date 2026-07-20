@@ -1,0 +1,641 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Демо 7 — Техно-юрист</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geologica:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#08090C;
+  --surface:#101218;
+  --surface-2:#161A22;
+  --line:#232936;
+  --line-soft:#1A1F29;
+  --txt:#E8ECF4;
+  --mut:#8A93A6;
+  --blue:#3B6DF6;
+  --blue-btn:#2F62EA;
+  --blue-lt:#7AA0FF;
+  --cyan:#22D3EE;
+  --mono:'JetBrains Mono',ui-monospace,monospace;
+  --disp:'Geologica','Inter',system-ui,sans-serif;
+  --body:'Inter',system-ui,sans-serif;
+  --maxw:1180px;
+  --pad:clamp(20px,4vw,40px);
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--bg);color:var(--txt);
+  font-family:var(--body);font-size:16px;line-height:1.6;
+  overflow-x:hidden;-webkit-font-smoothing:antialiased;
+}
+/* тонкая сетка-паттерн */
+body::before{
+  content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);
+  background-size:72px 72px;background-position:center top;
+  opacity:.30;
+  -webkit-mask-image:radial-gradient(120% 80% at 50% 0%,#000 0%,rgba(0,0,0,.35) 55%,transparent 100%);
+  mask-image:radial-gradient(120% 80% at 50% 0%,#000 0%,rgba(0,0,0,.35) 55%,transparent 100%);
+}
+.wrap{max-width:var(--maxw);margin:0 auto;padding-inline:var(--pad);position:relative;z-index:1}
+h1,h2,h3,h4{font-family:var(--disp);margin:0;letter-spacing:-.02em;line-height:1.1}
+p{margin:0}
+a{color:inherit}
+button,input,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--blue-lt);outline-offset:3px;border-radius:2px}
+
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.tag{
+  font-family:var(--mono);font-size:11px;font-weight:500;letter-spacing:.13em;
+  text-transform:uppercase;color:var(--mut);
+}
+.sec{padding:clamp(64px,8.5vw,120px) 0;position:relative;z-index:1}
+.sec-head{margin-bottom:clamp(32px,4.5vw,56px)}
+.sec-head h2{font-size:clamp(26px,3.6vw,40px);font-weight:600;margin-top:12px;max-width:22ch}
+.rule{height:1px;background:var(--line);border:0;margin:0}
+
+/* ── демо-плашка ── */
+.demobar{
+  position:sticky;top:0;z-index:60;background:rgba(8,9,12,.92);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line);
+}
+.demobar .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;height:40px}
+.demobar span{font-family:var(--mono);font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--mut)}
+.demobar a{font-family:var(--mono);font-size:11.5px;letter-spacing:.06em;color:var(--blue-lt);text-decoration:none;transition:color .18s ease}
+.demobar a:hover{color:#A9C2FF}
+
+/* ── хедер ── */
+.hdr{position:sticky;top:40px;z-index:50;background:rgba(8,9,12,.86);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--line-soft)}
+.hdr .wrap{display:flex;align-items:center;gap:clamp(16px,3vw,40px);height:72px}
+.logo{display:flex;align-items:center;gap:12px;text-decoration:none;flex:0 0 auto}
+.logo-mark{
+  width:36px;height:36px;flex:0 0 36px;display:grid;place-items:center;
+  border:1px solid var(--line);border-radius:8px;background:linear-gradient(160deg,#171C27,#0C0E13);
+  font-family:var(--disp);font-weight:700;font-size:13px;letter-spacing:.02em;color:var(--blue-lt);
+}
+.logo-txt{display:flex;flex-direction:column;line-height:1.25}
+.logo-txt b{font-family:var(--disp);font-weight:600;font-size:14.5px;letter-spacing:-.01em}
+.logo-txt small{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--mut)}
+.nav{display:flex;gap:26px;margin-left:auto}
+.nav a{font-size:14.5px;color:var(--mut);text-decoration:none;transition:color .18s ease}
+.nav a:hover{color:var(--txt)}
+.hdr-phone{font-family:var(--mono);font-size:14px;text-decoration:none;letter-spacing:-.01em;transition:color .18s ease}
+.hdr-phone:hover{color:var(--blue-lt)}
+
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:10px;
+  font-family:var(--disp);font-weight:600;font-size:14.5px;letter-spacing:-.005em;
+  padding:11px 20px;border-radius:8px;border:1px solid transparent;cursor:pointer;
+  background:var(--blue-btn);color:#fff;text-decoration:none;
+  transition:background .18s ease,transform .18s ease,box-shadow .18s ease;
+}
+.btn:hover{background:#3B6DF6;box-shadow:0 0 0 1px rgba(122,160,255,.35),0 8px 24px -12px rgba(59,109,246,.9);transform:translateY(-1px)}
+.btn:active{transform:translateY(0)}
+.btn-lg{padding:15px 24px;font-size:16px;width:100%}
+.btn-ghost{background:transparent;border-color:var(--line);color:var(--txt)}
+.btn-ghost:hover{background:var(--surface-2);border-color:#2E3646;box-shadow:none}
+
+/* ── hero ── */
+.hero{padding-top:clamp(44px,6vw,76px);padding-bottom:clamp(56px,7vw,96px);position:relative;z-index:1}
+.hero::after{
+  content:"";position:absolute;left:50%;top:-140px;width:min(1100px,120vw);height:520px;
+  transform:translateX(-50%);pointer-events:none;z-index:-1;
+  background:radial-gradient(50% 50% at 50% 50%,rgba(59,109,246,.16),transparent 72%);
+}
+.hero-grid{display:grid;grid-template-columns:1.02fr .98fr;gap:clamp(32px,4vw,64px);align-items:start}
+.hero h1{font-size:clamp(31px,4.9vw,58px);font-weight:700;letter-spacing:-.035em;margin:18px 0 0;max-width:15ch}
+.hero h1 em{font-style:normal;color:var(--blue-lt)}
+.hero-sub{color:var(--mut);font-size:clamp(15px,1.25vw,17px);max-width:46ch;margin-top:20px}
+.trust{display:flex;flex-wrap:wrap;gap:0;margin-top:34px;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.trust div{flex:1 1 110px;padding:16px 18px 15px}
+.trust div + div{border-left:1px solid var(--line)}
+.trust b{display:block;font-family:var(--mono);font-weight:700;font-size:clamp(19px,2.2vw,25px);letter-spacing:-.03em}
+.trust span{display:block;font-family:var(--mono);font-size:10.5px;letter-spacing:.11em;text-transform:uppercase;color:var(--mut);margin-top:6px}
+
+/* ── панель-квалификатор ── */
+.panel{
+  background:linear-gradient(180deg,var(--surface-2),var(--surface));
+  border:1px solid var(--line);border-radius:14px;overflow:hidden;
+  box-shadow:0 40px 80px -50px rgba(0,0,0,.9),0 0 0 1px rgba(59,109,246,.06);
+}
+.panel-bar{
+  display:flex;align-items:center;gap:10px;padding:11px 16px;
+  border-bottom:1px solid var(--line);background:rgba(8,9,12,.5);
+}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--cyan);flex:0 0 7px;position:relative}
+.dot::after{content:"";position:absolute;inset:-4px;border-radius:50%;background:var(--cyan);opacity:.25;animation:pulse 2.4s ease-in-out infinite}
+@keyframes pulse{0%,100%{transform:scale(.6);opacity:.30}50%{transform:scale(1.15);opacity:.05}}
+.panel-bar .st{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--mut)}
+.panel-bar .st b{color:var(--txt);font-weight:500}
+.panel-body{padding:clamp(20px,2.4vw,28px)}
+.panel-body h2{font-size:clamp(21px,2.3vw,26px);font-weight:600}
+.panel-body > p{color:var(--mut);font-size:14.5px;margin-top:9px}
+.fl{display:block;font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--mut);margin:24px 0 11px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{
+  font-size:13.5px;padding:8px 13px;border-radius:7px;cursor:pointer;
+  background:transparent;border:1px solid var(--line);color:var(--mut);
+  transition:color .18s ease,border-color .18s ease,background .18s ease;
+}
+.chip:hover{color:var(--txt);border-color:#333C4E}
+.chip[aria-pressed="true"]{background:rgba(59,109,246,.14);border-color:rgba(122,160,255,.55);color:var(--blue-lt)}
+.field{
+  width:100%;background:#0B0D12;border:1px solid var(--line);border-radius:9px;
+  padding:13px 14px;font-size:15px;color:var(--txt);
+  transition:border-color .18s ease,box-shadow .18s ease;resize:vertical;
+}
+.field::placeholder{color:#616B7E}
+.field:focus{outline:none;border-color:rgba(122,160,255,.6);box-shadow:0 0 0 3px rgba(59,109,246,.14)}
+.field:focus-visible{outline:none}
+textarea.field{min-height:108px;line-height:1.55}
+.count{display:flex;justify-content:flex-end;font-family:var(--mono);font-size:10.5px;color:#616B7E;margin-top:6px;letter-spacing:.06em}
+input.field{font-family:var(--mono);letter-spacing:.02em}
+.submit-row{margin-top:20px}
+.note{color:#727C90;font-size:11.5px;line-height:1.5;margin-top:12px;text-align:center}
+.done{display:none;padding:8px 0 4px}
+.done.on{display:block}
+.done h3{font-size:19px;font-weight:600}
+.done p{color:var(--mut);font-size:14.5px;margin-top:10px}
+.done .eta{
+  margin-top:18px;padding:13px 15px;border:1px solid rgba(122,160,255,.28);border-radius:9px;
+  background:rgba(59,109,246,.08);font-family:var(--mono);font-size:13px;color:var(--blue-lt);
+  display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;
+}
+form.off{display:none}
+
+/* ── что вы получите ── */
+.gets{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.get{background:var(--bg);padding:clamp(22px,2.6vw,32px);transition:background .2s ease}
+.get:hover{background:var(--surface)}
+.get svg{width:22px;height:22px;stroke:var(--blue-lt);stroke-width:1.35;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.get h3{font-size:18px;font-weight:600;margin:16px 0 9px}
+.get p{color:var(--mut);font-size:14.5px}
+
+/* ── шкала срока (signature) ── */
+.track{margin:0 0 26px}
+.track-top{display:flex;justify-content:space-between;align-items:baseline;gap:14px;margin-bottom:11px}
+.track-top .lbl{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--mut)}
+.track-days{font-family:var(--mono);font-weight:700;letter-spacing:-.04em;font-size:clamp(30px,4.4vw,46px);line-height:1;color:var(--txt)}
+.track-days small{font-size:13px;font-weight:400;letter-spacing:.1em;text-transform:uppercase;color:var(--mut);margin-left:9px;vertical-align:middle}
+.bar{position:relative;height:3px;background:var(--line);border-radius:2px}
+.bar i{
+  position:absolute;left:0;top:0;height:100%;border-radius:2px;display:block;
+  background:linear-gradient(90deg,var(--blue),var(--cyan));
+  width:0;transition:width 1.1s cubic-bezier(.16,.84,.44,1);
+}
+.bar em{
+  position:absolute;top:50%;width:9px;height:9px;border-radius:50%;background:var(--cyan);
+  transform:translate(-50%,-50%);left:0;opacity:0;
+  box-shadow:0 0 0 4px rgba(34,211,238,.14);
+  transition:left 1.1s cubic-bezier(.16,.84,.44,1),opacity .4s ease .5s;
+}
+.on .bar i{width:var(--w)}
+.on .bar em{left:var(--w);opacity:1}
+.ticks{display:flex;justify-content:space-between;margin-top:9px}
+.ticks span{font-family:var(--mono);font-size:10.5px;color:#616B7E;letter-spacing:.06em}
+
+/* ── кейсы ── */
+.cases{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.case{background:var(--bg);padding:clamp(22px,2.8vw,34px)}
+.case-tag{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:22px}
+.case-tag span{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--mut);border:1px solid var(--line);border-radius:5px;padding:4px 9px}
+.rows{border-top:1px solid var(--line-soft)}
+.row{display:grid;grid-template-columns:96px 1fr;gap:16px;padding:15px 0;border-bottom:1px solid var(--line-soft)}
+.row:last-child{border-bottom:0;padding-bottom:0}
+.row dt{font-family:var(--mono);font-size:10.5px;letter-spacing:.11em;text-transform:uppercase;color:var(--mut);padding-top:3px}
+.row dd{margin:0;font-size:14.5px;color:#C3CAD8}
+.row dd b{color:var(--txt);font-weight:600}
+.row.res dd b{color:var(--blue-lt)}
+
+/* ── порядок работы ── */
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(16px,2vw,28px);position:relative}
+.step{position:relative;padding-top:26px}
+.step::before{content:"";position:absolute;top:0;left:0;right:0;height:1px;background:var(--line)}
+.step::after{
+  content:"";position:absolute;top:-3px;left:0;width:7px;height:7px;border-radius:50%;
+  background:var(--bg);border:1.5px solid var(--line);transition:border-color .25s ease,background .25s ease;
+}
+.step.on::after{border-color:var(--blue);background:var(--blue)}
+.step .n{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;color:var(--mut)}
+.step h3{font-size:17px;font-weight:600;margin:12px 0 8px}
+.step p{color:var(--mut);font-size:14px}
+
+/* ── FAQ ── */
+.faq{border-top:1px solid var(--line)}
+.q{
+  width:100%;background:transparent;border:0;border-bottom:1px solid var(--line);
+  display:flex;align-items:center;gap:18px;text-align:left;cursor:pointer;
+  padding:22px 4px;font-family:var(--disp);font-weight:500;font-size:clamp(16px,1.6vw,19px);
+  color:var(--txt);transition:color .18s ease;
+}
+.q:hover{color:var(--blue-lt)}
+.q .ix{font-family:var(--mono);font-size:11px;color:var(--mut);flex:0 0 auto;letter-spacing:.08em}
+.q .sign{margin-left:auto;flex:0 0 auto;width:14px;height:14px;position:relative}
+.q .sign::before,.q .sign::after{content:"";position:absolute;background:var(--mut);transition:transform .22s ease,background .22s ease}
+.q .sign::before{left:0;top:6.5px;width:14px;height:1px}
+.q .sign::after{left:6.5px;top:0;width:1px;height:14px}
+.q[aria-expanded="true"] .sign::after{transform:scaleY(0)}
+.q[aria-expanded="true"] .sign::before{background:var(--blue-lt)}
+.a{max-height:0;overflow:hidden;transition:max-height .28s ease;border-bottom:1px solid var(--line)}
+.a > p{color:var(--mut);font-size:15px;padding:0 4px 24px;max-width:70ch}
+
+/* ── CTA ── */
+.cta{border:1px solid var(--line);border-radius:14px;background:linear-gradient(150deg,rgba(59,109,246,.10),transparent 62%),var(--surface);padding:clamp(28px,4vw,52px);display:flex;flex-wrap:wrap;gap:28px;align-items:center;justify-content:space-between}
+.cta h2{font-size:clamp(22px,2.8vw,32px);font-weight:600;max-width:20ch}
+.cta p{color:var(--mut);font-size:15px;margin-top:12px;max-width:44ch}
+.cta-act{display:flex;flex-wrap:wrap;gap:12px}
+
+/* ── футер ── */
+.ftr{border-top:1px solid var(--line);padding:clamp(40px,5vw,64px) 0 40px;position:relative;z-index:1}
+.ftr-grid{display:flex;flex-wrap:wrap;gap:32px;justify-content:space-between}
+.ftr-col b{font-family:var(--disp);font-weight:600;font-size:15px;display:block}
+.ftr-col p,.ftr-col a{color:var(--mut);font-size:14px;text-decoration:none;display:block;margin-top:8px}
+.ftr-col a{font-family:var(--mono);transition:color .18s ease}
+.ftr-col a:hover{color:var(--blue-lt)}
+.ftr-fine{margin-top:36px;padding-top:22px;border-top:1px solid var(--line-soft);color:#6B7487;font-size:12.5px;display:flex;flex-wrap:wrap;gap:8px 18px}
+
+/* ── reveal ── */
+.rv{opacity:0;transform:translateY(14px);transition:opacity .55s ease,transform .55s cubic-bezier(.16,.84,.44,1)}
+.rv.on{opacity:1;transform:none}
+
+@media (max-width:1020px){
+  .hero-grid{grid-template-columns:1fr;gap:36px}
+  .hero h1{max-width:20ch}
+  .nav{display:none}
+  .steps{grid-template-columns:1fr 1fr;gap:24px}
+}
+@media (max-width:860px){
+  .gets{grid-template-columns:1fr}
+  .cases{grid-template-columns:1fr}
+}
+@media (max-width:640px){
+  .hdr .wrap{height:64px;gap:12px}
+  .hdr-phone{display:none}
+  .steps{grid-template-columns:1fr}
+  .trust div{flex:1 1 100%;border-left:0 !important}
+  .trust div + div{border-top:1px solid var(--line)}
+  .row{grid-template-columns:1fr;gap:6px}
+  .cta{flex-direction:column;align-items:flex-start}
+  .cta-act{width:100%}
+  .cta-act .btn{flex:1 1 100%}
+  .logo-txt small{display:none}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none !important;transition:none !important}
+  .rv{opacity:1;transform:none}
+  .bar i{width:var(--w)}
+  .bar em{opacity:1;left:var(--w)}
+}
+</style>
+</head>
+<body>
+
+<div class="demobar">
+  <div class="wrap">
+    <span>Демо 7 · Техно-юрист</span>
+    <a href="index.html">← Ко всем демо</a>
+  </div>
+</div>
+
+<header class="hdr">
+  <div class="wrap">
+    <a class="logo" href="#top">
+      <span class="logo-mark">ЮАС</span>
+      <span class="logo-txt">
+        <b>Юридическая антикризисная служба</b>
+        <small>Москва и МО</small>
+      </span>
+    </a>
+    <nav class="nav">
+      <a href="#cases">Кейсы</a>
+      <a href="#how">Как работаем</a>
+      <a href="#faq">Вопросы</a>
+    </nav>
+    <a class="hdr-phone" href="tel:+74950000000">+7 (495) 000-00-00</a>
+    <a class="btn" href="#form">Получить консультацию</a>
+  </div>
+</header>
+
+<main id="top">
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div>
+        <p class="tag">Арест счёта · 115-ФЗ · ФНС · ФССП</p>
+        <h1>Арестовали счёт? <em>Снимем арест</em> и вернём доступ к деньгам</h1>
+        <p class="hero-sub">Работаем с блокировками по 115-ФЗ, требованиям ФНС и постановлениям ФССП. Первичный разбор ситуации — бесплатно, в течение дня.</p>
+        <div class="trust">
+          <div><b>18 лет</b><span>практики</span></div>
+          <div><b>3200+</b><span>дел</span></div>
+          <div><b>Москва</b><span>и МО</span></div>
+        </div>
+      </div>
+
+      <!-- панель-квалификатор -->
+      <div class="panel" id="form">
+        <div class="panel-bar">
+          <span class="dot" aria-hidden="true"></span>
+          <span class="st">Статус: <b id="status">ожидает ввода</b></span>
+        </div>
+        <div class="panel-body">
+          <form id="qform" novalidate>
+            <h2>Опишите ситуацию</h2>
+            <p>Коротко о том, что произошло. Ответим с разбором и планом действий.</p>
+
+            <span class="fl" id="cat-label">Категория</span>
+            <div class="chips" role="group" aria-labelledby="cat-label">
+              <button type="button" class="chip" aria-pressed="false">Блокировка по 115-ФЗ</button>
+              <button type="button" class="chip" aria-pressed="false">Требование ФНС</button>
+              <button type="button" class="chip" aria-pressed="false">Арест по ФССП</button>
+              <button type="button" class="chip" aria-pressed="false">Налоговая проверка</button>
+              <button type="button" class="chip" aria-pressed="false">Субсидиарная ответственность</button>
+              <button type="button" class="chip" aria-pressed="false">Другое</button>
+            </div>
+
+            <label class="fl" for="sit">Что произошло</label>
+            <textarea class="field" id="sit" maxlength="600" placeholder="Например: банк заблокировал счёт, запросили документы по 115-ФЗ, деньги недоступны четвёртый день"></textarea>
+            <div class="count"><span id="cnt">0</span>/600</div>
+
+            <label class="fl" for="tel">Телефон</label>
+            <input class="field" id="tel" type="tel" inputmode="tel" placeholder="+7 (___) ___-__-__">
+
+            <div class="submit-row">
+              <button class="btn btn-lg" type="submit">Отправить на разбор</button>
+            </div>
+            <p class="note">Нажимая кнопку, вы соглашаетесь с политикой обработки персональных данных</p>
+          </form>
+
+          <div class="done" id="done" role="status">
+            <h3>Заявка принята</h3>
+            <p>Юрист смотрит документы и возвращается с разбором и планом действий. Если ситуация срочная — позвоните: +7 (495) 000-00-00.</p>
+            <div class="eta"><span>Разбор до</span><span id="eta-date">—</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ЧТО ВЫ ПОЛУЧИТЕ -->
+  <section class="sec">
+    <div class="wrap">
+      <div class="sec-head rv">
+        <p class="tag">Что вы получите</p>
+        <h2>Три вещи вместо обещаний</h2>
+      </div>
+      <div class="gets rv">
+        <div class="get">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/><circle cx="12" cy="13" r="2.6"/><path d="M14 15l2.4 2.4"/></svg>
+          <h3>Разбор за 1 день</h3>
+          <p>Изучим документы и скажем, что реально сделать по вашей ситуации, а что нет.</p>
+        </div>
+        <div class="get">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="16" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/><path d="M9 15.5l2 2 4-4.5"/></svg>
+          <h3>План с конкретными сроками</h3>
+          <p>Пошаговый порядок действий с датами, а не «будем работать».</p>
+        </div>
+        <div class="get">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7.5 3v6c0 4.5-3.1 7.6-7.5 9-4.4-1.4-7.5-4.5-7.5-9V6z"/><path d="M9 12l2.2 2.2L15.5 10"/></svg>
+          <h3>Ведение до результата</h3>
+          <p>Готовим документы, ходим в банк, ФНС и суд от вашего имени.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- КЕЙСЫ -->
+  <section class="sec" id="cases">
+    <div class="wrap">
+      <div class="sec-head rv">
+        <p class="tag">Кейсы · шкала до результата</p>
+        <h2>Сколько дней прошло от заявки до разблокировки</h2>
+      </div>
+      <div class="cases rv">
+        <article class="case">
+          <div class="case-tag"><span>Блокировка по 115-ФЗ</span><span>Оптовая торговля</span></div>
+          <div class="track" data-track style="--w:90%">
+            <div class="track-top">
+              <span class="lbl">От заявки до результата</span>
+            </div>
+            <div class="track-days"><span data-count="19">0</span><small>дней</small></div>
+            <div class="bar" style="margin-top:16px" aria-hidden="true"><i></i><em></em></div>
+            <div class="ticks"><span>0</span><span>7</span><span>14</span><span>21</span></div>
+          </div>
+          <dl class="rows">
+            <div class="row"><dt>Проблема</dt><dd>Банк заблокировал расчётный счёт и дистанционное обслуживание. На счету 8,4 млн руб., платежи поставщикам встали.</dd></div>
+            <div class="row"><dt>Действие</dt><dd>Собрали пакет документов по операциям за 6 месяцев, подготовили пояснения и подали жалобу в межведомственную комиссию ЦБ.</dd></div>
+            <div class="row res"><dt>Результат</dt><dd><b>Обслуживание восстановлено за 19 дней.</b> Доступ к 8,4 млн руб. возвращён, счёт работает в обычном режиме.</dd></div>
+          </dl>
+        </article>
+        <article class="case">
+          <div class="case-tag"><span>Арест по ФССП</span><span>Производство</span></div>
+          <div class="track" data-track style="--w:28.5%">
+            <div class="track-top">
+              <span class="lbl">От заявки до результата</span>
+            </div>
+            <div class="track-days"><span data-count="6">0</span><small>дней</small></div>
+            <div class="bar" style="margin-top:16px" aria-hidden="true"><i></i><em></em></div>
+            <div class="ticks"><span>0</span><span>7</span><span>14</span><span>21</span></div>
+          </div>
+          <dl class="rows">
+            <div class="row"><dt>Проблема</dt><dd>Приставы арестовали счета по долгу, который был погашен, но информация не дошла до ФССП. Заблокировано 2,1 млн руб.</dd></div>
+            <div class="row"><dt>Действие</dt><dd>Подтвердили оплату, добились отмены постановления и направили банку документы о снятии ареста напрямую.</dd></div>
+            <div class="row res"><dt>Результат</dt><dd><b>Арест снят за 6 дней.</b> Средства разблокированы, исполнительное производство прекращено.</dd></div>
+          </dl>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ПОРЯДОК РАБОТЫ -->
+  <section class="sec" id="how">
+    <div class="wrap">
+      <div class="sec-head rv">
+        <p class="tag">Порядок работы</p>
+        <h2>Четыре шага, каждый со своим сроком</h2>
+      </div>
+      <div class="steps rv">
+        <div class="step" data-step><span class="n">ШАГ 1</span><h3>Заявка</h3><p>Описываете ситуацию в форме или по телефону.</p></div>
+        <div class="step" data-step><span class="n">ШАГ 2</span><h3>Разбор</h3><p>Смотрим документы, оцениваем перспективу и называем срок.</p></div>
+        <div class="step" data-step><span class="n">ШАГ 3</span><h3>Работа</h3><p>Готовим и подаём документы, ведём переписку с банком и госорганами.</p></div>
+        <div class="step" data-step><span class="n">ШАГ 4</span><h3>Результат</h3><p>Снимаем арест, возвращаем доступ к счёту, передаём отчёт.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="sec" id="faq">
+    <div class="wrap">
+      <div class="sec-head rv">
+        <p class="tag">Вопросы</p>
+        <h2>Что спрашивают чаще всего</h2>
+      </div>
+      <div class="faq rv">
+        <h3><button class="q" type="button" aria-expanded="false" aria-controls="a1"><span class="ix">01</span>Сколько времени занимает снятие ареста?<span class="sign" aria-hidden="true"></span></button></h3>
+        <div class="a" id="a1"><p>По 115-ФЗ обычно 2–4 недели, по ФССП — от нескольких дней. Точный срок называем после разбора документов.</p></div>
+
+        <h3><button class="q" type="button" aria-expanded="false" aria-controls="a2"><span class="ix">02</span>Вы работаете по всей России?<span class="sign" aria-hidden="true"></span></button></h3>
+        <div class="a" id="a2"><p>Основная практика — Москва и МО. По другим регионам берёмся выборочно, с учётом подсудности.</p></div>
+
+        <h3><button class="q" type="button" aria-expanded="false" aria-controls="a3"><span class="ix">03</span>Сколько это стоит?<span class="sign" aria-hidden="true"></span></button></h3>
+        <div class="a" id="a3"><p>Первичный разбор бесплатный. Стоимость работы называем после оценки ситуации — фиксированной суммой, без почасовой.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="sec" style="padding-top:0">
+    <div class="wrap">
+      <div class="cta rv">
+        <div>
+          <h2>Каждый день блокировки стоит денег</h2>
+          <p>Опишите ситуацию — вернёмся с разбором и сроком в течение дня.</p>
+        </div>
+        <div class="cta-act">
+          <a class="btn" href="#form">Отправить на разбор</a>
+          <a class="btn btn-ghost" href="tel:+74950000000">+7 (495) 000-00-00</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="ftr">
+  <div class="wrap">
+    <div class="ftr-grid">
+      <div class="ftr-col">
+        <b>Юридическая антикризисная служба</b>
+        <p>Снятие арестов и блокировок для бизнеса</p>
+      </div>
+      <div class="ftr-col">
+        <b>Связь</b>
+        <a href="tel:+74950000000">+7 (495) 000-00-00</a>
+        <a href="mailto:info@example.ru">info@example.ru</a>
+      </div>
+      <div class="ftr-col">
+        <b>Адрес</b>
+        <p>Москва, ул. Примерная, 1</p>
+      </div>
+    </div>
+    <div class="ftr-fine">
+      <span>© 2026</span><span>Политика обработки персональных данных</span><span>Информация на сайте не является публичной офертой</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* чипсы — одиночный выбор */
+  var chips = document.querySelectorAll('.chip');
+  chips.forEach(function(c){
+    c.addEventListener('click', function(){
+      var was = c.getAttribute('aria-pressed') === 'true';
+      chips.forEach(function(x){ x.setAttribute('aria-pressed','false'); });
+      c.setAttribute('aria-pressed', was ? 'false' : 'true');
+      setStatus(was ? 'ожидает ввода' : 'черновик');
+    });
+  });
+
+  /* счётчик символов */
+  var sit = document.getElementById('sit'), cnt = document.getElementById('cnt');
+  sit.addEventListener('input', function(){
+    cnt.textContent = sit.value.length;
+    if(sit.value.length) setStatus('черновик');
+  });
+
+  function setStatus(t){ document.getElementById('status').textContent = t; }
+
+  /* маска телефона */
+  var tel = document.getElementById('tel');
+  tel.addEventListener('input', function(){
+    var d = tel.value.replace(/\D/g,'');
+    if(d[0] === '8') d = '7' + d.slice(1);
+    if(d[0] !== '7') d = '7' + d;
+    d = d.slice(0,11);
+    var s = '+7';
+    if(d.length > 1) s += ' (' + d.slice(1,4);
+    if(d.length >= 5) s += ') ' + d.slice(4,7);
+    if(d.length >= 8) s += '-' + d.slice(7,9);
+    if(d.length >= 10) s += '-' + d.slice(9,11);
+    tel.value = s;
+  });
+
+  /* отправка */
+  var form = document.getElementById('qform'), done = document.getElementById('done');
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    var months = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
+    var d = new Date(); d.setDate(d.getDate() + 1);
+    document.getElementById('eta-date').textContent = d.getDate() + ' ' + months[d.getMonth()] + ', 19:00';
+    form.classList.add('off');
+    done.classList.add('on');
+    setStatus('принято');
+    done.scrollIntoView({behavior: reduce ? 'auto' : 'smooth', block:'nearest'});
+  });
+
+  /* FAQ */
+  document.querySelectorAll('.q').forEach(function(q){
+    q.addEventListener('click', function(){
+      var open = q.getAttribute('aria-expanded') === 'true';
+      var a = document.getElementById(q.getAttribute('aria-controls'));
+      q.setAttribute('aria-expanded', !open);
+      a.style.maxHeight = open ? '0px' : a.scrollHeight + 'px';
+    });
+  });
+  window.addEventListener('resize', function(){
+    document.querySelectorAll('.q[aria-expanded="true"]').forEach(function(q){
+      var a = document.getElementById(q.getAttribute('aria-controls'));
+      a.style.maxHeight = a.scrollHeight + 'px';
+    });
+  });
+
+  /* reveal + шкалы + шаги */
+  function countTo(el, target){
+    if(reduce){ el.textContent = target; return; }
+    var start = null, dur = 900;
+    function tick(ts){
+      if(!start) start = ts;
+      var p = Math.min((ts - start) / dur, 1);
+      el.textContent = Math.round(target * (1 - Math.pow(1 - p, 3)));
+      if(p < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  }
+
+  if('IntersectionObserver' in window){
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        if(!en.isIntersecting) return;
+        var el = en.target;
+        el.classList.add('on');
+        el.querySelectorAll('[data-track]').forEach(function(t, i){
+          setTimeout(function(){
+            t.classList.add('on');
+            countTo(t.querySelector('[data-count]'), +t.querySelector('[data-count]').dataset.count);
+          }, reduce ? 0 : 180 + i * 220);
+        });
+        el.querySelectorAll('[data-step]').forEach(function(s, i){
+          setTimeout(function(){ s.classList.add('on'); }, reduce ? 0 : 120 + i * 160);
+        });
+        io.unobserve(el);
+      });
+    }, {threshold: .18, rootMargin: '0px 0px -8% 0px'});
+    document.querySelectorAll('.rv').forEach(function(el){ io.observe(el); });
+  } else {
+    document.querySelectorAll('.rv').forEach(function(el){ el.classList.add('on'); });
+    document.querySelectorAll('[data-track],[data-step]').forEach(function(el){ el.classList.add('on'); });
+    document.querySelectorAll('[data-count]').forEach(function(el){ el.textContent = el.dataset.count; });
+  }
+})();
+</script>
+</body>
+</html>

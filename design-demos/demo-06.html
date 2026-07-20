@@ -1,0 +1,717 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Демо 6 — Тёплый премиум</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Commissioner:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+/* ============ Токены ============ */
+:root{
+  --paper:      #F4EDE2;   /* кремовая бумага */
+  --paper-2:    #E9DFCE;   /* второй тон, панели */
+  --ink:        #3A2A1E;   /* эспрессо */
+  --ink-2:      #6E5A48;   /* вторичные чернила */
+  --rule:       #D6C6B0;   /* линейки */
+  --gold:       #A67C34;   /* старое золото — декор, крупный кегль */
+  --gold-ink:   #8A6425;   /* золото для мелкого текста (контраст 4.6:1) */
+  --gold-lite:  #C99B4A;   /* золото на тёмном */
+  --deep:       #2A1D14;   /* глубокий коричневый — плашки */
+
+  --ff-display: "Lora", Georgia, "Times New Roman", serif;
+  --ff-body:    "Commissioner", system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  --lh-ledger: 1.75rem;    /* шаг линовки */
+  --pad: clamp(20px, 5vw, 40px);
+  --maxw: 1180px;
+  --t: 200ms cubic-bezier(.2,.6,.3,1);
+}
+
+*,*::before,*::after{ box-sizing:border-box; }
+html{ -webkit-text-size-adjust:100%; }
+body{
+  margin:0;
+  background:var(--paper);
+  color:var(--ink);
+  font-family:var(--ff-body);
+  font-size:17px;
+  line-height:1.65;
+  font-weight:400;
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+img,svg{ max-width:100%; }
+h1,h2,h3,h4{ font-family:var(--ff-display); font-weight:600; margin:0; letter-spacing:-.005em; }
+p{ margin:0; }
+a{ color:inherit; }
+
+/* Фокус — золотая обводка на бумаге */
+:focus-visible{
+  outline:2px solid var(--gold-ink);
+  outline-offset:3px;
+  border-radius:1px;
+}
+
+/* Разрядка — маркировка полей реестра */
+.smallcaps{
+  font-family:var(--ff-body);
+  font-size:11px;
+  font-weight:600;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  color:var(--ink-2);
+}
+
+/* Двойная линейка */
+.dbl{ border-top:3px double var(--gold); }
+
+.wrap{ max-width:var(--maxw); margin:0 auto; padding-inline:var(--pad); }
+
+/* ============ Плашка демо ============ */
+.demobar{
+  position:sticky; top:0; z-index:60;
+  background:var(--deep);
+  color:var(--paper);
+  border-bottom:1px solid #4A362A;
+}
+.demobar__in{
+  max-width:var(--maxw); margin:0 auto; padding:9px var(--pad);
+  display:flex; align-items:center; justify-content:space-between; gap:16px;
+  font-size:12px; letter-spacing:.1em; text-transform:uppercase; font-weight:500;
+}
+.demobar a{ color:var(--gold-lite); text-decoration:none; border-bottom:1px solid transparent; transition:border-color var(--t), color var(--t); white-space:nowrap; }
+.demobar a:hover{ border-bottom-color:var(--gold-lite); }
+
+/* ============ Хедер ============ */
+.hdr{
+  position:sticky; top:35px; z-index:50;
+  background:color-mix(in srgb, var(--paper) 92%, transparent);
+  backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--rule);
+}
+.hdr__in{
+  max-width:var(--maxw); margin:0 auto; padding:14px var(--pad);
+  display:flex; align-items:center; gap:clamp(16px,3vw,40px);
+}
+.brand{ display:flex; align-items:center; gap:12px; text-decoration:none; margin-right:auto; }
+.brand__mark{
+  font-family:var(--ff-display); font-weight:600; font-size:19px; letter-spacing:.06em;
+  color:var(--ink);
+  border:1px solid var(--gold); padding:4px 9px 3px;
+  line-height:1;
+  transition:background var(--t), color var(--t);
+}
+.brand:hover .brand__mark{ background:var(--gold); color:var(--paper); }
+.brand__full{ font-size:11.5px; line-height:1.35; letter-spacing:.09em; text-transform:uppercase; color:var(--ink-2); max-width:15ch; font-weight:500; }
+.nav{ display:flex; gap:26px; }
+.nav a{
+  font-size:14.5px; text-decoration:none; color:var(--ink-2);
+  padding-bottom:2px; border-bottom:1px solid transparent;
+  transition:color var(--t), border-color var(--t);
+}
+.nav a:hover{ color:var(--ink); border-bottom-color:var(--gold); }
+.hdr__tel{ font-family:var(--ff-display); font-size:16.5px; font-weight:500; text-decoration:none; white-space:nowrap; transition:color var(--t); }
+.hdr__tel:hover{ color:var(--gold-ink); }
+
+/* ============ Кнопки ============ */
+.btn{
+  display:inline-flex; align-items:center; justify-content:center; gap:10px;
+  font-family:var(--ff-body); font-size:14px; font-weight:600;
+  letter-spacing:.06em; text-transform:uppercase;
+  padding:13px 24px; border:1px solid var(--deep); background:var(--deep); color:var(--paper);
+  cursor:pointer; text-decoration:none; border-radius:0;
+  transition:background var(--t), color var(--t), border-color var(--t), transform var(--t);
+  box-shadow:3px 3px 0 0 rgba(58,42,30,.14);
+}
+.btn:hover{ background:var(--gold-ink); border-color:var(--gold-ink); transform:translate(-1px,-1px); box-shadow:5px 5px 0 0 rgba(58,42,30,.16); }
+.btn:active{ transform:translate(1px,1px); box-shadow:1px 1px 0 0 rgba(58,42,30,.14); }
+.btn--ghost{ background:transparent; color:var(--ink); border-color:var(--ink-2); box-shadow:none; }
+.btn--ghost:hover{ background:var(--ink); color:var(--paper); border-color:var(--ink); box-shadow:none; }
+.btn--sm{ padding:10px 17px; font-size:12.5px; }
+.btn--wide{ width:100%; padding:17px 24px; font-size:15px; }
+
+/* ============ Секции: левое поле реестра ============ */
+.sec{ padding-block:clamp(56px,8vw,104px); }
+.sec--tint{ background:var(--paper-2); border-block:1px solid var(--rule); }
+.ledger{
+  display:grid;
+  grid-template-columns:150px minmax(0,1fr);
+  gap:clamp(24px,4vw,52px);
+  align-items:start;
+}
+.ledger__margin{ position:sticky; top:120px; }
+.ledger__margin .num{
+  font-family:var(--ff-display); font-size:15px; color:var(--gold-ink); display:block; margin-bottom:8px; font-weight:500;
+}
+.ledger__margin .smallcaps{ display:block; line-height:1.5; }
+.ledger__margin::after{
+  content:""; display:block; width:46px; height:0; border-top:3px double var(--gold); margin-top:14px;
+}
+.sec__title{
+  font-size:clamp(27px,3.4vw,40px); line-height:1.18; max-width:20ch; margin-bottom:14px;
+}
+.sec__lede{ color:var(--ink-2); max-width:56ch; font-size:17px; }
+
+/* ============ Hero ============ */
+.hero{ padding-top:clamp(44px,6vw,76px); padding-bottom:clamp(48px,7vw,88px); }
+.hero__grid{ display:grid; grid-template-columns:minmax(0,1.02fr) minmax(0,.98fr); gap:clamp(32px,5vw,68px); align-items:start; }
+.hero__eyebrow{ display:flex; align-items:center; gap:12px; margin-bottom:26px; }
+.hero__eyebrow::after{ content:""; flex:1; height:0; border-top:1px solid var(--rule); }
+.hero h1{
+  font-size:clamp(34px,5.1vw,60px);
+  line-height:1.08;
+  letter-spacing:-.018em;
+  font-weight:600;
+  margin-bottom:22px;
+}
+.hero h1 em{ font-style:italic; font-weight:500; color:var(--gold-ink); }
+/* Буквица */
+.hero h1 .cap{
+  float:left;
+  font-size:.92em;
+  line-height:.78;
+  padding:.07em .12em 0 0;
+  margin-right:.02em;
+  color:var(--gold);
+  font-weight:700;
+}
+.hero__sub{ font-size:clamp(16px,1.35vw,18.5px); color:var(--ink-2); max-width:52ch; margin-bottom:34px; }
+
+.trust{
+  display:flex; flex-wrap:wrap;
+  border-top:3px double var(--gold); border-bottom:1px solid var(--rule);
+  padding-block:20px; gap:0;
+}
+.trust__i{ padding-right:clamp(18px,3vw,34px); margin-right:clamp(18px,3vw,34px); border-right:1px solid var(--rule); }
+.trust__i:last-child{ border-right:0; margin-right:0; padding-right:0; }
+.trust__v{ font-family:var(--ff-display); font-size:clamp(24px,2.6vw,31px); font-weight:600; line-height:1.1; display:block; }
+.trust__l{ font-size:12px; letter-spacing:.12em; text-transform:uppercase; color:var(--ink-2); font-weight:500; }
+
+/* ============ Форма-квалификатор ============ */
+.form{
+  background:var(--paper-2);
+  border:1px solid var(--rule);
+  box-shadow:8px 8px 0 -1px rgba(58,42,30,.09);
+  padding:clamp(22px,2.6vw,34px);
+}
+.form__head{ padding-bottom:16px; border-bottom:3px double var(--gold); margin-bottom:20px; }
+.form__head h2{ font-size:clamp(22px,2.3vw,27px); line-height:1.2; margin-bottom:7px; }
+.form__head p{ color:var(--ink-2); font-size:14.5px; max-width:44ch; }
+.field{ margin-bottom:18px; }
+.field > .smallcaps{ display:block; margin-bottom:9px; }
+
+.chips{ display:flex; flex-wrap:wrap; gap:8px; }
+.chip{
+  font-family:var(--ff-body); font-size:13.5px; font-weight:500;
+  padding:7px 13px; border:1px solid var(--rule); background:transparent; color:var(--ink-2);
+  cursor:pointer; border-radius:0; line-height:1.35;
+  transition:background var(--t), color var(--t), border-color var(--t);
+}
+.chip:hover{ border-color:var(--ink-2); color:var(--ink); }
+.chip[aria-pressed="true"]{ background:var(--deep); border-color:var(--deep); color:var(--paper); }
+
+/* Линованное поле — как разлинованный бланк */
+.lined{
+  width:100%;
+  font-family:var(--ff-body); font-size:16px; color:var(--ink);
+  background-color:var(--paper);
+  border:1px solid var(--rule); border-radius:0;
+  padding:14px 15px 0;
+  line-height:var(--lh-ledger);
+  resize:vertical; min-height:calc(var(--lh-ledger)*4 + 14px);
+  background-image:repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent calc(var(--lh-ledger) - 1px),
+    var(--rule) calc(var(--lh-ledger) - 1px),
+    var(--rule) var(--lh-ledger)
+  );
+  background-position:0 14px;
+  transition:border-color var(--t), box-shadow var(--t);
+}
+.inp{
+  width:100%; font-family:var(--ff-display); font-size:17px; color:var(--ink);
+  background:var(--paper); border:1px solid var(--rule); border-radius:0;
+  padding:13px 15px; letter-spacing:.02em;
+  transition:border-color var(--t), box-shadow var(--t);
+}
+.lined:hover,.inp:hover{ border-color:var(--ink-2); }
+.lined:focus,.inp:focus{ outline:none; border-color:var(--gold-ink); box-shadow:0 0 0 3px rgba(166,124,52,.16); }
+.lined::placeholder,.inp::placeholder{ color:#9C8A76; }
+.form__note{ font-size:12.5px; color:var(--ink-2); line-height:1.5; margin-top:12px; text-align:center; max-width:42ch; margin-inline:auto; }
+.form__note a{ color:var(--gold-ink); }
+.form__ok{
+  display:none; margin-top:14px; padding:12px 14px;
+  border-left:3px solid var(--gold); background:rgba(166,124,52,.1); font-size:14.5px;
+}
+.form__ok.is-on{ display:block; }
+
+/* ============ Что вы получите ============ */
+.gets{ display:grid; gap:0; }
+.get{
+  display:grid; grid-template-columns:44px minmax(0,1fr); gap:20px;
+  padding-block:26px; border-bottom:1px solid var(--rule);
+}
+.get:first-child{ border-top:1px solid var(--rule); }
+.get__ic{ color:var(--gold); padding-top:3px; }
+.get h3{ font-size:21px; margin-bottom:6px; }
+.get p{ color:var(--ink-2); max-width:60ch; font-size:16px; }
+
+/* ============ Кейсы: записи в переплетённом реестре ============ */
+.case{ border-top:3px double var(--gold); padding-top:22px; margin-top:clamp(34px,4vw,50px); }
+.case:first-of-type{ margin-top:0; }
+.case__head{
+  display:flex; flex-wrap:wrap; align-items:baseline; gap:8px 18px;
+  padding-bottom:16px; border-bottom:1px solid var(--rule); margin-bottom:4px;
+}
+.case__no{ font-family:var(--ff-display); font-size:15px; color:var(--gold-ink); font-weight:500; letter-spacing:.04em; }
+.case__tag{ margin-right:auto; }
+.case__row{
+  display:grid; grid-template-columns:132px minmax(0,1fr); gap:20px;
+  padding-block:16px; border-bottom:1px solid var(--rule);
+}
+.case__row p{ text-indent:1.6em; color:var(--ink-2); font-size:16.5px; }
+.case__row--res{ border-bottom:0; padding-bottom:0; }
+.res{
+  background:var(--deep); color:var(--paper); padding:18px 22px;
+  border-left:3px solid var(--gold-lite);
+}
+.res b{ font-family:var(--ff-display); font-weight:600; font-size:19px; display:block; margin-bottom:5px; color:var(--gold-lite); letter-spacing:.005em; }
+.res span{ font-size:15.5px; color:#D9CDBD; }
+
+/* ============ Порядок работы ============ */
+.steps{ display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:0; margin-top:8px; }
+.step{ padding:26px 22px 26px 0; border-top:1px solid var(--rule); position:relative; }
+.step + .step{ padding-left:22px; border-left:1px solid var(--rule); }
+.step::before{
+  content:""; position:absolute; top:-1px; left:0; width:0; height:0;
+  border-top:1px solid var(--gold);
+  transition:width 400ms cubic-bezier(.2,.6,.3,1);
+}
+.step.is-in::before{ width:100%; }
+.step__n{ font-family:var(--ff-display); font-size:26px; color:var(--gold); line-height:1; display:block; margin-bottom:14px; font-weight:500; }
+.step h3{ font-size:19px; margin-bottom:6px; }
+.step p{ color:var(--ink-2); font-size:15.5px; }
+
+/* ============ FAQ ============ */
+.faq{ border-bottom:1px solid var(--rule); }
+.faq__i{ border-top:3px double var(--gold); }
+.faq__q{
+  width:100%; display:flex; align-items:flex-start; justify-content:space-between; gap:20px;
+  background:none; border:0; padding:22px 0; cursor:pointer; text-align:left;
+  font-family:var(--ff-display); font-size:clamp(18px,1.8vw,22px); font-weight:500; color:var(--ink);
+  transition:color var(--t);
+}
+.faq__q:hover{ color:var(--gold-ink); }
+.faq__ic{ flex:none; width:20px; height:20px; margin-top:5px; color:var(--gold); transition:transform var(--t); }
+.faq__i.is-open .faq__ic{ transform:rotate(45deg); }
+.faq__a{ overflow:hidden; height:0; transition:height 220ms cubic-bezier(.2,.6,.3,1); }
+.faq__a > div{ padding:0 0 24px; color:var(--ink-2); max-width:64ch; font-size:16.5px; }
+
+/* ============ CTA-полоса ============ */
+.band{ background:var(--deep); color:var(--paper); padding-block:clamp(44px,6vw,68px); }
+.band__in{ display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:28px; }
+.band h2{ font-size:clamp(24px,3vw,34px); line-height:1.2; max-width:22ch; color:var(--paper); }
+.band p{ color:#CBBDAA; font-size:15.5px; margin-top:10px; max-width:44ch; }
+.band .btn{ background:var(--gold-lite); border-color:var(--gold-lite); color:var(--deep); box-shadow:none; }
+.band .btn:hover{ background:var(--paper); border-color:var(--paper); color:var(--deep); }
+
+/* ============ Футер ============ */
+.ftr{ background:var(--paper-2); border-top:1px solid var(--rule); padding-block:48px 32px; }
+.ftr__grid{ display:grid; grid-template-columns:1.3fr 1fr 1fr; gap:32px; padding-bottom:28px; border-bottom:1px solid var(--rule); }
+.ftr__name{ font-family:var(--ff-display); font-size:20px; font-weight:600; margin-bottom:8px; }
+.ftr p,.ftr a{ color:var(--ink-2); font-size:15px; text-decoration:none; }
+.ftr a{ transition:color var(--t); }
+.ftr a:hover{ color:var(--gold-ink); }
+.ftr__fine{ padding-top:20px; font-size:12.5px; color:var(--ink-2); display:flex; flex-wrap:wrap; gap:6px 16px; }
+
+/* ============ Появление ============ */
+.rv{ opacity:0; transform:translateY(14px); transition:opacity 500ms ease, transform 500ms cubic-bezier(.2,.6,.3,1); }
+.rv.is-in{ opacity:1; transform:none; }
+
+/* ============ Адаптив ============ */
+@media (max-width:1080px){
+  .hero__grid{ grid-template-columns:1fr; }
+  .ledger{ grid-template-columns:1fr; gap:22px; }
+  .ledger__margin{ position:static; display:flex; align-items:center; gap:14px; }
+  .ledger__margin .num{ margin-bottom:0; }
+  .ledger__margin::after{ margin-top:0; flex:1; width:auto; }
+  .steps{ grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .step:nth-child(odd){ padding-left:0; border-left:0; }
+  .step:nth-child(even){ padding-left:22px; border-left:1px solid var(--rule); }
+}
+@media (max-width:860px){
+  .nav{ display:none; }
+  .brand__full{ display:none; }
+  .ftr__grid{ grid-template-columns:1fr 1fr; }
+}
+@media (max-width:640px){
+  body{ font-size:16px; }
+  .hdr{ top:33px; }
+  .hdr__tel{ display:none; }
+  .case__row{ grid-template-columns:1fr; gap:8px; }
+  .case__row p{ text-indent:0; }
+  .steps{ grid-template-columns:1fr; }
+  .step,.step + .step{ padding:22px 0; border-left:0; }
+  .ftr__grid{ grid-template-columns:1fr; }
+  .trust{ gap:18px 0; }
+  .trust__i{ border-right:0; margin-right:0; padding-right:0; flex:0 0 50%; }
+  .form{ box-shadow:5px 5px 0 -1px rgba(58,42,30,.09); }
+}
+@media (max-width:400px){
+  .demobar__in{ font-size:10.5px; letter-spacing:.06em; }
+}
+
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{ animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important; scroll-behavior:auto !important; }
+  .rv{ opacity:1; transform:none; }
+  .step::before{ width:100%; }
+}
+</style>
+
+<div class="demobar">
+  <div class="demobar__in">
+    <span>Демо 6 · Тёплый премиум</span>
+    <a href="index.html">← Ко всем демо</a>
+  </div>
+</div>
+
+<header class="hdr">
+  <div class="hdr__in">
+    <a class="brand" href="#top">
+      <span class="brand__mark">ЮАС</span>
+      <span class="brand__full">Юридическая антикризисная служба</span>
+    </a>
+    <nav class="nav" aria-label="Основная навигация">
+      <a href="#cases">Кейсы</a>
+      <a href="#how">Как работаем</a>
+      <a href="#faq">Вопросы</a>
+    </nav>
+    <a class="hdr__tel" href="tel:+74950000000">+7 (495) 000-00-00</a>
+    <a class="btn btn--sm" href="#form">Получить консультацию</a>
+  </div>
+</header>
+
+<main id="top">
+
+  <!-- ================= HERO ================= -->
+  <section class="sec hero">
+    <div class="wrap hero__grid">
+      <div>
+        <div class="hero__eyebrow"><span class="smallcaps">Москва и Московская область</span></div>
+        <h1><span class="cap">А</span>рестовали счёт? <em>Снимем арест</em> и вернём доступ к деньгам</h1>
+        <p class="hero__sub">Работаем с блокировками по 115-ФЗ, требованиям ФНС и постановлениям ФССП. Первичный разбор ситуации — бесплатно, в течение дня.</p>
+        <div class="trust">
+          <div class="trust__i"><span class="trust__v">18 лет</span><span class="trust__l">практики</span></div>
+          <div class="trust__i"><span class="trust__v">3200+</span><span class="trust__l">дел</span></div>
+          <div class="trust__i"><span class="trust__v">Москва</span><span class="trust__l">и МО</span></div>
+        </div>
+      </div>
+
+      <!-- Форма-квалификатор -->
+      <form class="form" id="form" novalidate>
+        <div class="form__head">
+          <h2>Опишите ситуацию</h2>
+          <p>Коротко о том, что произошло. Ответим с разбором и планом действий.</p>
+        </div>
+
+        <div class="field">
+          <span class="smallcaps" id="chips-label">Категория</span>
+          <div class="chips" role="group" aria-labelledby="chips-label">
+            <button type="button" class="chip" aria-pressed="true">Блокировка по 115-ФЗ</button>
+            <button type="button" class="chip" aria-pressed="false">Требование ФНС</button>
+            <button type="button" class="chip" aria-pressed="false">Арест по ФССП</button>
+            <button type="button" class="chip" aria-pressed="false">Налоговая проверка</button>
+            <button type="button" class="chip" aria-pressed="false">Субсидиарная ответственность</button>
+            <button type="button" class="chip" aria-pressed="false">Другое</button>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="smallcaps" for="story">Что произошло</label>
+          <textarea class="lined" id="story" rows="4" placeholder="Например: банк заблокировал счёт, запросили документы по 115-ФЗ, деньги недоступны четвёртый день"></textarea>
+        </div>
+
+        <div class="field">
+          <label class="smallcaps" for="tel">Телефон для ответа</label>
+          <input class="inp" id="tel" type="tel" inputmode="tel" placeholder="+7 (___) ___-__-__">
+        </div>
+
+        <button class="btn btn--wide" type="submit">Отправить на разбор</button>
+        <p class="form__note">Нажимая кнопку, вы соглашаетесь с <a href="#privacy">политикой обработки персональных данных</a></p>
+        <p class="form__ok" id="ok">Заявка принята. Юрист свяжется с вами в течение дня.</p>
+      </form>
+    </div>
+  </section>
+
+  <!-- ================= ЧТО ПОЛУЧИТЕ ================= -->
+  <section class="sec sec--tint">
+    <div class="wrap ledger">
+      <div class="ledger__margin">
+        <span class="num">01</span>
+        <span class="smallcaps">Что вы<br>получите</span>
+      </div>
+      <div>
+        <h2 class="sec__title rv">Не обещания, а понятный результат на каждом шаге</h2>
+        <div class="gets">
+          <article class="get rv">
+            <span class="get__ic" aria-hidden="true">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.2 2"/></svg>
+            </span>
+            <div>
+              <h3>Разбор за 1 день</h3>
+              <p>Изучим документы и скажем, что реально сделать по вашей ситуации, а что нет.</p>
+            </div>
+          </article>
+          <article class="get rv">
+            <span class="get__ic" aria-hidden="true">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3.5h14v17H5z"/><path d="M8.5 8.5h7M8.5 12h7M8.5 15.5h4"/></svg>
+            </span>
+            <div>
+              <h3>План с конкретными сроками</h3>
+              <p>Пошаговый порядок действий с датами, а не «будем работать».</p>
+            </div>
+          </article>
+          <article class="get rv">
+            <span class="get__ic" aria-hidden="true">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.2 20 6.4v5.2c0 4.4-3.2 7.9-8 9.2-4.8-1.3-8-4.8-8-9.2V6.4z"/><path d="M8.9 12.1 11.2 14.4 15.4 10.2"/></svg>
+            </span>
+            <div>
+              <h3>Ведение до результата</h3>
+              <p>Готовим документы, ходим в банк, ФНС и суд от вашего имени.</p>
+            </div>
+          </article>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= КЕЙСЫ — РЕЕСТР ================= -->
+  <section class="sec" id="cases">
+    <div class="wrap ledger">
+      <div class="ledger__margin">
+        <span class="num">02</span>
+        <span class="smallcaps">Реестр<br>дел</span>
+      </div>
+      <div>
+        <h2 class="sec__title rv">Как это выглядит на практике</h2>
+        <p class="sec__lede rv" style="margin-bottom:34px">Две записи из рабочего реестра. Суммы и сроки — фактические, названия компаний не раскрываем.</p>
+
+        <article class="case rv">
+          <div class="case__head">
+            <span class="smallcaps case__tag">Блокировка по 115-ФЗ · Оптовая торговля</span>
+            <span class="case__no">Дело № 1</span>
+          </div>
+          <div class="case__row">
+            <span class="smallcaps">Проблема</span>
+            <p>Банк заблокировал расчётный счёт и дистанционное обслуживание. На счету 8,4 млн руб., платежи поставщикам встали.</p>
+          </div>
+          <div class="case__row">
+            <span class="smallcaps">Действие</span>
+            <p>Собрали пакет документов по операциям за 6 месяцев, подготовили пояснения и подали жалобу в межведомственную комиссию ЦБ.</p>
+          </div>
+          <div class="case__row case__row--res">
+            <span class="smallcaps">Результат</span>
+            <div class="res">
+              <b>Обслуживание восстановлено за 19 дней.</b>
+              <span>Доступ к 8,4 млн руб. возвращён, счёт работает в обычном режиме.</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="case rv">
+          <div class="case__head">
+            <span class="smallcaps case__tag">Арест по ФССП · Производство</span>
+            <span class="case__no">Дело № 2</span>
+          </div>
+          <div class="case__row">
+            <span class="smallcaps">Проблема</span>
+            <p>Приставы арестовали счета по долгу, который был погашен, но информация не дошла до ФССП. Заблокировано 2,1 млн руб.</p>
+          </div>
+          <div class="case__row">
+            <span class="smallcaps">Действие</span>
+            <p>Подтвердили оплату, добились отмены постановления и направили банку документы о снятии ареста напрямую.</p>
+          </div>
+          <div class="case__row case__row--res">
+            <span class="smallcaps">Результат</span>
+            <div class="res">
+              <b>Арест снят за 6 дней.</b>
+              <span>Средства разблокированы, исполнительное производство прекращено.</span>
+            </div>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= ПОРЯДОК РАБОТЫ ================= -->
+  <section class="sec sec--tint" id="how">
+    <div class="wrap ledger">
+      <div class="ledger__margin">
+        <span class="num">03</span>
+        <span class="smallcaps">Порядок<br>работы</span>
+      </div>
+      <div>
+        <h2 class="sec__title rv">Четыре шага от звонка до снятия ареста</h2>
+        <div class="steps">
+          <div class="step rv"><span class="step__n">I</span><h3>Заявка</h3><p>Описываете ситуацию в форме или по телефону.</p></div>
+          <div class="step rv"><span class="step__n">II</span><h3>Разбор</h3><p>Смотрим документы, оцениваем перспективу и называем срок.</p></div>
+          <div class="step rv"><span class="step__n">III</span><h3>Работа</h3><p>Готовим и подаём документы, ведём переписку с банком и госорганами.</p></div>
+          <div class="step rv"><span class="step__n">IV</span><h3>Результат</h3><p>Снимаем арест, возвращаем доступ к счёту, передаём отчёт.</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= FAQ ================= -->
+  <section class="sec" id="faq">
+    <div class="wrap ledger">
+      <div class="ledger__margin">
+        <span class="num">04</span>
+        <span class="smallcaps">Вопросы</span>
+      </div>
+      <div class="faq">
+        <div class="faq__i">
+          <button class="faq__q" type="button" aria-expanded="false" aria-controls="a1">
+            Сколько времени занимает снятие ареста?
+            <svg class="faq__ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+          </button>
+          <div class="faq__a" id="a1"><div>По 115-ФЗ обычно 2–4 недели, по ФССП — от нескольких дней. Точный срок называем после разбора документов.</div></div>
+        </div>
+        <div class="faq__i">
+          <button class="faq__q" type="button" aria-expanded="false" aria-controls="a2">
+            Вы работаете по всей России?
+            <svg class="faq__ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+          </button>
+          <div class="faq__a" id="a2"><div>Основная практика — Москва и МО. По другим регионам берёмся выборочно, с учётом подсудности.</div></div>
+        </div>
+        <div class="faq__i">
+          <button class="faq__q" type="button" aria-expanded="false" aria-controls="a3">
+            Сколько это стоит?
+            <svg class="faq__ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+          </button>
+          <div class="faq__a" id="a3"><div>Первичный разбор бесплатный. Стоимость работы называем после оценки ситуации — фиксированной суммой, без почасовой.</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= CTA ================= -->
+  <section class="band">
+    <div class="wrap band__in">
+      <div>
+        <h2>Счёт заблокирован сегодня — разбор будет сегодня</h2>
+        <p>Опишите ситуацию в форме или позвоните: +7 (495) 000-00-00</p>
+      </div>
+      <a class="btn" href="#form">Получить консультацию</a>
+    </div>
+  </section>
+</main>
+
+<footer class="ftr">
+  <div class="wrap">
+    <div class="ftr__grid">
+      <div>
+        <div class="ftr__name">Юридическая антикризисная служба</div>
+        <p>Москва, ул. Примерная, 1</p>
+      </div>
+      <div>
+        <span class="smallcaps" style="display:block;margin-bottom:8px">Связь</span>
+        <p><a href="tel:+74950000000">+7 (495) 000-00-00</a></p>
+        <p><a href="mailto:info@example.ru">info@example.ru</a></p>
+      </div>
+      <div>
+        <span class="smallcaps" style="display:block;margin-bottom:8px">Разделы</span>
+        <p><a href="#cases">Кейсы</a></p>
+        <p><a href="#how">Как работаем</a></p>
+        <p><a href="#faq">Вопросы</a></p>
+      </div>
+    </div>
+    <div class="ftr__fine">
+      <span>© 2026</span>
+      <a href="#privacy" id="privacy">Политика обработки персональных данных</a>
+      <span>Информация на сайте не является публичной офертой</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* Чипсы — одиночный выбор */
+  var chips = Array.prototype.slice.call(document.querySelectorAll('.chip'));
+  chips.forEach(function(c){
+    c.addEventListener('click', function(){
+      var on = c.getAttribute('aria-pressed') === 'true';
+      chips.forEach(function(x){ x.setAttribute('aria-pressed','false'); });
+      c.setAttribute('aria-pressed', on ? 'false' : 'true');
+    });
+  });
+
+  /* FAQ-аккордеон */
+  document.querySelectorAll('.faq__q').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var item = btn.parentElement;
+      var panel = document.getElementById(btn.getAttribute('aria-controls'));
+      var open = btn.getAttribute('aria-expanded') === 'true';
+
+      document.querySelectorAll('.faq__i.is-open').forEach(function(o){
+        if (o === item) return;
+        o.classList.remove('is-open');
+        o.querySelector('.faq__q').setAttribute('aria-expanded','false');
+        o.querySelector('.faq__a').style.height = '0px';
+      });
+
+      btn.setAttribute('aria-expanded', String(!open));
+      item.classList.toggle('is-open', !open);
+      if (open){
+        panel.style.height = panel.scrollHeight + 'px';
+        requestAnimationFrame(function(){ panel.style.height = '0px'; });
+      } else {
+        panel.style.height = panel.scrollHeight + 'px';
+        panel.addEventListener('transitionend', function te(){
+          if (item.classList.contains('is-open')) panel.style.height = 'auto';
+          panel.removeEventListener('transitionend', te);
+        });
+      }
+    });
+  });
+
+  /* Маска телефона */
+  var tel = document.getElementById('tel');
+  tel.addEventListener('input', function(){
+    var d = tel.value.replace(/\D/g,'');
+    if (d[0] === '8') d = '7' + d.slice(1);
+    if (d[0] !== '7') d = '7' + d;
+    d = d.slice(0,11);
+    var out = '+7';
+    if (d.length > 1) out += ' (' + d.slice(1,4);
+    if (d.length >= 5) out += ') ' + d.slice(4,7);
+    if (d.length >= 8) out += '-' + d.slice(7,9);
+    if (d.length >= 10) out += '-' + d.slice(9,11);
+    tel.value = out;
+  });
+
+  /* Отправка */
+  document.getElementById('form').addEventListener('submit', function(e){
+    e.preventDefault();
+    document.getElementById('ok').classList.add('is-on');
+  });
+
+  /* Появление */
+  var targets = document.querySelectorAll('.rv, .step');
+  if (reduce || !('IntersectionObserver' in window)){
+    targets.forEach(function(el){ el.classList.add('is-in'); });
+  } else {
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        if (!en.isIntersecting) return;
+        en.target.classList.add('is-in');
+        io.unobserve(en.target);
+      });
+    }, { rootMargin:'0px 0px -8% 0px', threshold:0.08 });
+    targets.forEach(function(el){ io.observe(el); });
+  }
+})();
+</script>

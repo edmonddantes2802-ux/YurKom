@@ -1,0 +1,684 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Демо 4 — Тёмный изумруд</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,400;7..72,500;7..72,600&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap&subset=cyrillic" rel="stylesheet">
+
+<style>
+  :root{
+    --bg:#0A1410;
+    --surface:#12201A;
+    --surface-2:#17291F;
+    --line:#22362C;
+    --line-soft:#1B2C23;
+    --mal:#0E7C5A;
+    --mal-bright:#1FA97E;
+    --mal-light:#6EE7B7;
+    --text:#ECF2EE;
+    --muted:#90A29A;
+
+    --serif:'Literata',Georgia,serif;
+    --sans:'Manrope',system-ui,-apple-system,'Segoe UI',sans-serif;
+    --mono:'JetBrains Mono',ui-monospace,monospace;
+
+    --wrap:1140px;
+    --pad:24px;
+    --t:200ms cubic-bezier(.22,.61,.36,1);
+  }
+
+  *,*::before,*::after{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:var(--sans);
+    font-size:16px;
+    line-height:1.6;
+    overflow-x:hidden;
+    font-feature-settings:"tnum" 0;
+  }
+  h1,h2,h3,h4{font-family:var(--serif);font-weight:500;margin:0;letter-spacing:-.01em;line-height:1.15}
+  p{margin:0}
+  a{color:inherit}
+  button{font:inherit;color:inherit;cursor:pointer}
+
+  :focus-visible{
+    outline:2px solid var(--mal-light);
+    outline-offset:3px;
+    border-radius:2px;
+  }
+
+  .wrap{max-width:var(--wrap);margin:0 auto;padding:0 var(--pad)}
+
+  /* ---------- малахитовая полоса (неравные слои камня) ---------- */
+  .banding{
+    height:3px;
+    background:repeating-linear-gradient(90deg,
+      #0A1410 0 9px, #0E7C5A 9px 13px, #123227 13px 20px,
+      #1FA97E 20px 22px, #0D2E22 22px 31px, #0E7C5A 31px 34px,
+      #101E18 34px 47px, #6EE7B7 47px 48px, #0B241B 48px 61px,
+      #0E7C5A 61px 66px, #12201A 66px 79px);
+    opacity:.85;
+  }
+
+  /* ---------- демо-плашка ---------- */
+  .demobar{
+    position:sticky;top:0;z-index:60;
+    background:#07100C;
+    border-bottom:1px solid var(--line);
+  }
+  .demobar__in{
+    max-width:var(--wrap);margin:0 auto;padding:9px var(--pad);
+    display:flex;align-items:center;justify-content:space-between;gap:16px;
+    font-family:var(--mono);font-size:12px;letter-spacing:.04em;color:var(--muted);
+  }
+  .demobar b{color:var(--mal-light);font-weight:500}
+  .demobar a{color:var(--text);text-decoration:none;border-bottom:1px solid var(--line);padding-bottom:2px;transition:color var(--t),border-color var(--t)}
+  .demobar a:hover{color:var(--mal-light);border-color:var(--mal)}
+
+  /* ---------- хедер ---------- */
+  .site-head{border-bottom:1px solid var(--line-soft)}
+  .site-head__in{
+    display:flex;align-items:center;gap:32px;
+    padding:20px 0;
+  }
+  .brand{display:flex;align-items:baseline;gap:12px;text-decoration:none;flex:0 0 auto}
+  .brand__mark{
+    font-family:var(--serif);font-size:21px;font-weight:600;letter-spacing:.06em;
+    color:var(--text);
+    border:1px solid var(--line);border-left:2px solid var(--mal);
+    padding:4px 10px 5px;
+  }
+  .brand__full{
+    font-size:11.5px;line-height:1.35;color:var(--muted);letter-spacing:.02em;max-width:130px;
+  }
+  .nav{display:flex;gap:26px;margin-left:auto;font-size:14.5px}
+  .nav a{text-decoration:none;color:var(--muted);position:relative;padding:4px 0;transition:color var(--t)}
+  .nav a::after{
+    content:"";position:absolute;left:0;right:100%;bottom:0;height:1px;background:var(--mal-bright);
+    transition:right var(--t);
+  }
+  .nav a:hover{color:var(--text)}
+  .nav a:hover::after{right:0}
+  .head-tel{
+    font-family:var(--mono);font-size:14.5px;text-decoration:none;white-space:nowrap;
+    transition:color var(--t);
+  }
+  .head-tel:hover{color:var(--mal-light)}
+
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:9px;
+    border:1px solid transparent;background:var(--mal);color:#fff;
+    font-weight:600;font-size:14.5px;letter-spacing:.01em;
+    padding:11px 20px;border-radius:3px;text-decoration:none;white-space:nowrap;
+    transition:background var(--t),transform var(--t);
+  }
+  .btn:hover{background:#0F8C65}
+  .btn:active{transform:translateY(1px)}
+  .btn--ghost{background:transparent;border-color:var(--line);color:var(--text)}
+  .btn--ghost:hover{background:var(--surface);border-color:var(--mal)}
+  .btn--lg{padding:15px 26px;font-size:16px;width:100%}
+
+  /* ---------- индикатор доступа (signature) ---------- */
+  .rail{display:flex;flex-direction:column;gap:9px}
+  .rail__label{
+    display:flex;align-items:center;gap:10px;
+    font-family:var(--mono);font-size:11px;letter-spacing:.11em;text-transform:uppercase;
+    color:var(--muted);
+  }
+  .rail__state{position:relative;display:inline-block}
+  .rail__state span{display:block;transition:opacity var(--t),transform var(--t)}
+  .rail__state .off{color:#A5867F}
+  .rail__state .on{position:absolute;inset:0;color:var(--mal-light);opacity:0;transform:translateY(4px)}
+  .rail__track{display:flex;gap:3px;height:12px}
+  .rail__seg{
+    flex:1;background:var(--line);border-radius:1px;
+    transition:background 220ms ease,transform 220ms ease;
+    transform-origin:bottom;
+  }
+  .rail__seg:nth-child(odd){background:var(--line-soft)}
+  .rail.is-open .rail__seg{
+    background:var(--mal);
+    transition-delay:calc(var(--i) * 45ms);
+  }
+  .rail.is-open .rail__seg:nth-last-child(-n+3){background:var(--mal-bright)}
+  .rail.is-open .rail__state .off{opacity:0;transform:translateY(-4px)}
+  .rail.is-open .rail__state .on{opacity:1;transform:translateY(0)}
+  .rail__meta{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.06em}
+
+  /* ---------- hero ---------- */
+  .hero{padding:64px 0 0}
+  .hero__grid{display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:start}
+  .eyebrow{
+    font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--mal-bright);display:flex;align-items:center;gap:12px;margin-bottom:26px;
+  }
+  .eyebrow::after{content:"";height:1px;flex:1;background:linear-gradient(90deg,var(--line),transparent)}
+  h1{font-size:clamp(34px,4.4vw,54px);line-height:1.08;letter-spacing:-.022em}
+  h1 em{font-style:normal;color:var(--mal-light)}
+  .hero__sub{margin-top:22px;color:var(--muted);font-size:17px;max-width:34em}
+
+  .trust{
+    display:flex;margin-top:38px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+  }
+  .trust__i{flex:1;padding:16px 20px 15px;border-right:1px solid var(--line)}
+  .trust__i:last-child{border-right:0}
+  .trust__n{font-family:var(--serif);font-size:26px;font-weight:600;color:var(--text);line-height:1}
+  .trust__n--sm{font-size:19px}
+  .trust__c{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:8px}
+
+  .hero__rail{margin-top:34px;max-width:420px}
+
+  /* ---------- форма ---------- */
+  .qual{
+    background:var(--surface);
+    border:1px solid var(--line);
+    position:relative;
+  }
+  .qual__body{padding:28px}
+  .qual h2{font-size:24px}
+  .qual__note{color:var(--muted);font-size:14px;margin-top:9px}
+  .field-label{
+    display:block;font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--muted);margin:26px 0 11px;
+  }
+  .chips{display:flex;flex-wrap:wrap;gap:8px}
+  .chip{
+    background:transparent;border:1px solid var(--line);color:var(--muted);
+    font-size:13.5px;padding:7px 13px;border-radius:999px;
+    transition:border-color var(--t),color var(--t),background var(--t);
+  }
+  .chip:hover{border-color:var(--mal);color:var(--text)}
+  .chip[aria-pressed="true"]{background:rgba(14,124,90,.18);border-color:var(--mal-bright);color:var(--mal-light)}
+  textarea,input[type="tel"]{
+    width:100%;background:var(--bg);border:1px solid var(--line);color:var(--text);
+    font-family:var(--sans);font-size:15px;padding:13px 14px;border-radius:3px;
+    transition:border-color var(--t),background var(--t);
+  }
+  textarea{min-height:104px;resize:vertical;line-height:1.55}
+  input[type="tel"]{font-family:var(--mono);font-size:14.5px}
+  textarea::placeholder,input::placeholder{color:#6E827A}
+  textarea:focus,input:focus{border-color:var(--mal-bright);background:#0C1913;outline:none}
+  textarea:focus-visible,input:focus-visible{outline:none}
+  .qual .btn--lg{margin-top:20px}
+  .legal{font-size:11.5px;color:#7E9089;margin-top:13px;line-height:1.5;text-align:center}
+
+  /* ---------- секции ---------- */
+  section{scroll-margin-top:70px}
+  .sec{padding:96px 0}
+  .sec-head{margin-bottom:44px}
+  .sec-head h2{font-size:clamp(26px,3vw,36px)}
+  .sec-kicker{
+    font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--mal-bright);margin-bottom:14px;
+  }
+
+  .value{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line)}
+  .value__i{background:var(--bg);padding:30px 26px 32px;transition:background var(--t)}
+  .value__i:hover{background:var(--surface)}
+  .value__ic{color:var(--mal-bright);margin-bottom:20px;display:block}
+  .value__i h3{font-size:19px;margin-bottom:10px}
+  .value__i p{color:var(--muted);font-size:14.5px}
+
+  /* ---------- кейсы ---------- */
+  .cases{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+  .case{background:var(--surface);border:1px solid var(--line);display:flex;flex-direction:column}
+  .case__body{padding:26px 26px 28px}
+  .case__tag{
+    font-family:var(--mono);font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;
+    color:var(--muted);padding-bottom:18px;border-bottom:1px solid var(--line);
+  }
+  .case__tag b{color:var(--mal-light);font-weight:500}
+  .case__step{padding:20px 0;border-bottom:1px solid var(--line-soft)}
+  .case__step:last-of-type{border-bottom:0;padding-bottom:6px}
+  .case__k{
+    font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--muted);margin-bottom:9px;display:flex;align-items:center;gap:8px;
+  }
+  .case__k::before{content:"";width:6px;height:6px;border:1px solid var(--line);flex:0 0 auto}
+  .case__step--res .case__k{color:var(--mal-bright)}
+  .case__step--res .case__k::before{background:var(--mal-bright);border-color:var(--mal-bright)}
+  .case__step p{font-size:14.5px;color:var(--muted)}
+  .case__step--res p{color:var(--text);font-size:15px}
+  .case__step--res strong{font-family:var(--serif);font-weight:600;color:var(--mal-light);display:block;font-size:19px;margin-bottom:7px;letter-spacing:-.01em}
+  .case__rail{padding:18px 26px 22px;background:var(--surface-2);border-top:1px solid var(--line);margin-top:auto}
+
+  /* ---------- шаги ---------- */
+  .steps{position:relative;display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line)}
+  .step{background:var(--bg);padding:26px 22px 30px;position:relative}
+  .step__n{
+    font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--muted);
+    display:flex;align-items:center;gap:10px;margin-bottom:22px;
+  }
+  .step__bar{height:2px;flex:1;background:var(--line);position:relative;overflow:hidden}
+  .step__bar::after{
+    content:"";position:absolute;inset:0;background:var(--mal-bright);
+    transform:scaleX(0);transform-origin:left;transition:transform 500ms ease;
+  }
+  .steps.is-open .step__bar::after{transform:scaleX(1)}
+  .steps.is-open .step:nth-child(1) .step__bar::after{transition-delay:0ms}
+  .steps.is-open .step:nth-child(2) .step__bar::after{transition-delay:160ms}
+  .steps.is-open .step:nth-child(3) .step__bar::after{transition-delay:320ms}
+  .steps.is-open .step:nth-child(4) .step__bar::after{transition-delay:480ms}
+  .step h3{font-size:18px;margin-bottom:9px}
+  .step p{color:var(--muted);font-size:14.5px}
+
+  /* ---------- FAQ ---------- */
+  .faq{border-top:1px solid var(--line);max-width:840px}
+  .faq__i{border-bottom:1px solid var(--line)}
+  .faq__q{
+    width:100%;background:none;border:0;text-align:left;
+    display:flex;align-items:center;gap:18px;padding:22px 4px;
+    font-family:var(--serif);font-size:clamp(17px,2vw,20px);font-weight:500;
+    transition:color var(--t);
+  }
+  .faq__q:hover{color:var(--mal-light)}
+  .faq__ic{margin-left:auto;flex:0 0 auto;color:var(--mal-bright);transition:transform var(--t)}
+  .faq__i.is-open .faq__ic{transform:rotate(45deg)}
+  .faq__a{display:grid;grid-template-rows:0fr;transition:grid-template-rows 240ms ease}
+  .faq__i.is-open .faq__a{grid-template-rows:1fr}
+  .faq__a>div{overflow:hidden}
+  .faq__a p{color:var(--muted);font-size:15.5px;padding:0 44px 26px 4px;max-width:62ch}
+
+  /* ---------- футер ---------- */
+  .site-foot{border-top:1px solid var(--line);padding:56px 0 40px;background:#08120E}
+  .foot__grid{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:32px;align-items:start}
+  .foot__name{font-family:var(--serif);font-size:19px;font-weight:600}
+  .foot__k{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:12px}
+  .foot a{text-decoration:none;transition:color var(--t)}
+  .foot a:hover{color:var(--mal-light)}
+  .foot__line{font-family:var(--mono);font-size:14px;display:block;margin-bottom:7px}
+  .foot__addr{color:var(--muted);font-size:14.5px}
+  .foot__bottom{
+    margin-top:44px;padding-top:22px;border-top:1px solid var(--line-soft);
+    display:flex;flex-wrap:wrap;gap:8px 22px;font-size:12.5px;color:#7E9089;
+  }
+
+  /* ---------- адаптив ---------- */
+  @media (max-width:1000px){
+    .hero__grid{grid-template-columns:1fr;gap:44px}
+    .hero__rail{max-width:none}
+    .cases{grid-template-columns:1fr}
+    .steps{grid-template-columns:1fr 1fr}
+    .value{grid-template-columns:1fr}
+    .nav{display:none}
+    .foot__grid{grid-template-columns:1fr 1fr}
+  }
+  @media (max-width:640px){
+    :root{--pad:18px}
+    .hero{padding-top:40px}
+    .sec{padding:64px 0}
+    .site-head__in{flex-wrap:wrap;gap:14px;padding:16px 0}
+    .brand{flex:1 1 100%}
+    .brand__full{max-width:none}
+    .head-tel{margin-left:0}
+    .site-head .btn{margin-left:auto}
+    .trust{flex-direction:column}
+    .trust__i{border-right:0;border-bottom:1px solid var(--line)}
+    .trust__i:last-child{border-bottom:0}
+    .steps{grid-template-columns:1fr}
+    .qual__body{padding:22px 18px}
+    .foot__grid{grid-template-columns:1fr;gap:26px}
+    .demobar__in{font-size:11px}
+  }
+
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{
+      animation-duration:.01ms !important;animation-iteration-count:1 !important;
+      transition-duration:.01ms !important;transition-delay:0ms !important;
+    }
+  }
+</style>
+
+<div class="demobar">
+  <div class="demobar__in">
+    <span><b>Демо 4</b> · Тёмный изумруд</span>
+    <a href="index.html">← Ко всем демо</a>
+  </div>
+</div>
+
+<header class="site-head">
+  <div class="wrap site-head__in">
+    <a class="brand" href="#top">
+      <span class="brand__mark">ЮАС</span>
+      <span class="brand__full">Юридическая<br>антикризисная служба</span>
+    </a>
+    <nav class="nav">
+      <a href="#cases">Кейсы</a>
+      <a href="#how">Как работаем</a>
+      <a href="#faq">Вопросы</a>
+    </nav>
+    <a class="head-tel" href="tel:+74950000000">+7 (495) 000-00-00</a>
+    <a class="btn" href="#qual">Получить консультацию</a>
+  </div>
+</header>
+
+<main id="top">
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="wrap hero__grid">
+      <div>
+        <div class="eyebrow">Москва и МО · 115-ФЗ · ФНС · ФССП</div>
+        <h1>Арестовали счёт? <em>Снимем арест</em> и вернём доступ к деньгам</h1>
+        <p class="hero__sub">Работаем с блокировками по 115-ФЗ, требованиями ФНС и постановлениями ФССП. Первичный разбор ситуации — бесплатно, в течение дня.</p>
+
+        <div class="trust">
+          <div class="trust__i"><div class="trust__n">18 лет</div><div class="trust__c">практики</div></div>
+          <div class="trust__i"><div class="trust__n">3200+</div><div class="trust__c">дел</div></div>
+          <div class="trust__i"><div class="trust__n trust__n--sm">Москва и МО</div><div class="trust__c">основная практика</div></div>
+        </div>
+
+        <div class="rail hero__rail" data-rail>
+          <div class="rail__label">
+            <span>Доступ к счёту:</span>
+            <span class="rail__state">
+              <span class="off">заблокирован</span>
+              <span class="on">восстановлен</span>
+            </span>
+          </div>
+          <div class="rail__track" data-track></div>
+          <div class="rail__meta">Это то, что мы делаем с вашим счётом</div>
+        </div>
+      </div>
+
+      <!-- ФОРМА-КВАЛИФИКАТОР -->
+      <div class="qual" id="qual">
+        <div class="banding"></div>
+        <form class="qual__body" novalidate>
+          <h2>Опишите ситуацию</h2>
+          <p class="qual__note">Коротко о том, что произошло. Ответим с разбором и планом действий.</p>
+
+          <span class="field-label" id="chips-label">Что случилось</span>
+          <div class="chips" role="group" aria-labelledby="chips-label">
+            <button type="button" class="chip" aria-pressed="false">Блокировка по 115-ФЗ</button>
+            <button type="button" class="chip" aria-pressed="false">Требование ФНС</button>
+            <button type="button" class="chip" aria-pressed="false">Арест по ФССП</button>
+            <button type="button" class="chip" aria-pressed="false">Налоговая проверка</button>
+            <button type="button" class="chip" aria-pressed="false">Субсидиарная ответственность</button>
+            <button type="button" class="chip" aria-pressed="false">Другое</button>
+          </div>
+
+          <label class="field-label" for="story">Ваша ситуация</label>
+          <textarea id="story" placeholder="Например: банк заблокировал счёт, запросили документы по 115-ФЗ, деньги недоступны четвёртый день"></textarea>
+
+          <label class="field-label" for="phone">Телефон для ответа</label>
+          <input id="phone" type="tel" placeholder="+7 (___) ___-__-__">
+
+          <button class="btn btn--lg" type="submit">Отправить на разбор</button>
+          <p class="legal">Нажимая кнопку, вы соглашаетесь с политикой обработки персональных данных</p>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- ЧТО ВЫ ПОЛУЧИТЕ -->
+  <section class="sec">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="sec-kicker">Что вы получите</div>
+        <h2>Ответ по делу, а не «будем работать»</h2>
+      </div>
+      <div class="value">
+        <div class="value__i">
+          <svg class="value__ic" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/>
+          </svg>
+          <h3>Разбор за 1 день</h3>
+          <p>Изучим документы и скажем, что реально сделать по вашей ситуации, а что нет.</p>
+        </div>
+        <div class="value__i">
+          <svg class="value__ic" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="4" y="4" width="16" height="17" rx="1.5"/><path d="M8 3v3M16 3v3M4 9.5h16M8 14h4M8 17.5h7"/>
+          </svg>
+          <h3>План с конкретными сроками</h3>
+          <p>Пошаговый порядок действий с датами, а не «будем работать».</p>
+        </div>
+        <div class="value__i">
+          <svg class="value__ic" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 3l7 3v6c0 4.2-2.9 7.6-7 9-4.1-1.4-7-4.8-7-9V6l7-3z"/><path d="M9 12l2.2 2.2L15.5 10"/>
+          </svg>
+          <h3>Ведение до результата</h3>
+          <p>Готовим документы, ходим в банк, ФНС и суд от вашего имени.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- КЕЙСЫ -->
+  <section class="sec" id="cases">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="sec-kicker">Кейсы</div>
+        <h2>От блокировки до восстановленного доступа</h2>
+      </div>
+      <div class="cases">
+
+        <article class="case">
+          <div class="case__body">
+            <div class="case__tag"><b>Блокировка по 115-ФЗ</b> · Оптовая торговля</div>
+            <div class="case__step">
+              <div class="case__k">Проблема</div>
+              <p>Банк заблокировал расчётный счёт и дистанционное обслуживание. На счету 8,4 млн руб., платежи поставщикам встали.</p>
+            </div>
+            <div class="case__step">
+              <div class="case__k">Действие</div>
+              <p>Собрали пакет документов по операциям за 6 месяцев, подготовили пояснения и подали жалобу в межведомственную комиссию ЦБ.</p>
+            </div>
+            <div class="case__step case__step--res">
+              <div class="case__k">Результат</div>
+              <p><strong>Обслуживание восстановлено за 19 дней.</strong>Доступ к 8,4 млн руб. возвращён, счёт работает в обычном режиме.</p>
+            </div>
+          </div>
+          <div class="case__rail">
+            <div class="rail" data-rail>
+              <div class="rail__label">
+                <span>Статус:</span>
+                <span class="rail__state">
+                  <span class="off">счёт заблокирован</span>
+                  <span class="on">счёт работает</span>
+                </span>
+              </div>
+              <div class="rail__track" data-track></div>
+            </div>
+          </div>
+        </article>
+
+        <article class="case">
+          <div class="case__body">
+            <div class="case__tag"><b>Арест по ФССП</b> · Производство</div>
+            <div class="case__step">
+              <div class="case__k">Проблема</div>
+              <p>Приставы арестовали счета по долгу, который был погашен, но информация не дошла до ФССП. Заблокировано 2,1 млн руб.</p>
+            </div>
+            <div class="case__step">
+              <div class="case__k">Действие</div>
+              <p>Подтвердили оплату, добились отмены постановления и направили банку документы о снятии ареста напрямую.</p>
+            </div>
+            <div class="case__step case__step--res">
+              <div class="case__k">Результат</div>
+              <p><strong>Арест снят за 6 дней.</strong>Средства разблокированы, исполнительное производство прекращено.</p>
+            </div>
+          </div>
+          <div class="case__rail">
+            <div class="rail" data-rail>
+              <div class="rail__label">
+                <span>Статус:</span>
+                <span class="rail__state">
+                  <span class="off">средства под арестом</span>
+                  <span class="on">средства доступны</span>
+                </span>
+              </div>
+              <div class="rail__track" data-track></div>
+            </div>
+          </div>
+        </article>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ПОРЯДОК РАБОТЫ -->
+  <section class="sec" id="how">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="sec-kicker">Порядок работы</div>
+        <h2>Четыре шага до снятия ареста</h2>
+      </div>
+      <div class="steps" data-steps>
+        <div class="step">
+          <div class="step__n">01<span class="step__bar"></span></div>
+          <h3>Заявка</h3>
+          <p>Описываете ситуацию в форме или по телефону.</p>
+        </div>
+        <div class="step">
+          <div class="step__n">02<span class="step__bar"></span></div>
+          <h3>Разбор</h3>
+          <p>Смотрим документы, оцениваем перспективу и называем срок.</p>
+        </div>
+        <div class="step">
+          <div class="step__n">03<span class="step__bar"></span></div>
+          <h3>Работа</h3>
+          <p>Готовим и подаём документы, ведём переписку с банком и госорганами.</p>
+        </div>
+        <div class="step">
+          <div class="step__n">04<span class="step__bar"></span></div>
+          <h3>Результат</h3>
+          <p>Снимаем арест, возвращаем доступ к счёту, передаём отчёт.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="sec" id="faq">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="sec-kicker">Вопросы</div>
+        <h2>Что спрашивают чаще всего</h2>
+      </div>
+      <div class="faq">
+
+        <div class="faq__i">
+          <button class="faq__q" type="button" aria-expanded="false" aria-controls="a1">
+            Сколько времени занимает снятие ареста?
+            <svg class="faq__ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+          </button>
+          <div class="faq__a" id="a1" role="region"><div>
+            <p>По 115-ФЗ обычно 2–4 недели, по ФССП — от нескольких дней. Точный срок называем после разбора документов.</p>
+          </div></div>
+        </div>
+
+        <div class="faq__i">
+          <button class="faq__q" type="button" aria-expanded="false" aria-controls="a2">
+            Вы работаете по всей России?
+            <svg class="faq__ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+          </button>
+          <div class="faq__a" id="a2" role="region"><div>
+            <p>Основная практика — Москва и МО. По другим регионам берёмся выборочно, с учётом подсудности.</p>
+          </div></div>
+        </div>
+
+        <div class="faq__i">
+          <button class="faq__q" type="button" aria-expanded="false" aria-controls="a3">
+            Сколько это стоит?
+            <svg class="faq__ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+          </button>
+          <div class="faq__a" id="a3" role="region"><div>
+            <p>Первичный разбор бесплатный. Стоимость работы называем после оценки ситуации — фиксированной суммой, без почасовой.</p>
+          </div></div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-foot foot">
+  <div class="wrap">
+    <div class="banding" style="margin-bottom:34px"></div>
+    <div class="foot__grid">
+      <div>
+        <div class="foot__name">Юридическая антикризисная служба</div>
+        <p class="foot__addr" style="margin-top:10px">Снятие арестов и блокировок расчётных счетов. Москва и Московская область.</p>
+      </div>
+      <div>
+        <div class="foot__k">Связь</div>
+        <a class="foot__line" href="tel:+74950000000">+7 (495) 000-00-00</a>
+        <a class="foot__line" href="mailto:info@example.ru">info@example.ru</a>
+      </div>
+      <div>
+        <div class="foot__k">Адрес</div>
+        <p class="foot__addr">Москва, ул. Примерная, 1</p>
+      </div>
+    </div>
+    <div class="foot__bottom">
+      <span>© 2026</span>
+      <a href="#">Политика обработки персональных данных</a>
+      <span>Информация на сайте не является публичной офертой</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var SEGS = 24;
+
+  // сборка сегментов индикатора
+  document.querySelectorAll('[data-track]').forEach(function(track){
+    for (var i = 0; i < SEGS; i++){
+      var s = document.createElement('span');
+      s.className = 'rail__seg';
+      s.style.setProperty('--i', i);
+      track.appendChild(s);
+    }
+  });
+
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function open(el){ el.classList.add('is-open'); }
+
+  var targets = document.querySelectorAll('[data-rail], [data-steps]');
+
+  if (reduce || !('IntersectionObserver' in window)){
+    targets.forEach(open);
+  } else {
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if (e.isIntersecting){
+          var el = e.target;
+          setTimeout(function(){ open(el); }, 220);
+          io.unobserve(el);
+        }
+      });
+    }, { threshold: 0.4 });
+    targets.forEach(function(t){ io.observe(t); });
+  }
+
+  // чипсы — одиночный выбор
+  var chips = document.querySelectorAll('.chip');
+  chips.forEach(function(chip){
+    chip.addEventListener('click', function(){
+      var was = chip.getAttribute('aria-pressed') === 'true';
+      chips.forEach(function(c){ c.setAttribute('aria-pressed','false'); });
+      chip.setAttribute('aria-pressed', was ? 'false' : 'true');
+    });
+  });
+
+  // FAQ
+  document.querySelectorAll('.faq__q').forEach(function(q){
+    q.addEventListener('click', function(){
+      var item = q.parentElement;
+      var isOpen = item.classList.toggle('is-open');
+      q.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    });
+  });
+
+  // форма — демо
+  var form = document.querySelector('.qual__body');
+  if (form) form.addEventListener('submit', function(e){ e.preventDefault(); });
+})();
+</script>

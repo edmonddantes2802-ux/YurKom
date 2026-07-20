@@ -1,0 +1,470 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Демо 10 — Контрастный смелый</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --black:#000000;
+  --white:#FFFFFF;
+  --grey:#8A8A8A;
+  --cobalt:#1B27FF;
+  --cobalt-hi:#4E58FF;
+  --edge:1px;
+  --pad:clamp(20px,5vw,72px);
+  --gap:clamp(56px,9vw,132px);
+}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;
+  background:var(--white);
+  color:var(--black);
+  font-family:'Inter',system-ui,sans-serif;
+  font-size:16px;
+  line-height:1.55;
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3{margin:0;font-family:'Unbounded',system-ui,sans-serif;font-weight:800;letter-spacing:-0.045em;line-height:0.92;text-wrap:balance}
+p{margin:0}
+a{color:inherit}
+button,input,textarea{font:inherit;color:inherit}
+img,svg{display:block}
+
+/* ---------- polarity slabs ---------- */
+.slab{padding:var(--gap) var(--pad);position:relative}
+.slab--dark{background:var(--black);color:var(--white)}
+.slab--light{background:var(--white);color:var(--black)}
+.wrap{max-width:1240px;margin:0 auto}
+
+/* ---------- demo bar ---------- */
+.demobar{
+  position:sticky;top:0;z-index:60;
+  background:var(--black);color:var(--white);
+  display:flex;align-items:center;justify-content:space-between;gap:16px;
+  padding:10px var(--pad);
+  font-size:12px;letter-spacing:0.09em;text-transform:uppercase;font-weight:600;
+}
+.demobar a{color:var(--white);text-decoration:none;border-bottom:var(--edge) solid var(--grey);padding-bottom:2px;transition:border-color 180ms ease,color 180ms ease}
+.demobar a:hover{color:var(--cobalt-hi);border-color:var(--cobalt-hi)}
+
+/* ---------- header ---------- */
+.head{
+  background:var(--white);
+  border-bottom:var(--edge) solid var(--black);
+  display:flex;align-items:center;gap:clamp(16px,3vw,40px);
+  padding:18px var(--pad);
+}
+.brand{display:flex;align-items:baseline;gap:10px;text-decoration:none;flex:0 0 auto}
+.brand__mark{font-family:'Unbounded',sans-serif;font-weight:800;font-size:22px;letter-spacing:-0.05em}
+.brand__full{font-size:11px;line-height:1.25;color:#585858;max-width:15ch;letter-spacing:0.02em}
+.sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.nav{display:flex;gap:clamp(14px,2vw,28px);margin-left:auto;font-size:14px;font-weight:500}
+.nav a{text-decoration:none;position:relative;padding:4px 0;transition:color 180ms ease}
+.nav a::after{content:"";position:absolute;left:0;right:100%;bottom:0;height:2px;background:var(--cobalt);transition:right 200ms ease}
+.nav a:hover::after{right:0}
+.head__tel{font-weight:700;font-size:15px;text-decoration:none;white-space:nowrap;letter-spacing:-0.01em}
+.head .btn{padding:12px 20px;font-size:14px}
+
+/* ---------- buttons ---------- */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:10px;
+  border:var(--edge) solid var(--black);background:var(--black);color:var(--white);
+  font-weight:600;letter-spacing:-0.01em;padding:16px 28px;
+  cursor:pointer;border-radius:0;text-decoration:none;
+  transition:background 180ms ease,color 180ms ease,border-color 180ms ease;
+}
+.btn:hover{background:var(--cobalt);border-color:var(--cobalt)}
+.btn--cobalt{background:var(--cobalt);border-color:var(--cobalt);color:var(--white)}
+.btn--cobalt:hover{background:var(--cobalt-hi);border-color:var(--cobalt-hi)}
+.btn--block{width:100%;padding:20px 28px;font-size:17px}
+
+:focus-visible{outline:3px solid var(--cobalt);outline-offset:3px}
+.slab--dark :focus-visible,.demobar :focus-visible{outline-color:var(--cobalt-hi)}
+
+/* ---------- hero: signature H1 ---------- */
+.hero{padding-top:clamp(44px,7vw,92px);padding-bottom:0}
+.h1{font-size:clamp(1.75rem,6.9vw,6.4rem)}
+.h1 .line{display:block}
+.h1 .slabword{
+  display:inline-block;background:var(--cobalt);color:var(--white);
+  padding:0.04em 0.16em 0.1em;margin-left:-0.06em;
+}
+.hero__sub{
+  margin-top:clamp(28px,4vw,48px);
+  max-width:56ch;font-size:clamp(15px,1.5vw,19px);color:#3A3A3A;
+}
+.trust{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  margin-top:clamp(40px,6vw,80px);
+  border-top:2px solid var(--black);border-bottom:var(--edge) solid var(--black);
+}
+.trust__cell{padding:22px 0 22px clamp(14px,2vw,28px);border-left:var(--edge) solid var(--black)}
+.trust__cell:first-child{border-left:0;padding-left:0}
+.trust__num{font-family:'Unbounded',sans-serif;font-weight:800;font-size:clamp(1.35rem,3.4vw,2.6rem);letter-spacing:-0.05em;line-height:1}
+.trust__lbl{font-size:12px;letter-spacing:0.08em;text-transform:uppercase;color:#585858;margin-top:8px;font-weight:600}
+
+/* ---------- section headings ---------- */
+.eyebrow{font-size:12px;letter-spacing:0.14em;text-transform:uppercase;font-weight:700;color:#585858;margin-bottom:18px}
+.slab--dark .eyebrow{color:var(--grey)}
+.h2{font-size:clamp(1.9rem,5.4vw,4.2rem)}
+.lede{margin-top:20px;max-width:52ch;font-size:clamp(15px,1.4vw,18px)}
+.slab--light .lede{color:#3A3A3A}
+.slab--dark .lede{color:#C4C4C4}
+
+/* ---------- qualifier form ---------- */
+.qual{display:grid;grid-template-columns:minmax(0,0.85fr) minmax(0,1.15fr);gap:clamp(32px,5vw,80px);align-items:start}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px}
+.chip{
+  border:var(--edge) solid #4A4A4A;background:transparent;color:var(--white);
+  padding:11px 16px;font-size:14px;font-weight:500;cursor:pointer;border-radius:0;
+  transition:background 180ms ease,border-color 180ms ease,color 180ms ease;
+}
+.chip:hover{border-color:var(--white)}
+.chip[aria-pressed="true"]{background:var(--cobalt);border-color:var(--cobalt);color:var(--white)}
+.field{width:100%;background:transparent;border:var(--edge) solid #4A4A4A;color:var(--white);padding:16px;border-radius:0;transition:border-color 180ms ease}
+.field::placeholder{color:#7E7E7E}
+.field:hover{border-color:#787878}
+textarea.field{min-height:150px;resize:vertical;display:block}
+#qtel{margin-top:10px}
+.formnote{margin-top:14px;font-size:12px;color:var(--grey);line-height:1.5;max-width:46ch}
+
+/* ---------- benefits ---------- */
+.bene{display:grid;grid-template-columns:repeat(3,1fr);margin-top:clamp(40px,6vw,72px);border-top:2px solid var(--black)}
+.bene__item{padding:32px clamp(18px,2.4vw,36px) 8px;border-left:var(--edge) solid var(--black)}
+.bene__item:first-child{border-left:0;padding-left:0}
+.bene__ico{color:var(--black);margin-bottom:20px}
+.bene__t{font-family:'Unbounded',sans-serif;font-weight:600;font-size:clamp(1.05rem,1.8vw,1.4rem);letter-spacing:-0.035em;line-height:1.15;margin-bottom:12px}
+.bene__d{font-size:15px;color:#3A3A3A;max-width:34ch}
+
+/* ---------- cases ---------- */
+.cases{display:grid;grid-template-columns:repeat(2,1fr);gap:var(--edge);background:#333;margin-top:clamp(40px,6vw,72px);border:var(--edge) solid #333}
+.case{background:var(--black);padding:clamp(24px,3vw,44px)}
+.case__tag{font-size:11px;letter-spacing:0.1em;text-transform:uppercase;font-weight:700;color:var(--grey);padding-bottom:20px;border-bottom:var(--edge) solid #333;margin-bottom:24px}
+.case__row{display:grid;grid-template-columns:auto 1fr;gap:16px;margin-bottom:20px;align-items:start}
+.case__k{font-size:11px;letter-spacing:0.09em;text-transform:uppercase;font-weight:700;color:var(--grey);padding-top:3px;width:9ch}
+.case__v{font-size:15px;color:#DCDCDC}
+.case__row--res{border-top:var(--edge) solid #333;padding-top:24px;margin-bottom:0}
+.case__row--res .case__k{color:var(--cobalt-hi)}
+.case__v strong{display:block;font-family:'Unbounded',sans-serif;font-weight:600;font-size:clamp(1rem,1.6vw,1.3rem);letter-spacing:-0.035em;line-height:1.2;color:var(--white);margin-bottom:8px}
+
+/* ---------- steps ---------- */
+.steps{display:grid;grid-template-columns:repeat(4,1fr);margin-top:clamp(40px,6vw,72px);border-top:2px solid var(--black)}
+.step{padding:28px clamp(16px,2vw,32px) 8px;border-left:var(--edge) solid var(--black)}
+.step:first-child{border-left:0;padding-left:0}
+.step__n{font-family:'Unbounded',sans-serif;font-weight:800;font-size:clamp(2rem,4vw,3.4rem);letter-spacing:-0.06em;line-height:1;color:var(--grey)}
+.step__t{font-family:'Unbounded',sans-serif;font-weight:600;font-size:clamp(0.95rem,1.5vw,1.15rem);letter-spacing:-0.03em;margin:16px 0 10px}
+.step__d{font-size:14px;color:#3A3A3A;max-width:28ch}
+
+/* ---------- faq ---------- */
+.faq{margin-top:clamp(36px,5vw,64px);border-top:var(--edge) solid #333}
+.faq__item{border-bottom:var(--edge) solid #333}
+.faq__q{
+  width:100%;background:none;border:0;padding:26px 0;cursor:pointer;
+  display:flex;align-items:center;gap:20px;text-align:left;color:var(--white);
+  font-family:'Unbounded',sans-serif;font-weight:600;letter-spacing:-0.03em;
+  font-size:clamp(1rem,2vw,1.5rem);line-height:1.25;
+  transition:color 180ms ease;
+}
+.faq__q:hover{color:var(--cobalt-hi)}
+.faq__ico{flex:0 0 auto;margin-left:auto;color:var(--cobalt-hi);transition:transform 200ms ease}
+.faq__q[aria-expanded="true"] .faq__ico{transform:rotate(45deg)}
+.faq__a{display:grid;grid-template-rows:0fr;transition:grid-template-rows 220ms ease}
+.faq__item.is-open .faq__a{grid-template-rows:1fr}
+.faq__inner{overflow:hidden}
+.faq__inner p{padding:0 0 28px;max-width:62ch;color:#C4C4C4;font-size:clamp(15px,1.4vw,17px)}
+
+/* ---------- footer ---------- */
+.foot{background:var(--white);color:var(--black);padding:clamp(48px,7vw,88px) var(--pad) 36px;border-top:2px solid var(--black)}
+.foot__top{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:32px;align-items:start}
+.foot__name{font-family:'Unbounded',sans-serif;font-weight:800;font-size:clamp(1.3rem,2.6vw,2rem);letter-spacing:-0.05em;line-height:1.05;max-width:14ch}
+.foot__k{font-size:11px;letter-spacing:0.1em;text-transform:uppercase;font-weight:700;color:#585858;margin-bottom:12px}
+.foot__l{display:block;text-decoration:none;font-weight:600;font-size:15px;margin-bottom:6px;transition:color 180ms ease}
+a.foot__l:hover{color:var(--cobalt)}
+.foot__bot{margin-top:clamp(40px,5vw,64px);padding-top:20px;border-top:var(--edge) solid var(--black);font-size:12px;color:#4F4F4F;display:flex;flex-wrap:wrap;gap:6px 18px}
+.foot__bot a{transition:color 180ms ease}
+.foot__bot a:hover{color:var(--cobalt)}
+
+/* ---------- entrance ---------- */
+.rise{opacity:0;transform:translateY(22px);transition:opacity 520ms ease,transform 520ms cubic-bezier(.2,.7,.3,1)}
+.rise.in{opacity:1;transform:none}
+
+/* ---------- responsive ---------- */
+@media (max-width:1080px){
+  .qual{grid-template-columns:1fr}
+  .bene,.steps{grid-template-columns:repeat(2,1fr)}
+  .bene__item:nth-child(3),.step:nth-child(3){border-left:0;padding-left:0}
+  .bene__item:nth-child(n+3),.step:nth-child(n+3){border-top:var(--edge) solid var(--black);padding-top:28px;margin-top:24px}
+  .foot__top{grid-template-columns:1fr 1fr}
+}
+@media (max-width:880px){
+  .cases{grid-template-columns:1fr}
+  .nav{display:none}
+  .head__tel{margin-left:auto}
+}
+@media (max-width:620px){
+  .h1{font-size:clamp(1.7rem,8.4vw,3.2rem);letter-spacing:-0.038em}
+  .brand__full{display:none}
+  .head .btn{display:none}
+  .trust{grid-template-columns:1fr}
+  .trust__cell{border-left:0;padding-left:0;border-top:var(--edge) solid var(--black)}
+  .trust__cell:first-child{border-top:0}
+  .trust__cell{display:flex;align-items:baseline;gap:14px}
+  .trust__lbl{margin-top:0}
+  .bene,.steps{grid-template-columns:1fr}
+  .bene__item,.step{border-left:0;padding-left:0;padding-right:0}
+  .bene__item:nth-child(n+2),.step:nth-child(n+2){border-top:var(--edge) solid var(--black);padding-top:28px;margin-top:24px}
+  .case__row{grid-template-columns:1fr;gap:8px}
+  .case__k{width:auto}
+  .foot__top{grid-template-columns:1fr;gap:28px}
+  .demobar{font-size:10px;letter-spacing:0.06em}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:0.01ms!important;animation-iteration-count:1!important;transition-duration:0.01ms!important}
+  .rise{opacity:1;transform:none}
+}
+</style>
+
+<div class="demobar">
+  <span>Демо 10 · Контрастный смелый</span>
+  <a href="index.html">← Ко всем демо</a>
+</div>
+
+<header class="head">
+  <a class="brand" href="#top">
+    <span class="brand__mark">ЮАС</span>
+    <span class="brand__full">Юридическая антикризисная служба</span>
+  </a>
+  <nav class="nav" aria-label="Основная навигация">
+    <a href="#cases">Кейсы</a>
+    <a href="#how">Как работаем</a>
+    <a href="#faq">Вопросы</a>
+  </nav>
+  <a class="head__tel" href="tel:+74950000000">+7 (495) 000-00-00</a>
+  <a class="btn" href="#form">Получить консультацию</a>
+</header>
+
+<main id="top">
+
+  <!-- HERO -->
+  <section class="slab slab--light hero">
+    <div class="wrap">
+      <h1 class="h1 rise">
+        <span class="line">Арестовали счёт?</span>
+        <span class="line"><span class="slabword">Снимем</span> арест</span>
+        <span class="line">и вернём доступ</span>
+        <span class="line">к деньгам</span>
+      </h1>
+      <p class="hero__sub rise">Работаем с блокировками по 115-ФЗ, требованиям ФНС и постановлениям ФССП. Первичный разбор ситуации — бесплатно, в течение дня.</p>
+      <div class="trust rise">
+        <div class="trust__cell"><div class="trust__num">18 лет</div><div class="trust__lbl">практики</div></div>
+        <div class="trust__cell"><div class="trust__num">3200+</div><div class="trust__lbl">дел</div></div>
+        <div class="trust__cell"><div class="trust__num">Москва</div><div class="trust__lbl">и область</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- QUALIFIER -->
+  <section class="slab slab--dark" id="form">
+    <div class="wrap qual">
+      <div class="rise">
+        <p class="eyebrow">Разбор ситуации</p>
+        <h2 class="h2">Опишите ситуацию</h2>
+        <p class="lede">Коротко о том, что произошло. Ответим с разбором и планом действий.</p>
+      </div>
+      <form class="rise" id="qform" novalidate>
+        <div class="chips" role="group" aria-label="Категория ситуации">
+          <button type="button" class="chip" aria-pressed="false">Блокировка по 115-ФЗ</button>
+          <button type="button" class="chip" aria-pressed="false">Требование ФНС</button>
+          <button type="button" class="chip" aria-pressed="false">Арест по ФССП</button>
+          <button type="button" class="chip" aria-pressed="false">Налоговая проверка</button>
+          <button type="button" class="chip" aria-pressed="false">Субсидиарная ответственность</button>
+          <button type="button" class="chip" aria-pressed="false">Другое</button>
+        </div>
+        <label class="sr" for="qtext">Опишите ситуацию</label>
+        <textarea class="field" id="qtext" placeholder="Например: банк заблокировал счёт, запросили документы по 115-ФЗ, деньги недоступны четвёртый день"></textarea>
+        <label class="sr" for="qtel">Телефон</label>
+        <input class="field" id="qtel" type="tel" inputmode="tel" placeholder="+7 (___) ___-__-__">
+        <div style="margin-top:16px"><button class="btn btn--cobalt btn--block" type="submit">Отправить на разбор</button></div>
+        <p class="formnote">Нажимая кнопку, вы соглашаетесь с политикой обработки персональных данных</p>
+      </form>
+    </div>
+  </section>
+
+  <!-- BENEFITS -->
+  <section class="slab slab--light">
+    <div class="wrap">
+      <div class="rise">
+        <p class="eyebrow">Что вы получите</p>
+        <h2 class="h2">Не обещания,<br>а порядок действий</h2>
+      </div>
+      <div class="bene">
+        <div class="bene__item rise">
+          <svg class="bene__ico" width="34" height="34" viewBox="0 0 34 34" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="17" cy="17" r="12.5"/><path d="M17 9v8.5l6 3.2"/></svg>
+          <h3 class="bene__t">Разбор за 1 день</h3>
+          <p class="bene__d">Изучим документы и скажем, что реально сделать по вашей ситуации, а что нет.</p>
+        </div>
+        <div class="bene__item rise">
+          <svg class="bene__ico" width="34" height="34" viewBox="0 0 34 34" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M7 5.5h20v23H7z"/><path d="M12 12.5h10M12 18h10M12 23.5h6"/></svg>
+          <h3 class="bene__t">План с конкретными сроками</h3>
+          <p class="bene__d">Пошаговый порядок действий с датами, а не «будем работать».</p>
+        </div>
+        <div class="bene__item rise">
+          <svg class="bene__ico" width="34" height="34" viewBox="0 0 34 34" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M17 4.5l11 4.5v8c0 7-4.6 11.6-11 13.5C10.6 28.6 6 24 6 17V9l11-4.5z"/><path d="M12.5 17l3.2 3.2 6.3-6.4"/></svg>
+          <h3 class="bene__t">Ведение до результата</h3>
+          <p class="bene__d">Готовим документы, ходим в банк, ФНС и суд от вашего имени.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CASES -->
+  <section class="slab slab--dark" id="cases">
+    <div class="wrap">
+      <div class="rise">
+        <p class="eyebrow">Кейсы</p>
+        <h2 class="h2">Сроки, которые<br>уже отработаны</h2>
+      </div>
+      <div class="cases">
+        <article class="case rise">
+          <p class="case__tag">Блокировка по 115-ФЗ · Оптовая торговля</p>
+          <div class="case__row"><span class="case__k">Проблема</span><p class="case__v">Банк заблокировал расчётный счёт и дистанционное обслуживание. На счету 8,4 млн руб., платежи поставщикам встали.</p></div>
+          <div class="case__row"><span class="case__k">Действие</span><p class="case__v">Собрали пакет документов по операциям за 6 месяцев, подготовили пояснения и подали жалобу в межведомственную комиссию ЦБ.</p></div>
+          <div class="case__row case__row--res"><span class="case__k">Результат</span><p class="case__v"><strong>Обслуживание восстановлено за 19 дней.</strong>Доступ к 8,4 млн руб. возвращён, счёт работает в обычном режиме.</p></div>
+        </article>
+        <article class="case rise">
+          <p class="case__tag">Арест по ФССП · Производство</p>
+          <div class="case__row"><span class="case__k">Проблема</span><p class="case__v">Приставы арестовали счета по долгу, который был погашен, но информация не дошла до ФССП. Заблокировано 2,1 млн руб.</p></div>
+          <div class="case__row"><span class="case__k">Действие</span><p class="case__v">Подтвердили оплату, добились отмены постановления и направили банку документы о снятии ареста напрямую.</p></div>
+          <div class="case__row case__row--res"><span class="case__k">Результат</span><p class="case__v"><strong>Арест снят за 6 дней.</strong>Средства разблокированы, исполнительное производство прекращено.</p></div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- STEPS -->
+  <section class="slab slab--light" id="how">
+    <div class="wrap">
+      <div class="rise">
+        <p class="eyebrow">Порядок работы</p>
+        <h2 class="h2">Четыре шага<br>от заявки до счёта</h2>
+      </div>
+      <ol class="steps" style="list-style:none;padding:0">
+        <li class="step rise"><div class="step__n">01</div><h3 class="step__t">Заявка</h3><p class="step__d">Описываете ситуацию в форме или по телефону.</p></li>
+        <li class="step rise"><div class="step__n">02</div><h3 class="step__t">Разбор</h3><p class="step__d">Смотрим документы, оцениваем перспективу и называем срок.</p></li>
+        <li class="step rise"><div class="step__n">03</div><h3 class="step__t">Работа</h3><p class="step__d">Готовим и подаём документы, ведём переписку с банком и госорганами.</p></li>
+        <li class="step rise"><div class="step__n">04</div><h3 class="step__t">Результат</h3><p class="step__d">Снимаем арест, возвращаем доступ к счёту, передаём отчёт.</p></li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="slab slab--dark" id="faq">
+    <div class="wrap">
+      <div class="rise">
+        <p class="eyebrow">Вопросы</p>
+        <h2 class="h2">Коротко и по делу</h2>
+      </div>
+      <div class="faq rise">
+        <div class="faq__item">
+          <button class="faq__q" aria-expanded="false" aria-controls="a1" id="q1" type="button">
+            Сколько времени занимает снятие ареста?
+            <svg class="faq__ico" width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M11 3v16M3 11h16"/></svg>
+          </button>
+          <div class="faq__a" id="a1" role="region" aria-labelledby="q1"><div class="faq__inner"><p>По 115-ФЗ обычно 2–4 недели, по ФССП — от нескольких дней. Точный срок называем после разбора документов.</p></div></div>
+        </div>
+        <div class="faq__item">
+          <button class="faq__q" aria-expanded="false" aria-controls="a2" id="q2" type="button">
+            Вы работаете по всей России?
+            <svg class="faq__ico" width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M11 3v16M3 11h16"/></svg>
+          </button>
+          <div class="faq__a" id="a2" role="region" aria-labelledby="q2"><div class="faq__inner"><p>Основная практика — Москва и МО. По другим регионам берёмся выборочно, с учётом подсудности.</p></div></div>
+        </div>
+        <div class="faq__item">
+          <button class="faq__q" aria-expanded="false" aria-controls="a3" id="q3" type="button">
+            Сколько это стоит?
+            <svg class="faq__ico" width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M11 3v16M3 11h16"/></svg>
+          </button>
+          <div class="faq__a" id="a3" role="region" aria-labelledby="q3"><div class="faq__inner"><p>Первичный разбор бесплатный. Стоимость работы называем после оценки ситуации — фиксированной суммой, без почасовой.</p></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <div class="foot__top">
+      <div><div class="foot__name">Юридическая антикризисная служба</div></div>
+      <div>
+        <p class="foot__k">Связь</p>
+        <a class="foot__l" href="tel:+74950000000">+7 (495) 000-00-00</a>
+        <a class="foot__l" href="mailto:info@example.ru">info@example.ru</a>
+      </div>
+      <div>
+        <p class="foot__k">Адрес</p>
+        <p class="foot__l">Москва, ул. Примерная, 1</p>
+      </div>
+    </div>
+    <div class="foot__bot">
+      <span>© 2026</span>
+      <a href="#">Политика обработки персональных данных</a>
+      <span>Информация на сайте не является публичной офертой</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // chips
+  document.querySelectorAll('.chip').forEach(function(c){
+    c.addEventListener('click', function(){
+      c.setAttribute('aria-pressed', c.getAttribute('aria-pressed') === 'true' ? 'false' : 'true');
+    });
+  });
+
+  // faq
+  document.querySelectorAll('.faq__q').forEach(function(q){
+    q.addEventListener('click', function(){
+      var item = q.closest('.faq__item');
+      var open = q.getAttribute('aria-expanded') === 'true';
+      q.setAttribute('aria-expanded', String(!open));
+      item.classList.toggle('is-open', !open);
+    });
+  });
+
+  // phone formatting
+  var tel = document.getElementById('qtel');
+  if (tel) tel.addEventListener('input', function(){
+    var d = tel.value.replace(/\D/g,'').replace(/^[78]/,'').slice(0,10);
+    if (!d) { tel.value = ''; return; }
+    var out = '+7 (' + d.slice(0,3);
+    if (d.length >= 4) out += ') ' + d.slice(3,6);
+    if (d.length >= 7) out += '-' + d.slice(6,8);
+    if (d.length >= 9) out += '-' + d.slice(8,10);
+    tel.value = out;
+  });
+
+  document.getElementById('qform').addEventListener('submit', function(e){ e.preventDefault(); });
+
+  // reveal
+  var els = document.querySelectorAll('.rise');
+  if (reduce || !('IntersectionObserver' in window)) {
+    els.forEach(function(el){ el.classList.add('in'); });
+    return;
+  }
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(en){
+      if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); }
+    });
+  }, {rootMargin:'0px 0px -8% 0px', threshold:0.05});
+  els.forEach(function(el, i){
+    el.style.transitionDelay = (Math.min(i,3) * 70) + 'ms';
+    io.observe(el);
+  });
+})();
+</script>

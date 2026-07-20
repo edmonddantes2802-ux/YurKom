@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Дизайн-направления — 10 демо</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@500;700&family=Cormorant+Garamond:wght@300;500&family=PT+Serif:wght@700&family=Literata:wght@500;700&family=EB+Garamond:wght@500;600&family=Lora:wght@500;600&family=Geologica:wght@500;700&family=Prata&family=Manrope:wght@500;700&family=Unbounded:wght@600;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after{box-sizing:border-box}
+  :root{
+    --bg:#0F1115; --panel:#171A20; --panel-2:#1D2129;
+    --line:#282D37; --line-soft:#20242C;
+    --ink:#EDEFF3; --ink-2:#9AA1AE; --ink-3:#6C7382;
+    --focus:#7C9CFF;
+    --s1:8px; --s2:16px; --s3:24px; --s4:40px; --s5:64px; --s6:96px;
+  }
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;
+    font-size:16px; line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:inherit}
+  .wrap{max-width:1240px; margin:0 auto; padding:0 var(--s3)}
+
+  /* ---------- Шапка ---------- */
+  .masthead{padding:var(--s6) 0 var(--s4); border-bottom:1px solid var(--line)}
+  .eyebrow{
+    font-family:"JetBrains Mono",ui-monospace,monospace;
+    font-size:11px; letter-spacing:.18em; text-transform:uppercase;
+    color:var(--ink-3); margin:0 0 var(--s3);
+  }
+  .masthead h1{
+    font-family:"Playfair Display",Georgia,serif; font-weight:500;
+    font-size:clamp(32px,5.2vw,56px); line-height:1.1; letter-spacing:-.01em;
+    margin:0 0 var(--s3); max-width:20ch;
+  }
+  .lede{margin:0; max-width:62ch; color:var(--ink-2); font-size:17px}
+  .lede strong{color:var(--ink); font-weight:500}
+
+  .toolbar{
+    display:flex; flex-wrap:wrap; gap:var(--s2); align-items:center;
+    margin-top:var(--s4);
+  }
+  .toggle{
+    display:inline-flex; align-items:center; gap:10px;
+    background:var(--panel); border:1px solid var(--line);
+    color:var(--ink); font:inherit; font-size:14px;
+    padding:10px 16px; border-radius:999px; cursor:pointer;
+    transition:background 180ms ease, border-color 180ms ease;
+  }
+  .toggle:hover{background:var(--panel-2); border-color:#39404D}
+  .toggle[aria-pressed="true"]{border-color:var(--focus); color:#fff}
+  .dot{width:8px; height:8px; border-radius:50%; background:var(--ink-3); transition:background 180ms ease}
+  .toggle[aria-pressed="true"] .dot{background:var(--focus)}
+  .hint{color:var(--ink-3); font-size:13px; margin:0}
+
+  /* ---------- Сетка карточек ---------- */
+  .grid{
+    display:grid; gap:1px; background:var(--line-soft);
+    border:1px solid var(--line-soft); border-left:0; border-right:0;
+    grid-template-columns:1fr; margin:var(--s5) 0 0;
+  }
+  @media (min-width:760px){ .grid{grid-template-columns:1fr 1fr} }
+  @media (min-width:1100px){ .grid{grid-template-columns:1fr 1fr 1fr} }
+
+  .card{
+    background:var(--bg); position:relative; display:flex; flex-direction:column;
+    padding:var(--s3) var(--s3) var(--s4);
+    transition:background 200ms ease;
+  }
+  .card:hover{background:var(--panel)}
+  .card:focus-within{background:var(--panel)}
+
+  .card-head{display:flex; align-items:baseline; gap:12px; margin-bottom:var(--s3)}
+  .num{
+    font-family:"JetBrains Mono",monospace; font-size:12px; font-weight:500;
+    color:var(--ink-3); letter-spacing:.08em;
+  }
+  .card h2{margin:0; font-size:19px; font-weight:600; letter-spacing:-.01em; line-height:1.25}
+  .card h2 a{text-decoration:none}
+  .card h2 a::after{content:""; position:absolute; inset:0}
+  .card h2 a:focus-visible{outline:none}
+  .card:has(a:focus-visible){outline:2px solid var(--focus); outline-offset:-2px}
+
+  .desc{margin:0 0 var(--s3); color:var(--ink-2); font-size:14px; line-height:1.55}
+
+  /* Образец: фон/типографика направления */
+  .sample{
+    border:1px solid var(--line); border-radius:2px; padding:20px 18px;
+    margin-bottom:var(--s3); min-height:112px;
+    display:flex; flex-direction:column; justify-content:center; gap:8px;
+    overflow:hidden;
+  }
+  .sample .st{font-size:20px; line-height:1.2; margin:0}
+  .sample .sb{font-size:12px; margin:0; opacity:.75}
+  .sample .rule{height:1px; width:44px; margin:2px 0}
+
+  .swatches{display:flex; gap:6px; margin-bottom:var(--s2)}
+  .sw{width:26px; height:26px; border-radius:2px; border:1px solid rgba(255,255,255,.08)}
+
+  .meta{
+    font-family:"JetBrains Mono",monospace; font-size:11px; color:var(--ink-3);
+    letter-spacing:.04em; margin:auto 0 0; padding-top:var(--s2);
+    border-top:1px solid var(--line-soft);
+  }
+
+  /* Живой предпросмотр */
+  .live{
+    display:none; position:relative; height:300px; overflow:hidden;
+    border:1px solid var(--line); border-radius:2px; margin-bottom:var(--s3);
+    background:#000;
+  }
+  body.previews .live{display:block}
+  body.previews .sample{display:none}
+  .live iframe{
+    position:absolute; top:0; left:0;
+    width:1280px; height:1000px; border:0;
+    transform:scale(.32); transform-origin:0 0; pointer-events:none;
+  }
+
+  footer{
+    border-top:1px solid var(--line); margin-top:var(--s6);
+    padding:var(--s4) 0 var(--s6); color:var(--ink-3); font-size:13px;
+  }
+  footer p{margin:0 0 6px; max-width:70ch}
+
+  :focus-visible{outline:2px solid var(--focus); outline-offset:2px}
+  @media (prefers-reduced-motion:reduce){
+    *{transition-duration:0.01ms !important; animation-duration:0.01ms !important}
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="masthead">
+    <p class="eyebrow">Выбор направления · Юридическая антикризисная служба</p>
+    <h1>Десять направлений одной страницы</h1>
+    <p class="lede">Контент во всех демо <strong>идентичен</strong> — тот же H1, та же форма, те же кейсы. Отличается только оформление. Смотрите, какое направление вызывает нужное доверие, и выбирайте одно.</p>
+
+    <div class="toolbar">
+      <button class="toggle" id="previewToggle" type="button" aria-pressed="false">
+        <span class="dot" aria-hidden="true"></span>
+        Живой предпросмотр
+      </button>
+      <p class="hint">Если превью не отображаются — откройте демо по ссылке, это ограничение браузера на локальные файлы.</p>
+    </div>
+  </header>
+
+  <main class="grid" id="grid"></main>
+
+  <footer>
+    <p>Все демо — самостоятельные HTML-файлы. Открываются двойным кликом, без сборки.</p>
+    <p>Контент — плейсхолдеры. Цифры, кейсы и контакты условные.</p>
+  </footer>
+</div>
+
+<script>
+const DEMOS = [
+  { n:1,  file:"demo-01.html", name:"Тёмный премиум с золотом",
+    desc:"Графит и латунь. Сдержанная роскошь, золото тонкими линиями, а не заливками.",
+    fonts:"Playfair Display + Inter",
+    sw:["#0E0F12","#16181D","#C9A227","#F5F3EF"],
+    bg:"#0E0F12", fg:"#F5F3EF", sub:"#9A9DA6", acc:"#C9A227", ff:"'Playfair Display',serif", fw:500 },
+
+  { n:2,  file:"demo-02.html", name:"Светлый минимализм",
+    desc:"Белое поле, волосяные линии, один глубокий бирюзовый. Воздух вместо давления.",
+    fonts:"Cormorant Garamond + Jost",
+    sw:["#FFFFFF","#F6F6F4","#0F5257","#111111"],
+    bg:"#FFFFFF", fg:"#111111", sub:"#6B6B6B", acc:"#0F5257", ff:"'Cormorant Garamond',serif", fw:300 },
+
+  { n:3,  file:"demo-03.html", name:"Корпоративный доверительный",
+    desc:"Глубокий навы и песочный акцент. Ощущение большой фирмы и годового отчёта.",
+    fonts:"PT Serif + IBM Plex Sans",
+    sw:["#0A2342","#14487F","#D9C7A7","#F4F6F9"],
+    bg:"#0A2342", fg:"#FFFFFF", sub:"#A9BBD0", acc:"#D9C7A7", ff:"'PT Serif',serif", fw:700 },
+
+  { n:4,  file:"demo-04.html", name:"Тёмный изумруд",
+    desc:"Тот же тёмный люкс, но малахит вместо золота. Зелёный читается как «доступ открыт».",
+    fonts:"Literata + Manrope",
+    sw:["#0A1410","#12201A","#0E7C5A","#6EE7B7"],
+    bg:"#0A1410", fg:"#ECF2EE", sub:"#90A29A", acc:"#6EE7B7", ff:"Literata,serif", fw:700 },
+
+  { n:5,  file:"demo-05.html", name:"Строгий типографический",
+    desc:"Почти без цвета. Модульная сетка, моно-метки, крупный контраст размеров.",
+    fonts:"EB Garamond + Inter + IBM Plex Mono",
+    sw:["#F7F7F5","#EDEDEA","#0A0A0A","#8C1D2A"],
+    bg:"#F7F7F5", fg:"#0A0A0A", sub:"#5C5C58", acc:"#8C1D2A", ff:"'EB Garamond',serif", fw:600 },
+
+  { n:6,  file:"demo-06.html", name:"Тёплый премиум",
+    desc:"Кремовая бумага, чернила эспрессо, старое золото. Атмосфера адвокатского кабинета.",
+    fonts:"Lora + Commissioner",
+    sw:["#F4EDE2","#E9DFCE","#A67C34","#3A2A1E"],
+    bg:"#F4EDE2", fg:"#3A2A1E", sub:"#6E5A48", acc:"#A67C34", ff:"Lora,serif", fw:600 },
+
+  { n:7,  file:"demo-07.html", name:"Техно-юрист",
+    desc:"Холодный тёмный, электрик-синий, моно-цифры. Скорость и статус процесса как идея.",
+    fonts:"Geologica + Inter + JetBrains Mono",
+    sw:["#08090C","#101218","#3B6DF6","#22D3EE"],
+    bg:"#08090C", fg:"#E8ECF4", sub:"#8A93A6", acc:"#3B6DF6", ff:"Geologica,sans-serif", fw:700 },
+
+  { n:8,  file:"demo-08.html", name:"Классический статусный",
+    desc:"Вино и приглушённое золото, слоновая кость. Дорогой консерватизм старой коллегии.",
+    fonts:"Prata + Raleway",
+    sw:["#3B0D18","#4A1420","#C6A15B","#F2EAD9"],
+    bg:"#3B0D18", fg:"#F2EAD9", sub:"#C6A99A", acc:"#C6A15B", ff:"Prata,serif", fw:400 },
+
+  { n:9,  file:"demo-09.html", name:"Чистый скандинавский",
+    desc:"Тёплый белый, мягкие тени, скругления. Спокойствие вместо срочности.",
+    fonts:"Manrope + Source Serif 4",
+    sw:["#FBFBF9","#F1F0EC","#33556B","#7C8F7B"],
+    bg:"#FBFBF9", fg:"#23282B", sub:"#6A737A", acc:"#33556B", ff:"Manrope,sans-serif", fw:700 },
+
+  { n:10, file:"demo-10.html", name:"Контрастный смелый",
+    desc:"Чистое чёрно-белое и один кобальт. Тип-как-герой, инверсия секций, без извинений.",
+    fonts:"Unbounded + Inter",
+    sw:["#000000","#FFFFFF","#1B27FF","#8A8A8A"],
+    bg:"#000000", fg:"#FFFFFF", sub:"#8A8A8A", acc:"#1B27FF", ff:"Unbounded,sans-serif", fw:800 },
+];
+
+const grid = document.getElementById("grid");
+
+grid.innerHTML = DEMOS.map(d => `
+  <article class="card">
+    <div class="card-head">
+      <span class="num">${String(d.n).padStart(2,"0")}</span>
+      <h2><a href="${d.file}">${d.name}</a></h2>
+    </div>
+
+    <div class="sample" style="background:${d.bg}; border-color:rgba(128,128,128,.25)">
+      <p class="st" style="color:${d.fg}; font-family:${d.ff}; font-weight:${d.fw}">Арестовали счёт?</p>
+      <div class="rule" style="background:${d.acc}"></div>
+      <p class="sb" style="color:${d.sub}">18 лет практики · 3200+ дел · Москва и МО</p>
+    </div>
+
+    <div class="live"><iframe src="${d.file}" title="Предпросмотр: ${d.name}" loading="lazy" tabindex="-1"></iframe></div>
+
+    <p class="desc">${d.desc}</p>
+
+    <div class="swatches">
+      ${d.sw.map(c => `<span class="sw" style="background:${c}" title="${c}"></span>`).join("")}
+    </div>
+
+    <p class="meta">${d.fonts}</p>
+  </article>
+`).join("");
+
+const btn = document.getElementById("previewToggle");
+btn.addEventListener("click", () => {
+  const on = btn.getAttribute("aria-pressed") === "true";
+  btn.setAttribute("aria-pressed", String(!on));
+  document.body.classList.toggle("previews", !on);
+});
+</script>
+
+</body>
+</html>

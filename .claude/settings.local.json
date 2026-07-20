@@ -45,7 +45,13 @@
       "Bash(git add *)",
       "Bash(git commit -q -m ' *)",
       "Bash(sed -i 's|`<будет проставлен после коммита>`|`__TRACKED_VAR__`|' WORKLOG.md)",
-      "Bash(git commit *)"
+      "Bash(git commit *)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000/arest-scheta)",
+      "Bash(taskkill //F //PID 8848)",
+      "Bash(curl -s http://localhost:3000/arest-scheta -o /tmp/p.html -w \"code=%{http_code} size=%{size_download}\\\\n\")",
+      "Bash(taskkill //F //PID 16656)",
+      "Bash(python -c ' *)",
+      "Bash(git push *)"
     ]
   }
 }
