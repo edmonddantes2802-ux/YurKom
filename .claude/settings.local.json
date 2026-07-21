@@ -77,7 +77,8 @@
       "Bash(npx prettier@3 --check .)",
       "Bash(cp components/Steps.tsx /tmp/Steps.bak)",
       "Bash(npx prettier@3 --write components/Steps.tsx lib/analytics.ts)",
-      "Bash(npx prettier@3 --write .)"
+      "Bash(npx prettier@3 --write .)",
+      "Bash(python *)"
     ]
   }
 }

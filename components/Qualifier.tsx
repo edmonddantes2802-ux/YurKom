@@ -16,16 +16,12 @@ export default function Qualifier({
   chips,
   placeholder = DEFAULT_PLACEHOLDER,
   note = DEFAULT_NOTE,
-  source = 'landing',
 }: {
   slug: string;
   prompt: string;
   chips?: { label: string; prefix: string }[];
   placeholder?: string;
   note?: string;
-  /** Откуда пришла заявка: с посадочной под конкретную боль или с главной,
-   *  где человек ещё не выбрал направление. Уходит в n8n вместе с заявкой. */
-  source?: 'landing' | 'homepage';
 }) {
   const [message, setMessage] = useState('');
   const [phone, setPhone] = useState('');
@@ -70,18 +66,18 @@ export default function Qualifier({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          message,
+          situation: message,
           phone,
-          slug,
-          source,
+          // Источник заявки — слаг посадочной, на главной это 'homepage'.
+          source: slug,
           utm: collectUtm(),
-          website: honeypot,
+          honeypot,
         }),
       });
       const data = await res.json();
       if (res.ok && data.ok) {
         setStatus('success');
-        reachGoal('lead_created', { slug, source });
+        reachGoal('lead_created', { slug });
       } else {
         setStatus('error');
         setErrorText(data.error || 'Не удалось отправить. Попробуйте ещё раз.');

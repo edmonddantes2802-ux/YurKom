@@ -31,7 +31,6 @@ export default function HomeHero() {
 
         <Qualifier
           slug="homepage"
-          source="homepage"
           prompt="Опишите, что происходит. Если не знаете, к какому направлению это относится, — просто расскажите своими словами."
           chips={HOME_CHIPS}
           placeholder="Например: пришло требование из налоговой на 6 млн, счёт заблокирован…"
