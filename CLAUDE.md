@@ -44,12 +44,14 @@
 **Уборка — только свой инстанс, одним из способов:**
 1. Предпочтительно — закрыть через CDP: `Browser.close` по своему `remote-debugging-port`.
 2. По PID, который сам же и запустил (запомнить при старте).
-3. По `user-data-dir` в командной строке процесса:
+3. Только для Chrome — по уникальному `user-data-dir`:
    ```powershell
    Get-CimInstance Win32_Process -Filter "Name='chrome.exe'" |
      Where-Object { $_.CommandLine -like '*chrome-debug-yurkom*' } |
      ForEach-Object { Stop-Process -Id $_.ProcessId -Force }
    ```
+
+**Про фильтры по командной строке — отдельно.** Такой фильтр допустим ТОЛЬКО когда подстрока уникальна для своего процесса (`chrome-debug-yurkom` — уникальна). Для `node.exe` уникальной подстроки нет: `next*start` совпадает с `start-server.js`, который есть у любого Next-сервера, включая dev соседнего проекта. **Уже приводило к тому, что был убит dev-сервер `Work\Ecosystem`.** Фоновые node-процессы гасить ИСКЛЮЧИТЕЛЬНО по PID, сохранённому при запуске, или через механизм фоновых задач харнесса. Никаких `-like` по `node.exe`.
 
 **ЗАПРЕЩЕНО безусловно:**
 - `taskkill /IM chrome.exe`, `/IM node.exe` и любой другой kill по имени процесса
