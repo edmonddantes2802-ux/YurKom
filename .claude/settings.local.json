@@ -79,7 +79,16 @@
       "Bash(npx prettier@3 --write components/Steps.tsx lib/analytics.ts)",
       "Bash(npx prettier@3 --write .)",
       "Bash(python *)",
-      "Bash(sort -t: -k2 -rn)"
+      "Bash(sort -t: -k2 -rn)",
+      "Bash(nslookup mitragost.ru)",
+      "Bash(curl -sI --max-time 12 https://mitragost.ru)",
+      "Bash(curl -sI --max-time 12 http://mitragost.ru)",
+      "Bash(curl -sI --max-time 12 http://155.212.141.76)",
+      "Bash(curl -s --max-time 12 http://mitragost.ru)",
+      "Bash(curl -sIv --max-time 12 https://mitragost.ru)",
+      "Bash(env)",
+      "Bash(sed 's/=.*/=<скрыто>/')",
+      "Read(//c/Users/edmon/.ssh/**)"
     ]
   }
 }
