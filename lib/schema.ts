@@ -1,4 +1,5 @@
 import type { Landing } from '@/content/landings';
+import { answeredFaq } from '@/lib/faq';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com';
 
@@ -13,11 +14,14 @@ export function legalServiceSchema(landing: Landing) {
   };
 }
 
+/** Возвращает null, если отвечать нечем — тогда схему FAQPage не добавляем. */
 export function faqSchema(faq: Landing['faq']) {
+  const answered = answeredFaq(faq);
+  if (answered.length === 0) return null;
   return {
     '@context': 'https://schema.org',
     '@type': 'FAQPage',
-    mainEntity: faq.map((item) => ({
+    mainEntity: answered.map((item) => ({
       '@type': 'Question',
       name: item.q,
       acceptedAnswer: { '@type': 'Answer', text: item.a },

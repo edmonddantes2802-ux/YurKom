@@ -31,7 +31,13 @@ export default function Hero({ landing }: { landing: Landing }) {
           </div>
         </div>
 
-        <Qualifier slug={landing.slug} prompt={landing.qualifierPrompt} />
+        <Qualifier
+          slug={landing.slug}
+          prompt={landing.qualifierPrompt}
+          chips={landing.qualifierChips}
+          placeholder={landing.qualifierPlaceholder}
+          note={landing.qualifierNote}
+        />
       </div>
     </section>
   );

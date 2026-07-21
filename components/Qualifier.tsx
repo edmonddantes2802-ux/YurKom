@@ -6,13 +6,23 @@ import { reachGoal, collectUtm } from '@/lib/analytics';
 
 type Status = 'idle' | 'sending' | 'success' | 'error';
 
-const HINT_CHIPS = [
-  { label: 'Налоговая заблокировала', prefix: 'Налоговая заблокировала счёт: ' },
-  { label: 'Приставы / ФССП', prefix: 'Судебные приставы арестовали: ' },
-  { label: 'Банк 115-ФЗ', prefix: 'Банк заблокировал по 115-ФЗ: ' },
-];
+// Нейтральные значения на случай, если посадочная их не переопределила.
+const DEFAULT_PLACEHOLDER = 'Например: что произошло, когда, какие суммы затронуты…';
+const DEFAULT_NOTE = 'Реагируем в течение 30 минут';
 
-export default function Qualifier({ slug, prompt }: { slug: string; prompt: string }) {
+export default function Qualifier({
+  slug,
+  prompt,
+  chips,
+  placeholder = DEFAULT_PLACEHOLDER,
+  note = DEFAULT_NOTE,
+}: {
+  slug: string;
+  prompt: string;
+  chips?: { label: string; prefix: string }[];
+  placeholder?: string;
+  note?: string;
+}) {
   const [message, setMessage] = useState('');
   const [phone, setPhone] = useState('');
   const [status, setStatus] = useState<Status>('idle');
@@ -96,21 +106,27 @@ export default function Qualifier({ slug, prompt }: { slug: string; prompt: stri
         <h3>Опишите ситуацию</h3>
         <p className="qualifier-hint">{prompt}</p>
 
-        <span className="qualifier-label" id={chipsLabelId}>
-          С чего начать
-        </span>
-        <div className="qualifier-chips" role="group" aria-labelledby={chipsLabelId}>
-          {HINT_CHIPS.map((chip) => (
-            <button
-              key={chip.label}
-              type="button"
-              className="qualifier-chip"
-              onClick={() => handleChipClick(chip.prefix)}
-            >
-              {chip.label}
-            </button>
-          ))}
-        </div>
+        {/* Чипы — подсказка под конкретную боль. Не заданы в конфиге —
+            блок не рендерим, пустую группу кнопок не показываем. */}
+        {chips && chips.length > 0 && (
+          <>
+            <span className="qualifier-label" id={chipsLabelId}>
+              С чего начать
+            </span>
+            <div className="qualifier-chips" role="group" aria-labelledby={chipsLabelId}>
+              {chips.map((chip) => (
+                <button
+                  key={chip.label}
+                  type="button"
+                  className="qualifier-chip"
+                  onClick={() => handleChipClick(chip.prefix)}
+                >
+                  {chip.label}
+                </button>
+              ))}
+            </div>
+          </>
+        )}
 
         <label className="qualifier-label" htmlFor={messageId}>
           Ситуация
@@ -122,7 +138,7 @@ export default function Qualifier({ slug, prompt }: { slug: string; prompt: stri
           required
           minLength={10}
           maxLength={5000}
-          placeholder="Например: вчера банк заблокировал расчётный счёт…"
+          placeholder={placeholder}
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           onFocus={handleFocus}
@@ -150,9 +166,7 @@ export default function Qualifier({ slug, prompt }: { slug: string; prompt: stri
         </div>
 
         <div className="qualifier-actions">
-          <span className="urgency-badge">
-            Реагируем в течение 30 минут — при аресте каждый день на счету
-          </span>
+          <span className="urgency-badge">{note}</span>
           <Button type="submit" disabled={status === 'sending'} style={{ width: '100%' }}>
             {status === 'sending' ? 'Отправляем…' : 'Получить оценку ситуации'}
           </Button>

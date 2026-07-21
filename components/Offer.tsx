@@ -1,7 +1,15 @@
 import type { Landing } from '@/content/landings';
 import SectionRail from '@/components/SectionRail';
 
-export default function Offer({ offer }: { offer: Landing['offer'] }) {
+const DEFAULT_RAIL_TEXT = 'Опишите, что произошло. Разберём ситуацию и вернём план действий.';
+
+export default function Offer({
+  offer,
+  railText,
+}: {
+  offer: Landing['offer'];
+  railText?: string;
+}) {
   return (
     <section className="section offer">
       <div className="container split">
@@ -19,7 +27,7 @@ export default function Offer({ offer }: { offer: Landing['offer'] }) {
         <SectionRail
           num="02"
           title="Оценка ситуации — бесплатно"
-          text="Опишите, что произошло. Разберём основания ареста и вернём план действий."
+          text={railText ?? DEFAULT_RAIL_TEXT}
           ctaLabel="Получить оценку"
         />
       </div>

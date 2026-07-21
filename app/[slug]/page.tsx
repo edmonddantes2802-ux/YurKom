@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { landings } from '@/content/landings';
 import { legalServiceSchema, faqSchema } from '@/lib/schema';
+import { answeredFaq } from '@/lib/faq';
 import ScrollReveal from '@/components/ScrollReveal';
 import Header from '@/components/Header';
 import Hero from '@/components/Hero';
@@ -44,7 +45,8 @@ export default async function LandingPage({ params }: Props) {
   const landing = landings[slug];
   if (!landing) notFound();
 
-  const jsonLd = [legalServiceSchema(landing), faqSchema(landing.faq)];
+  const jsonLd = [legalServiceSchema(landing), faqSchema(landing.faq)].filter(Boolean);
+  const hasFaq = answeredFaq(landing.faq).length > 0;
 
   return (
     <>
@@ -56,11 +58,15 @@ export default async function LandingPage({ params }: Props) {
       <Header />
       <main>
         <Hero landing={landing} />
-        <Offer offer={landing.offer} />
+        <Offer offer={landing.offer} railText={landing.offerRailText} />
         <Cases cases={landing.cases} />
-        <RepeatCTA />
+        {/* Полоса между Cases и Steps имеет смысл только когда кейсы есть —
+            иначе она повисает сразу после Offer без контекста. */}
+        {landing.cases.length > 0 && <RepeatCTA />}
         <Steps steps={landing.steps} />
-        <FAQ faq={landing.faq} />
+        {/* Обычно последний призыв перед футером даёт рельс FAQ. Если отвечать
+            нечем и секция не рендерится, призыв возвращает CTA-полоса. */}
+        {hasFaq ? <FAQ faq={landing.faq} /> : <RepeatCTA />}
       </main>
       <Footer />
     </>

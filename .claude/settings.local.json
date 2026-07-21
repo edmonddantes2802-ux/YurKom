@@ -62,7 +62,9 @@
       "Bash(pkill -f \"remote-debugging-port=9222\")",
       "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://127.0.0.1:3114/arest-scheta)",
       "Bash(taskkill //F //IM chrome.exe)",
-      "Bash(taskkill //F //IM node.exe)"
+      "Bash(taskkill //F //IM node.exe)",
+      "Bash(python -)",
+      "Bash(curl -s http://127.0.0.1:3120/subsidiarnaya-otvetstvennost)"
     ]
   }
 }

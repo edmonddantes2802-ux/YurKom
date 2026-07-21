@@ -2,8 +2,9 @@
 
 import { useState, useCallback, useId } from 'react';
 import SectionRail from '@/components/SectionRail';
+import { answeredFaq } from '@/lib/faq';
 
-export default function FAQ({ faq }: { faq: { q: string; a: string }[] }) {
+export default function FAQ({ faq: rawFaq }: { faq: { q: string; a: string }[] }) {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
   const baseId = useId();
 
@@ -11,6 +12,9 @@ export default function FAQ({ faq }: { faq: { q: string; a: string }[] }) {
     setOpenIndex((prev) => (prev === i ? null : i));
   }, []);
 
+  // Вопросы-заготовки без ответа не показываем: раскрывающийся в пустоту
+  // аккордеон хуже, чем отсутствие секции. Ответы появятся — секция вернётся.
+  const faq = answeredFaq(rawFaq);
   if (faq.length === 0) return null;
   return (
     <section className="section">
