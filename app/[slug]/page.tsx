@@ -61,7 +61,6 @@ export default async function LandingPage({ params }: Props) {
         <RepeatCTA />
         <Steps steps={landing.steps} />
         <FAQ faq={landing.faq} />
-        <RepeatCTA />
       </main>
       <Footer />
     </>

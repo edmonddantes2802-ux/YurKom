@@ -145,6 +145,119 @@ a:hover { color: var(--color-accent-hover); }
 }
 
 .muted { color: var(--color-text-muted); }
+.mono { font-family: var(--font-mono); letter-spacing: 0.01em; }
+
+/* ==========================================================================
+   Split — узкая колонка текста + правый рельс.
+   Мера строки остаётся читаемой, а зона справа не пустует: её занимает
+   рельс с номером секции и якорным действием.
+   ========================================================================== */
+.split {
+  display: grid;
+  /* Левая колонка сама задаёт меру строки — отдельный max-width контенту
+     не нужен, иначе внутри колонки появляется вторая дыра. */
+  grid-template-columns: minmax(0, 46rem) 17.5rem;
+  justify-content: space-between;
+  gap: clamp(2.5rem, 6vw, 5rem);
+  align-items: start;
+}
+
+@media (max-width: 960px) {
+  .split { grid-template-columns: minmax(0, 1fr); }
+}
+
+.rail {
+  position: sticky;
+  top: calc(var(--header-h) + 2.5rem);
+  padding-left: clamp(1.25rem, 2vw, 1.75rem);
+  /* Линия начинается золотом и растворяется вниз — та же логика, что у
+     линейки надзаголовка. Обычный border здесь читался бы как рамка. */
+  background: linear-gradient(
+      180deg,
+      var(--color-accent-dim),
+      var(--color-border-strong) 35%,
+      transparent
+    )
+    left top / 1px 100% no-repeat;
+}
+
+.rail-num {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.16em;
+  color: var(--color-text-faint);
+  margin-bottom: 1.5rem;
+}
+
+.rail-title {
+  font-family: var(--font-serif);
+  font-size: 1.125rem;
+  line-height: 1.35;
+  color: var(--color-text);
+}
+
+.rail-text {
+  margin-top: 0.75rem;
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: var(--color-text-muted);
+}
+
+.rail-cta {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--color-accent);
+  text-decoration: none;
+  border-bottom: 1px solid var(--color-accent-dim);
+  padding-bottom: 0.25rem;
+  transition: color var(--t), border-color var(--t);
+}
+
+.rail-cta span { transition: transform var(--t); }
+.rail-cta:hover { color: var(--color-accent-hover); border-color: var(--color-accent); }
+.rail-cta:hover span { transform: translateX(3px); }
+
+.rail-contacts {
+  margin-top: 2rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: flex-start;
+}
+
+.rail-contacts a {
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+  text-decoration: none;
+  transition: color var(--t);
+}
+
+.rail-contacts a:hover { color: var(--color-accent-hover); }
+
+/* На узких экранах рельс перестаёт быть рельсом: линия сверху, не сбоку. */
+@media (max-width: 960px) {
+  .rail {
+    position: static;
+    margin-top: clamp(2.5rem, 6vw, 3.5rem);
+    padding-left: 0;
+    padding-top: 1.75rem;
+    background: linear-gradient(
+        90deg,
+        var(--color-accent-dim),
+        var(--color-border-strong) 35%,
+        transparent
+      )
+      left top / 100% 1px no-repeat;
+  }
+  .rail-num { margin-bottom: 1rem; }
+}
 
 .divider {
   border: none;
@@ -690,7 +803,7 @@ a:hover { color: var(--color-accent-hover); }
   border-block: 1px solid var(--color-border);
 }
 
-.offer-inner { max-width: 660px; }
+
 
 .offer-bullets {
   margin-top: 2rem;
@@ -945,7 +1058,7 @@ a:hover { color: var(--color-accent-hover); }
    FAQ — аккордеон. Высота через grid 0fr→1fr: раскрывается на любую длину
    ответа, без фиксированного max-height и без замера в JS.
    ========================================================================== */
-.faq-list { max-width: 760px; border-top: 1px solid var(--color-border); }
+.faq-list { border-top: 1px solid var(--color-border); }
 
 .faq-item { border-bottom: 1px solid var(--color-border); }
 

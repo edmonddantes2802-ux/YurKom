@@ -1,10 +1,7 @@
 'use client';
 
 import { reachGoal } from '@/lib/analytics';
-
-const PHONE = '+7 (000) 000-00-00';
-const PHONE_HREF = 'tel:+70000000000';
-const TELEGRAM_URL = 'https://t.me/placeholder';
+import { PHONE, PHONE_HREF, TELEGRAM_URL } from '@/lib/contacts';
 
 export default function Header() {
   return (

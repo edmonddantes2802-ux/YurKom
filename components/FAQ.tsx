@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useCallback, useId } from 'react';
+import SectionRail from '@/components/SectionRail';
 
 export default function FAQ({ faq }: { faq: { q: string; a: string }[] }) {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
@@ -18,7 +19,8 @@ export default function FAQ({ faq }: { faq: { q: string; a: string }[] }) {
           <span className="kicker">Вопросы и ответы</span>
           <h2>Частые вопросы</h2>
         </div>
-        <div className="faq-list">
+        <div className="split">
+          <div className="faq-list">
           {faq.map((item, i) => {
             const isOpen = openIndex === i;
             const panelId = `${baseId}-faq-${i}`;
@@ -46,6 +48,15 @@ export default function FAQ({ faq }: { faq: { q: string; a: string }[] }) {
               </div>
             );
           })}
+          </div>
+
+          <SectionRail
+            num="05"
+            title="Не нашли свой случай?"
+            text="Ситуации редко совпадают дословно. Опишите свою — ответим по существу, а не шаблоном."
+            ctaLabel="Описать ситуацию"
+            showTelegram
+          />
         </div>
       </div>
     </section>
