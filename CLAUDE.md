@@ -53,6 +53,19 @@
 
 **Про фильтры по командной строке — отдельно.** Такой фильтр допустим ТОЛЬКО когда подстрока уникальна для своего процесса (`chrome-debug-yurkom` — уникальна). Для `node.exe` уникальной подстроки нет: `next*start` совпадает с `start-server.js`, который есть у любого Next-сервера, включая dev соседнего проекта. **Уже приводило к тому, что был убит dev-сервер `Work\Ecosystem`.** Фоновые node-процессы гасить ИСКЛЮЧИТЕЛЬНО по PID, сохранённому при запуске, или через механизм фоновых задач харнесса. Никаких `-like` по `node.exe`.
 
+**Свой фоновый сервер гасить по владельцу порта** — это привязка к конкретному процессу, а не фильтр по имени. Обязательно с проверкой, что процесс действительно из этого проекта:
+```powershell
+$own = Get-NetTCPConnection -LocalPort 3150 -State Listen -ErrorAction SilentlyContinue |
+  Select-Object -ExpandProperty OwningProcess -Unique
+foreach ($id in $own) {
+  $cmd = (Get-CimInstance Win32_Process -Filter "ProcessId=$id").CommandLine
+  if ($cmd -like '*YurKom*') { Stop-Process -Id $id -Force }
+  else { "PID $id на этом порту не мой — не трогаю" }
+}
+```
+
+**Read-only переменные PowerShell — про них помнить отдельно.** `$pid` занят автоматической переменной с PID самой оболочки и присвоению не поддаётся: `$pid = 1317` падает с `VariableNotWritable`, а дальше по скрипту `Stop-Process -Id $pid` целится в собственный процесс. **Такое уже случалось.** Свои переменные называть `$ownPid`, `$serverPid`, `$targetId`. Тот же запрет на присвоение — `$host`, `$true`, `$false`, `$null`, `$input`, `$args`, `$error`. Перед `Stop-Process` печатать, что именно гасим, и убеждаться, что PID не равен `$PID`.
+
 **ЗАПРЕЩЕНО безусловно:**
 - `taskkill /IM chrome.exe`, `/IM node.exe` и любой другой kill по имени процесса
 - kill по маске, по фильтру окон (`/FI "WINDOWTITLE eq *"`), `pkill -f chrome`, `Stop-Process -Name`

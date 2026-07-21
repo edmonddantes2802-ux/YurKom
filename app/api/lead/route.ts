@@ -81,10 +81,7 @@ export async function POST(req: NextRequest) {
   const webhookUrl = process.env.N8N_WEBHOOK_URL;
   if (!webhookUrl) {
     console.error('N8N_WEBHOOK_URL is not configured');
-    return NextResponse.json(
-      { ok: false, error: 'Сервис временно недоступен' },
-      { status: 503 },
-    );
+    return NextResponse.json({ ok: false, error: 'Сервис временно недоступен' }, { status: 503 });
   }
 
   const utm: Record<string, string> = {};

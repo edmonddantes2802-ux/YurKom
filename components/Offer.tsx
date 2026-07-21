@@ -3,13 +3,7 @@ import SectionRail from '@/components/SectionRail';
 
 const DEFAULT_RAIL_TEXT = 'Опишите, что произошло. Разберём ситуацию и вернём план действий.';
 
-export default function Offer({
-  offer,
-  railText,
-}: {
-  offer: Landing['offer'];
-  railText?: string;
-}) {
+export default function Offer({ offer, railText }: { offer: Landing['offer']; railText?: string }) {
   return (
     <section className="section offer">
       <div className="container split">

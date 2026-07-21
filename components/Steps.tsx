@@ -3,7 +3,10 @@ export default function Steps({ steps }: { steps: { title: string; desc: string 
   return (
     <section
       className="section"
-      style={{ background: 'var(--color-bg-elevated)', borderBlock: '1px solid var(--color-border)' }}
+      style={{
+        background: 'var(--color-bg-elevated)',
+        borderBlock: '1px solid var(--color-border)',
+      }}
     >
       <div className="container">
         <div className="sec-head" data-reveal>

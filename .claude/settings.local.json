@@ -72,7 +72,12 @@
       "Bash(\"/c/Program Files/Google/Chrome/Application/chrome.exe\" --headless=new --remote-debugging-port=9222 --user-data-dir=\"C:/temp/chrome-debug-yurkom\" --disable-gpu --hide-scrollbars about:blank)",
       "Bash(echo \"CHROME_PID=$!\")",
       "Bash(curl -s -o /dev/null -w \"YurKom dev: %{http_code}\\\\n\" http://127.0.0.1:3000/)",
-      "Bash(npx prettier *)"
+      "Bash(npx prettier *)",
+      "PowerShell(foreach \\($id in 18988, 6364\\) { $c = \\(Get-CimInstance Win32_Process -Filter \"ProcessId=$id\" -ErrorAction SilentlyContinue\\).CommandLine; if \\($c\\) { \"PID $id : \" + $c.Substring\\(0, [Math]::Min\\(110, $c.Length\\)\\) } else { \"PID $id : завершён\" } })",
+      "Bash(npx prettier@3 --check .)",
+      "Bash(cp components/Steps.tsx /tmp/Steps.bak)",
+      "Bash(npx prettier@3 --write components/Steps.tsx lib/analytics.ts)",
+      "Bash(npx prettier@3 --write .)"
     ]
   }
 }

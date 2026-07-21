@@ -1,11 +1,7 @@
 'use client';
 
 export type MetrikaGoal =
-  | 'qualifier_started'
-  | 'qualifier_submitted'
-  | 'lead_created'
-  | 'telegram_click'
-  | 'phone_click';
+  'qualifier_started' | 'qualifier_submitted' | 'lead_created' | 'telegram_click' | 'phone_click';
 
 declare global {
   interface Window {

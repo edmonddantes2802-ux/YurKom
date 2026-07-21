@@ -25,33 +25,33 @@ export default function FAQ({ faq: rawFaq }: { faq: { q: string; a: string }[] }
         </div>
         <div className="split">
           <div className="faq-list">
-          {faq.map((item, i) => {
-            const isOpen = openIndex === i;
-            const panelId = `${baseId}-faq-${i}`;
-            return (
-              <div
-                className={`faq-item${isOpen ? ' open' : ''}`}
-                key={item.q}
-                data-reveal
-                data-reveal-delay={String(Math.min(i + 1, 5))}
-              >
-                <button
-                  className="faq-trigger"
-                  onClick={() => toggle(i)}
-                  aria-expanded={isOpen}
-                  aria-controls={panelId}
+            {faq.map((item, i) => {
+              const isOpen = openIndex === i;
+              const panelId = `${baseId}-faq-${i}`;
+              return (
+                <div
+                  className={`faq-item${isOpen ? ' open' : ''}`}
+                  key={item.q}
+                  data-reveal
+                  data-reveal-delay={String(Math.min(i + 1, 5))}
                 >
-                  <span>{item.q}</span>
-                  <i className="faq-sign" aria-hidden="true" />
-                </button>
-                <div className="faq-answer" id={panelId} role="region">
-                  <div className="faq-answer-inner">
-                    <p>{item.a}</p>
+                  <button
+                    className="faq-trigger"
+                    onClick={() => toggle(i)}
+                    aria-expanded={isOpen}
+                    aria-controls={panelId}
+                  >
+                    <span>{item.q}</span>
+                    <i className="faq-sign" aria-hidden="true" />
+                  </button>
+                  <div className="faq-answer" id={panelId} role="region">
+                    <div className="faq-answer-inner">
+                      <p>{item.a}</p>
+                    </div>
                   </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
           </div>
 
           <SectionRail
