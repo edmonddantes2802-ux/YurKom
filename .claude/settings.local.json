@@ -65,7 +65,12 @@
       "Bash(taskkill //F //IM node.exe)",
       "Bash(python -)",
       "Bash(curl -s http://127.0.0.1:3120/subsidiarnaya-otvetstvennost)",
-      "Bash(curl -s http://127.0.0.1:3131/)"
+      "Bash(curl -s http://127.0.0.1:3131/)",
+      "Bash(echo \"PROD_PID=$!\")",
+      "Bash(curl -s -o /dev/null -w \"home %{http_code}\\\\n\" http://127.0.0.1:3140/)",
+      "Bash(mkdir -p \"C:/temp\")",
+      "Bash(\"/c/Program Files/Google/Chrome/Application/chrome.exe\" --headless=new --remote-debugging-port=9222 --user-data-dir=\"C:/temp/chrome-debug-yurkom\" --disable-gpu --hide-scrollbars about:blank)",
+      "Bash(echo \"CHROME_PID=$!\")"
     ]
   }
 }

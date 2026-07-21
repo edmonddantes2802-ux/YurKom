@@ -1198,6 +1198,24 @@ a:hover { color: var(--color-accent-hover); }
   gap: 0.5rem 1.125rem;
 }
 
+/* Авторство: тот же вес, что у копирайта, не громче. На широких экранах
+   уходит к правому краю, на узких — переносится в общий поток. */
+.footer-author {
+  color: var(--color-text-faint);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: color var(--t), border-color var(--t);
+}
+
+.footer-author:hover {
+  color: var(--color-accent-hover);
+  border-bottom-color: var(--color-accent-dim);
+}
+
+@media (min-width: 720px) {
+  .footer-author { margin-left: auto; }
+}
+
 /* ==========================================================================
    Главная — направления работы
    ========================================================================== */

@@ -35,6 +35,14 @@ export default function Footer() {
         <div className="footer-note">
           <span>&copy; {new Date().getFullYear()}</span>
           <span>Информация на сайте не является публичной офертой</span>
+          <a
+            className="footer-author"
+            href="https://studiya-forma.ru/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Разработано в Студии FORMA
+          </a>
         </div>
       </div>
     </footer>
