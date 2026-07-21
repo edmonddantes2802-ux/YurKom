@@ -64,7 +64,8 @@
       "Bash(taskkill //F //IM chrome.exe)",
       "Bash(taskkill //F //IM node.exe)",
       "Bash(python -)",
-      "Bash(curl -s http://127.0.0.1:3120/subsidiarnaya-otvetstvennost)"
+      "Bash(curl -s http://127.0.0.1:3120/subsidiarnaya-otvetstvennost)",
+      "Bash(curl -s http://127.0.0.1:3131/)"
     ]
   }
 }

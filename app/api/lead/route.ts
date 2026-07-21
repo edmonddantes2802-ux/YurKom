@@ -34,6 +34,7 @@ type LeadBody = {
   message?: string;
   phone?: string;
   slug?: string;
+  source?: string;
   utm?: Record<string, string>;
   website?: string; // honeypot
 };
@@ -63,6 +64,9 @@ export async function POST(req: NextRequest) {
   const message = typeof body.message === 'string' ? body.message.trim() : '';
   const phone = typeof body.phone === 'string' ? body.phone.trim() : '';
   const slug = typeof body.slug === 'string' ? body.slug.trim() : '';
+  // Источник заявки. Всё, кроме известных значений, сводим к 'landing',
+  // чтобы в n8n не приезжало произвольное содержимое из тела запроса.
+  const source = body.source === 'homepage' ? 'homepage' : 'landing';
 
   if (!message || message.length < 10 || message.length > 5000) {
     return NextResponse.json(
@@ -100,6 +104,7 @@ export async function POST(req: NextRequest) {
         message,
         phone,
         slug,
+        source,
         utm,
         ip,
         createdAt: new Date().toISOString(),

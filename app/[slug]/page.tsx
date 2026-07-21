@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { landings } from '@/content/landings';
-import { legalServiceSchema, faqSchema } from '@/lib/schema';
+import { legalServiceSchema, faqSchema, serializeJsonLd } from '@/lib/schema';
 import { answeredFaq } from '@/lib/faq';
 import ScrollReveal from '@/components/ScrollReveal';
 import Header from '@/components/Header';
@@ -52,7 +52,7 @@ export default async function LandingPage({ params }: Props) {
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}
       />
       <ScrollReveal />
       <Header />

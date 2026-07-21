@@ -16,12 +16,16 @@ export default function Qualifier({
   chips,
   placeholder = DEFAULT_PLACEHOLDER,
   note = DEFAULT_NOTE,
+  source = 'landing',
 }: {
   slug: string;
   prompt: string;
   chips?: { label: string; prefix: string }[];
   placeholder?: string;
   note?: string;
+  /** Откуда пришла заявка: с посадочной под конкретную боль или с главной,
+   *  где человек ещё не выбрал направление. Уходит в n8n вместе с заявкой. */
+  source?: 'landing' | 'homepage';
 }) {
   const [message, setMessage] = useState('');
   const [phone, setPhone] = useState('');
@@ -69,6 +73,7 @@ export default function Qualifier({
           message,
           phone,
           slug,
+          source,
           utm: collectUtm(),
           website: honeypot,
         }),
@@ -76,7 +81,7 @@ export default function Qualifier({
       const data = await res.json();
       if (res.ok && data.ok) {
         setStatus('success');
-        reachGoal('lead_created', { slug });
+        reachGoal('lead_created', { slug, source });
       } else {
         setStatus('error');
         setErrorText(data.error || 'Не удалось отправить. Попробуйте ещё раз.');

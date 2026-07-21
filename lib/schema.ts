@@ -1,7 +1,39 @@
 import type { Landing } from '@/content/landings';
 import { answeredFaq } from '@/lib/faq';
+import { COMPANY_NAME } from '@/content/company';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com';
+
+/**
+ * Сериализация для <script type="application/ld+json">. Экранируем "<",
+ * чтобы текст из конфига не мог закрыть тег и превратиться в разметку.
+ */
+export function serializeJsonLd(data: unknown) {
+  return JSON.stringify(data).replace(/</g, '\\u003c');
+}
+
+/** Организация целиком — только на главной, чтобы не дублировать на посадочных. */
+export function organizationSchema() {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: COMPANY_NAME,
+    url: SITE_URL,
+    areaServed: 'RU',
+  };
+}
+
+/** Услуга компании в целом (не привязанная к боли конкретной посадочной). */
+export function homeLegalServiceSchema(description: string) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'LegalService',
+    name: COMPANY_NAME,
+    description,
+    url: SITE_URL,
+    areaServed: 'RU',
+  };
+}
 
 export function legalServiceSchema(landing: Landing) {
   return {
