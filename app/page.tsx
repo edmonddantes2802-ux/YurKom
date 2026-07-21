@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { organizationSchema, homeLegalServiceSchema, serializeJsonLd } from '@/lib/schema';
+import { SITE_URL } from '@/lib/site';
 import ScrollReveal from '@/components/ScrollReveal';
 import Header from '@/components/Header';
 import HomeHero from '@/components/HomeHero';
@@ -12,13 +13,13 @@ const META_DESCRIPTION =
   'Антикризисная юридическая защита бизнеса в Москве и МО: арест счетов, субсидиарная ответственность, налоговые споры, защита личных активов. Бесплатная оценка ситуации.';
 
 export const metadata: Metadata = {
-  title: 'Антикризисная юридическая защита бизнеса — Москва и МО',
+  title: 'Правовой Бастион — антикризисная юридическая защита бизнеса',
   description: META_DESCRIPTION,
   alternates: {
-    canonical: process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com',
+    canonical: SITE_URL,
   },
   openGraph: {
-    title: 'Антикризисная юридическая защита бизнеса — Москва и МО',
+    title: 'Правовой Бастион — антикризисная юридическая защита бизнеса',
     description: META_DESCRIPTION,
     locale: 'ru_RU',
     type: 'website',

@@ -1,8 +1,7 @@
 import type { Landing } from '@/content/landings';
 import { answeredFaq } from '@/lib/faq';
-import { COMPANY_NAME } from '@/content/company';
-
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com';
+import { COMPANY_NAME, COMPANY_TAGLINE } from '@/content/company';
+import { SITE_URL } from '@/lib/site';
 
 /**
  * Сериализация для <script type="application/ld+json">. Экранируем "<",
@@ -18,6 +17,7 @@ export function organizationSchema() {
     '@context': 'https://schema.org',
     '@type': 'Organization',
     name: COMPANY_NAME,
+    description: COMPANY_TAGLINE,
     url: SITE_URL,
     areaServed: 'RU',
   };

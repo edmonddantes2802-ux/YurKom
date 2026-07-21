@@ -2,6 +2,7 @@
 
 import { reachGoal } from '@/lib/analytics';
 import { PHONE, PHONE_HREF, TELEGRAM_URL } from '@/lib/contacts';
+import { COMPANY_NAME, COMPANY_TAGLINE } from '@/content/company';
 
 export default function Footer() {
   return (
@@ -9,7 +10,8 @@ export default function Footer() {
       <div className="container">
         <div className="footer-grid">
           <div className="footer-col">
-            <div className="footer-brand">Юридическая антикризисная служба</div>
+            <div className="footer-brand">{COMPANY_NAME}</div>
+            <p className="footer-tagline">{COMPANY_TAGLINE}</p>
           </div>
 
           <div className="footer-col">

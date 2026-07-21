@@ -27,7 +27,7 @@ const mono = JetBrains_Mono({
 const METRIKA_ID = process.env.NEXT_PUBLIC_METRIKA_ID;
 
 export const metadata: Metadata = {
-  title: 'Юридическая антикризисная служба',
+  title: 'Правовой Бастион — антикризисная юридическая защита бизнеса',
   description: 'Экстренная юридическая помощь бизнесу и частным лицам.',
 };
 

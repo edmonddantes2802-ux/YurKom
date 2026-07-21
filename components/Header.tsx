@@ -2,13 +2,14 @@
 
 import { reachGoal } from '@/lib/analytics';
 import { PHONE, PHONE_HREF, TELEGRAM_URL } from '@/lib/contacts';
+import { COMPANY_NAME } from '@/content/company';
 
 export default function Header() {
   return (
     <header className="site-header">
       <div className="header-inner">
         <a href="/" className="header-logo">
-          Юридическая антикризисная служба
+          {COMPANY_NAME}
         </a>
         <div className="header-actions">
           {/* На узких экранах номер сворачивается в иконку трубки, но остаётся

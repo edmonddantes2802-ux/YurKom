@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { landings } from '@/content/landings';
 import { legalServiceSchema, faqSchema, serializeJsonLd } from '@/lib/schema';
 import { answeredFaq } from '@/lib/faq';
+import { SITE_URL } from '@/lib/site';
 import ScrollReveal from '@/components/ScrollReveal';
 import Header from '@/components/Header';
 import Hero from '@/components/Hero';
@@ -29,7 +30,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title: landing.metaTitle,
     description: landing.metaDescription,
     alternates: {
-      canonical: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com'}/${landing.slug}`,
+      canonical: `${SITE_URL}/${landing.slug}`,
     },
     openGraph: {
       title: landing.metaTitle,
