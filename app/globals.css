@@ -257,6 +257,14 @@ a:hover { color: var(--color-accent-hover); }
       left top / 100% 1px no-repeat;
   }
   .rail-num { margin-bottom: 1rem; }
+  /* На мобиле рельс — единственный призыв перед футером. Текстовая ссылка
+     в 29px не тач-таргет: добираем до 44 без превращения её в кнопку. */
+  .rail-cta {
+    padding-top: 0.65rem;
+    padding-bottom: 0.65rem;
+    min-height: 44px;
+    align-items: center;
+  }
 }
 
 .divider {
