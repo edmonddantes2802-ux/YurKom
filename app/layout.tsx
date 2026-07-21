@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Script from 'next/script';
 // TODO: заменить на next/font/local, когда появятся файлы лицензированных шрифтов в /fonts.
 // Сейчас — Google-пара serif+grotesque с кириллицей, скачивается на этапе билда (self-hosted).
-import { Playfair_Display, Inter } from 'next/font/google';
+import { Playfair_Display, Inter, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 
 const heading = Playfair_Display({
@@ -17,6 +17,13 @@ const body = Inter({
   display: 'swap',
 });
 
+// Утилитарная моногарнитура: метки, надзаголовки, числовые данные, телефон.
+const mono = JetBrains_Mono({
+  subsets: ['latin', 'cyrillic'],
+  variable: '--font-mono-face',
+  display: 'swap',
+});
+
 const METRIKA_ID = process.env.NEXT_PUBLIC_METRIKA_ID;
 
 export const metadata: Metadata = {
@@ -26,7 +33,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="ru" className={`${heading.variable} ${body.variable}`}>
+    <html lang="ru" className={`${heading.variable} ${body.variable} ${mono.variable}`}>
       <body>
         {children}
         {METRIKA_ID && (

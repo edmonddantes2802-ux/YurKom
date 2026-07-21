@@ -51,7 +51,13 @@
       "Bash(curl -s http://localhost:3000/arest-scheta -o /tmp/p.html -w \"code=%{http_code} size=%{size_download}\\\\n\")",
       "Bash(taskkill //F //PID 16656)",
       "Bash(python -c ' *)",
-      "Bash(git push *)"
+      "Bash(git push *)",
+      "Bash(node -e \"console.log\\('WebSocket global:', typeof WebSocket\\)\")",
+      "Bash(/c/Program Files/Google/Chrome/Application/chrome.exe *)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://127.0.0.1:3111/arest-scheta)",
+      "Bash(node C:/Users/edmon/AppData/Local/Temp/claude/C--Wibecoding-Work-YurKom/ba011856-e3af-442d-81b7-42fb24157123/scratchpad/shot.mjs http://127.0.0.1:3111/arest-scheta C:/Users/edmon/AppData/Local/Temp/claude/C--Wibecoding-Work-YurKom/ba011856-e3af-442d-81b7-42fb24157123/scratchpad/full-desktop.png 1440)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://127.0.0.1:3112/arest-scheta)",
+      "Bash(node *)"
     ]
   }
 }

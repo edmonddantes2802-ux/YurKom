@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useId, useRef, useState } from 'react';
 import Button from '@/components/ui/Button';
 import { reachGoal, collectUtm } from '@/lib/analytics';
 
@@ -19,6 +19,11 @@ export default function Qualifier({ slug, prompt }: { slug: string; prompt: stri
   const [errorText, setErrorText] = useState('');
   const startedRef = useRef(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const baseId = useId();
+
+  const chipsLabelId = `${baseId}-chips`;
+  const messageId = `${baseId}-message`;
+  const phoneId = `${baseId}-phone`;
 
   function handleFocus() {
     if (!startedRef.current) {
@@ -75,7 +80,7 @@ export default function Qualifier({ slug, prompt }: { slug: string; prompt: stri
   if (status === 'success') {
     return (
       <div className="qualifier-wrap" id="qualifier" data-reveal data-reveal-delay="3">
-        <div className="qualifier qualifier-success">
+        <div className="qualifier notched qualifier-success">
           <h3>Заявка отправлена</h3>
           <p className="qualifier-status success">
             Мы изучим вашу ситуацию и свяжемся с вами в ближайшее время.
@@ -87,10 +92,14 @@ export default function Qualifier({ slug, prompt }: { slug: string; prompt: stri
 
   return (
     <div className="qualifier-wrap" id="qualifier" data-reveal data-reveal-delay="3">
-      <form className="qualifier" onSubmit={handleSubmit}>
+      <form className="qualifier notched" onSubmit={handleSubmit}>
         <h3>Опишите ситуацию</h3>
         <p className="qualifier-hint">{prompt}</p>
-        <div className="qualifier-chips">
+
+        <span className="qualifier-label" id={chipsLabelId}>
+          С чего начать
+        </span>
+        <div className="qualifier-chips" role="group" aria-labelledby={chipsLabelId}>
           {HINT_CHIPS.map((chip) => (
             <button
               key={chip.label}
@@ -102,8 +111,13 @@ export default function Qualifier({ slug, prompt }: { slug: string; prompt: stri
             </button>
           ))}
         </div>
+
+        <label className="qualifier-label" htmlFor={messageId}>
+          Ситуация
+        </label>
         <textarea
           ref={textareaRef}
+          id={messageId}
           name="message"
           required
           minLength={10}
@@ -113,7 +127,12 @@ export default function Qualifier({ slug, prompt }: { slug: string; prompt: stri
           onChange={(e) => setMessage(e.target.value)}
           onFocus={handleFocus}
         />
+
+        <label className="qualifier-label" htmlFor={phoneId}>
+          Телефон
+        </label>
         <input
+          id={phoneId}
           name="phone"
           type="tel"
           maxLength={32}
@@ -122,18 +141,23 @@ export default function Qualifier({ slug, prompt }: { slug: string; prompt: stri
           onChange={(e) => setPhone(e.target.value)}
           onFocus={handleFocus}
         />
+
         <div className="hp-field" aria-hidden="true">
           <label>
             Website
             <input name="website" type="text" tabIndex={-1} autoComplete="off" />
           </label>
         </div>
-        <span className="urgency-badge">
-          Реагируем в течение 30 минут — при аресте каждый день на счету
-        </span>
-        <Button type="submit" disabled={status === 'sending'} style={{ width: '100%' }}>
-          {status === 'sending' ? 'Отправляем…' : 'Получить оценку ситуации'}
-        </Button>
+
+        <div className="qualifier-actions">
+          <span className="urgency-badge">
+            Реагируем в течение 30 минут — при аресте каждый день на счету
+          </span>
+          <Button type="submit" disabled={status === 'sending'} style={{ width: '100%' }}>
+            {status === 'sending' ? 'Отправляем…' : 'Получить оценку ситуации'}
+          </Button>
+        </div>
+
         {status === 'error' && <p className="qualifier-status error">{errorText}</p>}
       </form>
     </div>

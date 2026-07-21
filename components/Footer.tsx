@@ -10,9 +10,17 @@ export default function Footer() {
   return (
     <footer className="footer">
       <div className="container">
-        <div className="footer-inner">
-          <div className="footer-links">
+        <div className="footer-grid">
+          <div className="footer-col">
+            <div className="footer-brand">Юридическая антикризисная служба</div>
+          </div>
+
+          <div className="footer-col">
+            <a className="mono" href={PHONE_HREF} onClick={() => reachGoal('phone_click')}>
+              {PHONE}
+            </a>
             <a
+              className="mono"
               href={TELEGRAM_URL}
               target="_blank"
               rel="noopener noreferrer"
@@ -20,11 +28,16 @@ export default function Footer() {
             >
               Telegram
             </a>
-            <a href={PHONE_HREF} onClick={() => reachGoal('phone_click')}>
-              {PHONE}
-            </a>
           </div>
-          <p>&copy; {new Date().getFullYear()} &middot; Юридическая антикризисная служба</p>
+
+          <div className="footer-col">
+            <a href="#qualifier">Оценить ситуацию</a>
+          </div>
+        </div>
+
+        <div className="footer-note">
+          <span>&copy; {new Date().getFullYear()}</span>
+          <span>Информация на сайте не является публичной офертой</span>
         </div>
       </div>
     </footer>

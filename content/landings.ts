@@ -1,4 +1,11 @@
-export type Case = { problem: string; action: string; result: string };
+export type Case = {
+  problem: string;
+  action: string;
+  result: string;
+  /** Срок до результата в днях. Задан — под кейсом рисуется шкала срока,
+   *  не задан — блок шкалы просто не отображается. */
+  days?: number;
+};
 
 export type Landing = {
   slug: string;
@@ -45,6 +52,7 @@ export const landings: Record<string, Landing> = {
         problem: 'Плейсхолдер: арест счёта ООО на 4,2 млн ₽ по иску контрагента',
         action: 'Плейсхолдер: оспорили обеспечительные меры, подали встречные документы',
         result: 'Плейсхолдер: арест снят за 9 дней, счёт разблокирован',
+        days: 9,
       },
       {
         problem: 'Плейсхолдер: приставы арестовали все счета ИП',
