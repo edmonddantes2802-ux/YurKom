@@ -1,5 +1,5 @@
 import Qualifier from '@/components/Qualifier';
-import { TRUST_MARKERS } from '@/content/company';
+import { TRUST_MARKERS, COMPANY_SLOGAN } from '@/content/company';
 
 const HOME_CHIPS = [
   { label: 'Заблокировали счёт', prefix: 'Заблокировали счёт: ' },
@@ -14,6 +14,9 @@ export default function HomeHero() {
       <div className="container hero-grid">
         <div data-reveal>
           <h1>Антикризисная юридическая защита бизнеса</h1>
+          {/* Слоган — второй типографический уровень между h1 и пояснением:
+              serif, крупнее подзаголовка, отбит золотой чертой. */}
+          <p className="hero-slogan">{COMPANY_SLOGAN}</p>
           <p className="hero-subtitle">
             Работаем с ситуациями, где счёт идёт на дни: блокировки счетов, субсидиарная
             ответственность, налоговые споры, защита личных активов.
