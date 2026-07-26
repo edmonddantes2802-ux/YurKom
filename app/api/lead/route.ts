@@ -3,6 +3,7 @@ import { appendFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { LANDING_SLUGS } from '@/content/landings';
+import { sendTelegramMessage, formatLead, type LeadPayload } from '@/lib/telegram';
 
 export const runtime = 'nodejs';
 
@@ -37,7 +38,6 @@ setInterval(() => {
 const SITUATION_MIN = 10;
 const SITUATION_MAX = 5000;
 const PHONE_MAX = 32;
-const N8N_TIMEOUT_MS = 5_000;
 
 /** Известные источники: слаги посадочных плюс главная. */
 const KNOWN_SOURCES = new Set([...LANDING_SLUGS, 'homepage']);
@@ -54,15 +54,11 @@ type LeadBody = {
   website?: string;
 };
 
-type Lead = {
-  situation: string;
-  phone: string;
-  source: string;
-  utm: Record<string, string>;
-};
+/** Форма заявки общая с `lib/telegram.ts`: там же живёт её формат для чата. */
+type Lead = LeadPayload;
 
 /**
- * Заявка, которую не удалось передать в n8n. Пишем в stdout с маркером
+ * Заявка, которую не удалось доставить в Telegram. Пишем в stdout с маркером
  * LEAD_FALLBACK (его видно в логах контейнера) и дублируем в файл.
  * Ошибку записи в файл гасим: потерять лог неприятно, но ответ клиенту
  * это ломать не должно.
@@ -108,7 +104,7 @@ export async function POST(req: NextRequest) {
   const phone = typeof body.phone === 'string' ? body.phone.trim() : '';
 
   // Источник — слаг посадочной или 'homepage'. Неизвестное значение не
-  // пробрасываем, чтобы в n8n не приезжало произвольное содержимое запроса.
+  // пробрасываем, чтобы в чат не приезжало произвольное содержимое запроса.
   const rawSource = typeof body.source === 'string' ? body.source.trim() : '';
   const source = KNOWN_SOURCES.has(rawSource) ? rawSource : 'unknown';
 
@@ -133,33 +129,15 @@ export async function POST(req: NextRequest) {
 
   const lead: Lead = { situation: text, phone, source, utm };
 
-  // Дальше клиент в любом случае получает успех: заявка либо ушла в n8n,
+  // Дальше клиент в любом случае получает успех: заявка либо ушла в Telegram,
   // либо легла в fallback-лог. Показывать посетителю в кризисе поломку
   // интеграции бессмысленно — он просто уйдёт к конкуренту.
-  const webhookUrl = process.env.N8N_WEBHOOK_URL;
-  if (!webhookUrl) {
-    await logFallback(lead, ip, 'N8N_WEBHOOK_URL is not configured');
-    return NextResponse.json({ ok: true });
+  const result = await sendTelegramMessage(formatLead(lead, ip));
+  if (!result.ok) {
+    await logFallback(lead, ip, result.reason);
   }
 
-  try {
-    const res = await fetch(webhookUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(lead),
-      signal: AbortSignal.timeout(N8N_TIMEOUT_MS),
-    });
-
-    if (!res.ok) {
-      await logFallback(lead, ip, `n8n responded ${res.status}`);
-    }
-  } catch (err) {
-    // Сюда же попадает таймаут: AbortSignal.timeout бросает TimeoutError.
-    const reason = err instanceof Error ? `${err.name}: ${err.message}` : 'unknown error';
-    await logFallback(lead, ip, reason);
-  }
-
-  // Ответ n8n клиенту не возвращаем: категория и срочность — для команды
-  // в Telegram, посетителю это не показываем.
+  // Что именно ответил Telegram, клиенту не сообщаем: это внутренняя кухня,
+  // посетителю показываем только «заявка принята».
   return NextResponse.json({ ok: true });
 }

@@ -24,7 +24,9 @@ npm start          # http://localhost:3171
 | Переменная | Где читается | Без значения |
 |---|---|---|
 | `NEXT_PUBLIC_METRIKA_ID` | клиент (инлайн при билде) | Метрика отключена |
-| `N8N_WEBHOOK_URL` | только сервер, `/api/lead` | форма отвечает 503 |
+| `TELEGRAM_BOT_TOKEN` | только сервер | заявка уходит в fallback-лог, клиент видит успех |
+| `TELEGRAM_CHAT_ID` | только сервер | то же самое |
+| `TELEGRAM_WEBHOOK_SECRET` | только сервер, `/api/telegram/webhook` | вебхук принимает запросы без проверки подлинности |
 | `NEXT_PUBLIC_SITE_URL` | sitemap/robots/canonical/JSON-LD (инлайн при билде) | фолбэк `https://mitragost.ru` |
 
 Важно: `NEXT_PUBLIC_*` инлайнятся на этапе **билда** — при смене значения нужен ребилд, а не рестарт.
@@ -33,7 +35,7 @@ npm start          # http://localhost:3171
 
 1. Новый ресурс → Application → Git-репозиторий, ветка `main`.
 2. Build Pack: **Dockerfile** (лежит в корне).
-3. Env: задать `NEXT_PUBLIC_METRIKA_ID`, `NEXT_PUBLIC_SITE_URL` как **Build Variables** (инлайнятся при билде, в Dockerfile объявлены как ARG), `N8N_WEBHOOK_URL` — как runtime-переменную.
+3. Env: задать `NEXT_PUBLIC_METRIKA_ID`, `NEXT_PUBLIC_SITE_URL` как **Build Variables** (инлайнятся при билде, в Dockerfile объявлены как ARG), `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`, `TELEGRAM_WEBHOOK_SECRET` — как runtime-переменные.
 4. Порт приложения: `3000` (внутри контейнера; с локальными 3170/3171 не пересекается).
 5. Healthcheck: `GET /api/health` → `{"status":"ok"}` (в Dockerfile уже есть HEALTHCHECK; в Coolify можно указать путь `/api/health`).
 
@@ -59,7 +61,9 @@ npm start          # http://localhost:3171
 
 - `content/landings.ts` — источник правды по посадочным (типизирован)
 - `app/[slug]/page.tsx` — шаблон посадочной (SSG, `generateStaticParams`)
-- `app/api/lead/route.ts` — приём заявок: honeypot, rate limit, прокси на n8n
+- `app/api/lead/route.ts` — приём заявок: honeypot, rate limit, отправка в Telegram
+- `app/api/telegram/webhook/route.ts` — бот-секретарь: приём сообщений, пересылка в группу, ответ клиенту
+- `lib/telegram.ts` — отправка в Telegram и формат сообщений
 - `app/api/health/route.ts` — healthcheck
 - `lib/analytics.ts` — цели Метрики (`qualifier_started`, `qualifier_submitted`, `lead_created`, `telegram_click`, `phone_click`) + сбор utm_*
 - `lib/schema.ts` — JSON-LD (LegalService, FAQPage)

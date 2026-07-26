@@ -15,10 +15,11 @@
 # debug
 npm-debug.log*
 
-# env
-.env
-.env.local
-.env.*.local
+# env — под секреты (токен бота, chat_id). Игнорируем всё, кроме шаблона:
+# прежний список не покрывал .env.production и .env.development, а положить
+# туда боевой токен — вопрос одной невнимательной команды.
+.env*
+!.env.example
 
 # typescript
 *.tsbuildinfo
