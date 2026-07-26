@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { sendTelegramMessage, moscowTime } from '@/lib/telegram';
 import { composeReply } from '@/lib/bot-reply';
+import { aiReply } from '@/lib/ai';
 
 export const runtime = 'nodejs';
 
@@ -35,9 +36,15 @@ function ok(): NextResponse {
   return NextResponse.json({ ok: true });
 }
 
-/** Единый лог выхода. Без него молчащий бот неотличим от недошедшего апдейта. */
+/**
+ * Единый лог выхода. Без него молчащий бот неотличим от недошедшего апдейта.
+ *
+ * Пишем в stderr, а не в stdout: в логах контейнера Coolify строки от
+ * `console.error` (маркер LEAD_FALLBACK) видно, а `console.log` из роутов —
+ * нет. Диагностика, которую не видно, бесполезна.
+ */
 function logExit(fields: Record<string, unknown>): void {
-  console.log('BOT_REPLY', JSON.stringify(fields));
+  console.error('BOT_REPLY', JSON.stringify(fields));
 }
 
 type TelegramUser = {
@@ -85,7 +92,40 @@ const START_REPLY = [
   'Юрист прочитает и свяжется с вами.',
 ].join('\n');
 
+/**
+ * Проверка живости роута снаружи, без секретов в ответе.
+ *
+ * Отвечает на вопрос «доехала ли сборка и что в ней настроено» одной
+ * командой с любой машины:
+ *   curl -s https://mitragost.ru/api/telegram/webhook
+ *
+ * Значения переменных не раскрываются — только факт, что они заданы.
+ */
+export async function GET() {
+  return NextResponse.json({
+    ok: true,
+    route: 'telegram-webhook',
+    /** Меняется при каждой правке этого файла — видно, что версия свежая. */
+    revision: 'diagnostics-1',
+    configured: {
+      botToken: Boolean(process.env.TELEGRAM_BOT_TOKEN),
+      chatId: Boolean(process.env.TELEGRAM_CHAT_ID),
+      webhookSecret: Boolean(process.env.TELEGRAM_WEBHOOK_SECRET),
+      ai: Boolean(aiReply),
+    },
+    now: new Date().toISOString(),
+  });
+}
+
 export async function POST(req: NextRequest) {
+  // Факт вызова фиксируем ДО любых проверок: иначе «Telegram не доставил»
+  // и «доставил, но роут отверг» выглядят снаружи одинаково.
+  logExit({
+    via: 'hit',
+    hasSecretHeader: Boolean(req.headers.get('x-telegram-bot-api-secret-token')),
+    contentLength: req.headers.get('content-length') ?? undefined,
+  });
+
   // Вебхук открыт наружу, поэтому сверяем секрет. Не задан — пропускаем
   // проверку, но это допустимо только на стенде (см. .env.example).
   const secret = process.env.TELEGRAM_WEBHOOK_SECRET;

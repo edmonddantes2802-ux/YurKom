@@ -68,3 +68,30 @@ npm start          # http://localhost:3171
 - `lib/analytics.ts` — цели Метрики (`qualifier_started`, `qualifier_submitted`, `lead_created`, `telegram_click`, `phone_click`) + сбор utm_*
 - `lib/schema.ts` — JSON-LD (LegalService, FAQPage)
 - `app/globals.css` — дизайн-токены в `:root` (перекраска в одном месте)
+
+## Диагностика бота-секретаря
+
+**Живость роута и что настроено — одной командой снаружи:**
+
+```bash
+curl -s https://mitragost.ru/api/telegram/webhook
+# {"ok":true,"route":"telegram-webhook","revision":"...","configured":{"botToken":true,...}}
+```
+
+`configured` показывает только факт, что переменная задана, без значений. Если ответ 404 или `revision` старый — сборка не доехала.
+
+**Проверка обработки настоящего апдейта (ответ придёт вам в личку):**
+
+```bash
+SECRET='<TELEGRAM_WEBHOOK_SECRET>'; MY_ID='<ваш telegram id, узнать у @userinfobot>'
+curl -i -X POST https://mitragost.ru/api/telegram/webhook \
+  -H 'Content-Type: application/json' \
+  -H "X-Telegram-Bot-Api-Secret-Token: $SECRET" \
+  -d "{\"update_id\":1,\"message\":{\"message_id\":1,\"from\":{\"id\":$MY_ID,\"first_name\":\"Test\"},\"chat\":{\"id\":$MY_ID,\"type\":\"private\"},\"text\":\"проверка вебхука\"}}"
+```
+
+`200 {"ok":true}` + сообщение от бота = работает. `401` — секрет не совпадает с тем, что задан в `setWebhook`.
+
+**Логи.** Роут пишет в **stderr** маркером `BOT_REPLY`: `via: hit` (запрос дошёл), затем `rejected` | `skipped` | `ai` | `fallback`. `console.log` из роутов в логах контейнера может не отображаться — поэтому диагностика идёт через `console.error`.
+
+**Порт внутри контейнера — `127.0.0.1:3000`, не `localhost:3000`.** Standalone-сервер слушает `0.0.0.0:3000` по IPv4 (`server.js`: `process.env.HOSTNAME || '0.0.0.0'`), а `localhost` в alpine резолвится сначала в IPv6 `::1` — оттуда `Connection refused`. По этой же причине HEALTHCHECK в `Dockerfile` использует `127.0.0.1`.
