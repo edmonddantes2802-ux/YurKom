@@ -36,7 +36,11 @@ export default function Metrika() {
               clickmap: true,
               trackLinks: true,
               accurateTrackBounce: true,
-              webvisor: false
+              // Записи сессий нужны для разбора юзабилити на старте.
+              // Поля формы закрыты классом ym-disable-keys (components/Qualifier.tsx):
+              // ситуация и телефон — персональные данные, их Вебвизор не пишет.
+              // Добавляя новые поля ввода, вешать этот класс на них тоже.
+              webvisor: true
             });
           })
           (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
