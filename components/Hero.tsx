@@ -1,13 +1,8 @@
 import type { Landing } from '@/content/landings';
 import Qualifier from '@/components/Qualifier';
-
-// Разбито на число + подпись ради типографической подачи (крупный serif +
-// моно-капс). Формулировки не изменены.
-const TRUST_MARKERS = [
-  { value: '18 лет', label: 'практики' },
-  { value: '3 200+', label: 'выигранных дел' },
-  { value: 'Москва', label: 'и МО' },
-];
+// Один источник маркеров на главную и посадочные: раздвоение как раз и привело
+// к тому, что неподтверждённые цифры лежали в двух местах.
+import { TRUST_MARKERS } from '@/content/company';
 
 export default function Hero({ landing }: { landing: Landing }) {
   return (
