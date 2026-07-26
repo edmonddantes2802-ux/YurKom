@@ -3,6 +3,7 @@
 import { useId, useRef, useState } from 'react';
 import Button from '@/components/ui/Button';
 import { reachGoal, collectUtm } from '@/lib/analytics';
+import { SITUATION_MIN, SITUATION_MAX, PHONE_INPUT_MAX } from '@/lib/limits';
 
 type Status = 'idle' | 'sending' | 'success' | 'error';
 
@@ -137,8 +138,8 @@ export default function Qualifier({
           id={messageId}
           name="message"
           required
-          minLength={10}
-          maxLength={5000}
+          minLength={SITUATION_MIN}
+          maxLength={SITUATION_MAX}
           placeholder={placeholder}
           value={message}
           onChange={(e) => setMessage(e.target.value)}
@@ -152,7 +153,7 @@ export default function Qualifier({
           id={phoneId}
           name="phone"
           type="tel"
-          maxLength={32}
+          maxLength={PHONE_INPUT_MAX}
           placeholder="Телефон для связи (необязательно)"
           value={phone}
           onChange={(e) => setPhone(e.target.value)}

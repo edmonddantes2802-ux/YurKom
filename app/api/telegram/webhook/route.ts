@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { sendTelegramMessage, moscowTime } from '@/lib/telegram';
 import { composeReply } from '@/lib/bot-reply';
+import { sanitizeText } from '@/lib/validation';
+import { SITUATION_MAX } from '@/lib/limits';
 
 export const runtime = 'nodejs';
 
@@ -64,11 +66,20 @@ type TelegramUpdate = {
   channel_post?: TelegramMessage;
 };
 
-/** Как подписать отправителя в пересылке. */
+/**
+ * Как подписать отправителя в пересылке.
+ *
+ * Имя и username задаёт сам пользователь Telegram, поэтому они чистятся
+ * наравне с текстом: в имя помещается и перевод строки, и невидимые символы,
+ * которыми подпись можно подделать под соседнюю строку сообщения.
+ */
 function describeSender(from: TelegramUser | undefined, chatId: string): string {
-  const name = [from?.first_name, from?.last_name].filter(Boolean).join(' ').trim();
+  const clean = (value: string | undefined) =>
+    typeof value === 'string' ? sanitizeText(value, 64).replace(/\n/g, ' ') : '';
+  const name = [clean(from?.first_name), clean(from?.last_name)].filter(Boolean).join(' ').trim();
+  const username = clean(from?.username);
   const parts = [name || 'без имени'];
-  if (from?.username) parts.push(`@${from.username}`);
+  if (username) parts.push(`@${username}`);
   parts.push(`chat ${chatId}`);
   return parts.join(', ');
 }
@@ -107,7 +118,9 @@ export async function POST(req: NextRequest) {
   const message = update.message ?? update.edited_message ?? update.channel_post;
   const chatId = message?.chat?.id !== undefined ? String(message.chat.id) : '';
   const raw = typeof message?.text === 'string' ? message.text : message?.caption;
-  const text = typeof raw === 'string' ? raw.trim() : '';
+  // Текст пересылается в рабочий чат, поэтому чистим так же, как заявку с
+  // формы: управляющие символы, невидимки, лимит длины.
+  const text = typeof raw === 'string' ? sanitizeText(raw, SITUATION_MAX) : '';
 
   if (!chatId || !text) {
     // Стикер, фото без подписи, служебное событие. Пишем, ЧТО именно пришло —

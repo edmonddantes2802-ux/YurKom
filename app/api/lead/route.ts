@@ -4,6 +4,7 @@ import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { LANDING_SLUGS } from '@/content/landings';
 import { sendTelegramMessage, formatLead, type LeadPayload } from '@/lib/telegram';
+import { normalizePhone, sanitizeText, SITUATION_MIN, SITUATION_MAX } from '@/lib/validation';
 
 export const runtime = 'nodejs';
 
@@ -35,9 +36,32 @@ setInterval(() => {
   }
 }, WINDOW_MS).unref?.();
 
-const SITUATION_MIN = 10;
-const SITUATION_MAX = 5000;
-const PHONE_MAX = 32;
+/**
+ * IP клиента за обратным прокси.
+ *
+ * `X-Forwarded-For` — это цепочка: каждый прокси ДОПИСЫВАЕТ адрес, от
+ * которого получил запрос, в конец. Клиент может прислать заголовок сам, и
+ * его значение окажется в начале — поэтому брать первый элемент нельзя:
+ * проверка на проде показала, что с подставным `X-Forwarded-For` лимит
+ * обходится с первого же запроса. Берём элемент, дописанный НАШИМ прокси, —
+ * последний. Если прокси перед приложением несколько, число хопов задаётся
+ * `TRUSTED_PROXY_HOPS`.
+ */
+function clientIp(req: NextRequest): string {
+  const chain = (req.headers.get('x-forwarded-for') ?? '')
+    .split(',')
+    .map((part) => part.trim())
+    .filter(Boolean);
+
+  if (chain.length > 0) {
+    const hops = Math.max(1, Number(process.env.TRUSTED_PROXY_HOPS) || 1);
+    const index = Math.max(0, chain.length - hops);
+    return chain[index];
+  }
+
+  // x-real-ip ставит сам прокси, подделать его снаружи нельзя.
+  return req.headers.get('x-real-ip')?.trim() || 'unknown';
+}
 
 /** Известные источники: слаги посадочных плюс главная. */
 const KNOWN_SOURCES = new Set([...LANDING_SLUGS, 'homepage']);
@@ -76,10 +100,7 @@ async function logFallback(lead: Lead, ip: string, reason: string) {
 }
 
 export async function POST(req: NextRequest) {
-  const ip =
-    req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
-    req.headers.get('x-real-ip') ||
-    'unknown';
+  const ip = clientIp(req);
 
   if (isRateLimited(ip)) {
     return NextResponse.json({ ok: false, error: 'Слишком много запросов' }, { status: 429 });
@@ -98,31 +119,51 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: true });
   }
 
-  const situation = typeof body.situation === 'string' ? body.situation.trim() : '';
-  const legacyMessage = typeof body.message === 'string' ? body.message.trim() : '';
-  const text = situation || legacyMessage;
-  const phone = typeof body.phone === 'string' ? body.phone.trim() : '';
+  // Текст чистим до проверки длины: управляющие символы и невидимки не должны
+  // добирать длину до минимума и не должны уезжать ни в чат, ни в лог.
+  const situation = typeof body.situation === 'string' ? body.situation : '';
+  const legacyMessage = typeof body.message === 'string' ? body.message : '';
+  const text = sanitizeText(situation || legacyMessage, SITUATION_MAX);
+  const rawPhone = typeof body.phone === 'string' ? body.phone : '';
 
   // Источник — слаг посадочной или 'homepage'. Неизвестное значение не
   // пробрасываем, чтобы в чат не приезжало произвольное содержимое запроса.
   const rawSource = typeof body.source === 'string' ? body.source.trim() : '';
   const source = KNOWN_SOURCES.has(rawSource) ? rawSource : 'unknown';
 
-  if (!text || text.length < SITUATION_MIN || text.length > SITUATION_MAX) {
+  if (!text || text.length < SITUATION_MIN) {
     return NextResponse.json(
-      { ok: false, error: 'Опишите ситуацию подробнее (минимум 10 символов)' },
+      { ok: false, error: `Опишите ситуацию подробнее (минимум ${SITUATION_MIN} символов)` },
       { status: 400 },
     );
   }
-  if (phone.length > PHONE_MAX) {
-    return NextResponse.json({ ok: false, error: 'Некорректный телефон' }, { status: 400 });
+
+  // Телефон необязателен: без него связываемся другим способом. Но если он
+  // указан — он должен быть телефоном, иначе заявка приходит с «99999999»,
+  // и юрист тратит время на несуществующий номер.
+  let phone = '';
+  if (rawPhone.trim()) {
+    const parsed = normalizePhone(rawPhone);
+    if (!parsed.ok) {
+      return NextResponse.json(
+        {
+          ok: false,
+          error:
+            'Проверьте номер телефона: нужен российский или международный номер, например +7 929 992-28-84',
+        },
+        { status: 400 },
+      );
+    }
+    phone = parsed.e164;
   }
 
   const utm: Record<string, string> = {};
   if (body.utm && typeof body.utm === 'object') {
     for (const [key, value] of Object.entries(body.utm)) {
+      // Метки тоже уезжают в сообщение — чистим их так же, как текст.
       if (key.startsWith('utm_') && typeof value === 'string') {
-        utm[key] = value.slice(0, 256);
+        const clean = sanitizeText(value, 256).replace(/\n/g, ' ');
+        if (clean) utm[key] = clean;
       }
     }
   }
