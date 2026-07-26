@@ -15,7 +15,7 @@ export default function Footer() {
           </div>
 
           <div className="footer-col">
-            <a className="mono" href={PHONE_HREF} onClick={() => reachGoal('phone_click')}>
+            <a className="mono" href={PHONE_HREF} onClick={() => reachGoal('click_phone')}>
               {PHONE}
             </a>
             <a
@@ -23,7 +23,7 @@ export default function Footer() {
               href={TELEGRAM_URL}
               target="_blank"
               rel="noopener noreferrer"
-              onClick={() => reachGoal('telegram_click')}
+              onClick={() => reachGoal('click_telegram')}
             >
               Telegram
             </a>

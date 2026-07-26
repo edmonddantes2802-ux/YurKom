@@ -33,7 +33,7 @@ export default function SectionRail({
         <span aria-hidden="true">→</span>
       </a>
       <div className="rail-contacts">
-        <a className="mono" href={PHONE_HREF} onClick={() => reachGoal('phone_click')}>
+        <a className="mono" href={PHONE_HREF} onClick={() => reachGoal('click_phone')}>
           {PHONE}
         </a>
         {showTelegram && (
@@ -42,7 +42,7 @@ export default function SectionRail({
             href={TELEGRAM_URL}
             target="_blank"
             rel="noopener noreferrer"
-            onClick={() => reachGoal('telegram_click')}
+            onClick={() => reachGoal('click_telegram')}
           >
             Telegram
           </a>

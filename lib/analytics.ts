@@ -1,20 +1,76 @@
 'use client';
 
+/**
+ * Обёртка над Яндекс.Метрикой. Никакой логики поверх — только гарантия, что
+ * счётчик, которого нет (не загрузился, заблокирован адблоком, отключён на
+ * localhost), не уронит обработчик клика по телефону.
+ *
+ * ID берётся ТОЛЬКО из NEXT_PUBLIC_METRIKA_ID. Хардкод номера счётчика
+ * запрещён: на стенде и в проде счётчики разные, а зашитый номер молча
+ * пишет тестовый трафик в боевую статистику.
+ */
+
 export type MetrikaGoal =
-  'qualifier_started' | 'qualifier_submitted' | 'lead_created' | 'telegram_click' | 'phone_click';
+  /** Первый фокус в форме-квалификаторе. */
+  | 'qualifier_started'
+  /** Нажата кнопка отправки (ещё не знаем, дошло ли). */
+  | 'qualifier_submitted'
+  /** Заявка принята сервером — целевое действие. */
+  | 'lead_form'
+  | 'click_phone'
+  | 'click_telegram';
 
 declare global {
   interface Window {
-    ym?: (id: number, action: string, goal: string, params?: Record<string, unknown>) => void;
+    ym?: (id: number, action: string, ...args: unknown[]) => void;
   }
 }
 
-const METRIKA_ID = Number(process.env.NEXT_PUBLIC_METRIKA_ID);
+export const METRIKA_ID = Number(process.env.NEXT_PUBLIC_METRIKA_ID) || 0;
+
+/**
+ * Локальная разработка счётчик не трогает: иначе отладочные заходы и
+ * тестовые отправки формы попадают в боевую статистику и портят конверсию.
+ */
+export function isLocalHost(hostname: string): boolean {
+  return (
+    hostname === 'localhost' ||
+    hostname === '127.0.0.1' ||
+    hostname === '[::1]' ||
+    hostname === '::1' ||
+    hostname.endsWith('.localhost')
+  );
+}
+
+/** Метрику вообще имеет смысл дёргать? ID задан, мы в браузере и не на localhost. */
+export function isMetrikaEnabled(): boolean {
+  if (typeof window === 'undefined') return false;
+  if (!METRIKA_ID) return false;
+  return !isLocalHost(window.location.hostname);
+}
+
+/**
+ * Единственная точка вызова `window.ym`. Любая ошибка внутри счётчика
+ * гасится: аналитика не должна ломать пользовательский сценарий.
+ */
+function call(action: string, ...args: unknown[]): void {
+  if (!isMetrikaEnabled()) return;
+  const ym = window.ym;
+  if (typeof ym !== 'function') return;
+  try {
+    ym(METRIKA_ID, action, ...args);
+  } catch {
+    // счётчик не загрузился или упал — молча продолжаем
+  }
+}
 
 export function reachGoal(goal: MetrikaGoal, params?: Record<string, unknown>): void {
-  if (typeof window === 'undefined') return;
-  if (!METRIKA_ID || !window.ym) return;
-  window.ym(METRIKA_ID, 'reachGoal', goal, params);
+  call('reachGoal', goal, params);
+}
+
+/** Просмотр страницы при клиентской навигации App Router. */
+export function hit(url: string): void {
+  call('hit', url);
 }
 
 /** Собирает utm_* из текущего URL (и сохранённые ранее в sessionStorage). */

@@ -77,7 +77,7 @@ export default function Qualifier({
       const data = await res.json();
       if (res.ok && data.ok) {
         setStatus('success');
-        reachGoal('lead_created', { slug });
+        reachGoal('lead_form', { slug });
       } else {
         setStatus('error');
         setErrorText(data.error || 'Не удалось отправить. Попробуйте ещё раз.');

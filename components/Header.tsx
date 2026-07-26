@@ -18,7 +18,7 @@ export default function Header() {
             href={PHONE_HREF}
             className="header-phone"
             aria-label={`Позвонить ${PHONE}`}
-            onClick={() => reachGoal('phone_click')}
+            onClick={() => reachGoal('click_phone')}
           >
             <svg
               className="header-phone-icon"
@@ -39,7 +39,7 @@ export default function Header() {
             className="header-tg"
             target="_blank"
             rel="noopener noreferrer"
-            onClick={() => reachGoal('telegram_click')}
+            onClick={() => reachGoal('click_telegram')}
           >
             Telegram
           </a>
