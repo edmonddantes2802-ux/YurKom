@@ -133,7 +133,10 @@ export default function Qualifier({
         <label className="qualifier-label" htmlFor={messageId}>
           Ситуация
         </label>
+        {/* ym-disable-keys — Вебвизор Метрики не пишет то, что здесь набирают.
+            В поле попадают персональные данные и обстоятельства дела. */}
         <textarea
+          className="ym-disable-keys"
           ref={textareaRef}
           id={messageId}
           name="message"
@@ -150,6 +153,7 @@ export default function Qualifier({
           Телефон
         </label>
         <input
+          className="ym-disable-keys"
           id={phoneId}
           name="phone"
           type="tel"
