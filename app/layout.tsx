@@ -1,5 +1,6 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import Script from 'next/script';
+import { SITE_URL } from '@/lib/site';
 // TODO: заменить на next/font/local, когда появятся файлы лицензированных шрифтов в /fonts.
 // Сейчас — Google-пара serif+grotesque с кириллицей, скачивается на этапе билда (self-hosted).
 import { Playfair_Display, Inter, JetBrains_Mono } from 'next/font/google';
@@ -27,8 +28,29 @@ const mono = JetBrains_Mono({
 const METRIKA_ID = process.env.NEXT_PUBLIC_METRIKA_ID;
 
 export const metadata: Metadata = {
+  // Без базы относительные пути в og:image остаются относительными, и соцсети
+  // их не разворачивают. Берётся из того же источника, что канонические ссылки.
+  metadataBase: new URL(SITE_URL),
   title: 'Митрагост — антикризисная юридическая защита бизнеса',
   description: 'Экстренная юридическая помощь бизнесу и частным лицам.',
+  manifest: '/manifest.json',
+  icons: {
+    icon: [
+      { url: '/favicon.ico', sizes: '16x16 32x32 48x48' },
+      { url: '/favicon-32.png', type: 'image/png', sizes: '32x32' },
+      { url: '/icon-192.png', type: 'image/png', sizes: '192x192' },
+      { url: '/icon-512.png', type: 'image/png', sizes: '512x512' },
+    ],
+    apple: [{ url: '/apple-touch-icon.png', sizes: '180x180' }],
+  },
+  // Страницы задают свой openGraph целиком, а twitter не переопределяют —
+  // карточка наследуется отсюда на весь сайт.
+  twitter: { card: 'summary_large_image' },
+};
+
+export const viewport: Viewport = {
+  themeColor: '#0e0f12',
+  colorScheme: 'dark',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

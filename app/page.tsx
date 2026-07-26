@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { organizationSchema, homeLegalServiceSchema, serializeJsonLd } from '@/lib/schema';
-import { SITE_URL } from '@/lib/site';
+import { SITE_URL, OG_IMAGE } from '@/lib/site';
 import ScrollReveal from '@/components/ScrollReveal';
 import Header from '@/components/Header';
 import HomeHero from '@/components/HomeHero';
@@ -21,8 +21,11 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Митрагост — антикризисная юридическая защита бизнеса',
     description: META_DESCRIPTION,
+    siteName: 'Митрагост',
+    url: SITE_URL,
     locale: 'ru_RU',
     type: 'website',
+    images: [OG_IMAGE],
   },
 };
 
