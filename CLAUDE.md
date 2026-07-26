@@ -32,6 +32,23 @@
   - хеш коммита
   Запись делать даже если задача не закончилась коммитом — тогда в поле хеша писать причину.
 
+## Порты проекта
+Порты проекта YurKom: **dev 3170, preview 3171**. Закреплены в `package.json` (`next dev -p 3170`, `next start -p 3171`) — запускать серверы без явного порта нельзя, Next иначе занимает 3000 и уезжает на соседний проект.
+
+Не использовать порты других проектов: **Ecosystem — 3100, mock — 4000**. Порт `3000` в `Dockerfile` и в инструкции Coolify — внутренний порт контейнера, к хостовым не относится и менять его не нужно.
+
+Перед запуском проверять занятость порта и **НЕ останавливать чужие процессы** — только свои, по PID с проверкой командной строки:
+```powershell
+$own = Get-NetTCPConnection -LocalPort 3171 -State Listen -ErrorAction SilentlyContinue |
+  Select-Object -ExpandProperty OwningProcess -Unique
+foreach ($id in $own) {
+  if ($id -eq $PID) { continue }
+  $cmd = (Get-CimInstance Win32_Process -Filter "ProcessId=$id").CommandLine
+  if ($cmd -like '*YurKom*') { Stop-Process -Id $id -Force }
+  else { "PID $id на этом порту не мой — не трогаю" }
+}
+```
+
 ## Процессы: headless-Chrome и фоновые серверы — НИКОГДА не убивать по имени
 На машине параллельно работают другой проект (PMS) со своим headless-Chrome и обычный рабочий браузер пользователя. Массовый kill выкидывает пользователя из браузера и ломает соседний проект.
 

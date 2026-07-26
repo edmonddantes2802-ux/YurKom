@@ -6,12 +6,16 @@
 
 ```bash
 npm install
-npm run dev        # http://localhost:3000
+npm run dev        # http://localhost:3170
 
-# продакшен-сборка
+# продакшен-сборка и локальное превью
 npm run build
-npm start
+npm start          # http://localhost:3171
 ```
+
+Порты 3170 (dev) и 3171 (превью) закреплены за проектом — на машине параллельно
+работают другие проекты со своими портами. Порт `3000` ниже — внутренний порт
+контейнера, к локальным не относится.
 
 ## Переменные окружения
 
@@ -21,7 +25,7 @@ npm start
 |---|---|---|
 | `NEXT_PUBLIC_METRIKA_ID` | клиент (инлайн при билде) | Метрика отключена |
 | `N8N_WEBHOOK_URL` | только сервер, `/api/lead` | форма отвечает 503 |
-| `NEXT_PUBLIC_SITE_URL` | sitemap/robots/canonical/JSON-LD (инлайн при билде) | фолбэк `https://example.com` |
+| `NEXT_PUBLIC_SITE_URL` | sitemap/robots/canonical/JSON-LD (инлайн при билде) | фолбэк `https://mitragost.ru` |
 
 Важно: `NEXT_PUBLIC_*` инлайнятся на этапе **билда** — при смене значения нужен ребилд, а не рестарт.
 
@@ -30,7 +34,7 @@ npm start
 1. Новый ресурс → Application → Git-репозиторий, ветка `main`.
 2. Build Pack: **Dockerfile** (лежит в корне).
 3. Env: задать `NEXT_PUBLIC_METRIKA_ID`, `NEXT_PUBLIC_SITE_URL` как **Build Variables** (инлайнятся при билде, в Dockerfile объявлены как ARG), `N8N_WEBHOOK_URL` — как runtime-переменную.
-4. Порт приложения: `3000`.
+4. Порт приложения: `3000` (внутри контейнера; с локальными 3170/3171 не пересекается).
 5. Healthcheck: `GET /api/health` → `{"status":"ok"}` (в Dockerfile уже есть HEALTHCHECK; в Coolify можно указать путь `/api/health`).
 
 Нюанс: при билде скачиваются шрифты Google (`next/font/google`) — билдеру нужна сеть. Если билд падает на шрифтах, инструкция по переходу на системные — в комментарии в `Dockerfile`.
