@@ -5,6 +5,10 @@ export type Case = {
   /** Срок до результата в днях. Задан — под кейсом рисуется шкала срока,
    *  не задан — блок шкалы просто не отображается. */
   days?: number;
+  /** Кто вёл дело: `id` из `content/lawyers.ts`. Не задан — кейс рендерится
+   *  как раньше, без указания юриста. Поле опционально намеренно: пока юрист
+   *  один, авторство кейса ничего не добавляет. */
+  lawyerId?: string;
 };
 
 export type Landing = {
@@ -30,6 +34,10 @@ export type Landing = {
   offerRailText?: string;
 };
 
+/**
+ * Все посадочные. Ключ объекта = слаг страницы, он же значение `slug` внутри.
+ * Добавление боли = новый объект здесь, кода трогать не нужно.
+ */
 export const landings: Record<string, Landing> = {
   'arest-scheta': {
     slug: 'arest-scheta',
@@ -381,3 +389,10 @@ export const landings: Record<string, Landing> = {
     offerRailText: 'Опишите бизнес и объём задач. Предложим формат сопровождения под вас.',
   },
 };
+
+/**
+ * Слаги существующих посадочных. Нужны там, где значение приходит извне и его
+ * надо сверить со списком направлений: `specializations` в `content/lawyers.ts`,
+ * поле `source` в `/api/lead`.
+ */
+export const LANDING_SLUGS = Object.keys(landings);

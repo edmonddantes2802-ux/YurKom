@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { appendFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
-import { landings } from '@/content/landings';
+import { LANDING_SLUGS } from '@/content/landings';
 
 export const runtime = 'nodejs';
 
@@ -40,7 +40,7 @@ const PHONE_MAX = 32;
 const N8N_TIMEOUT_MS = 5_000;
 
 /** Известные источники: слаги посадочных плюс главная. */
-const KNOWN_SOURCES = new Set([...Object.keys(landings), 'homepage']);
+const KNOWN_SOURCES = new Set([...LANDING_SLUGS, 'homepage']);
 
 type LeadBody = {
   situation?: string;
