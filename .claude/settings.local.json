@@ -138,7 +138,8 @@
       "Bash(sed -i \"s#@/lib/limits#./limits#\" .tmp-v/validation.ts)",
       "Bash(grep -oE \"BOT_REPLY.{0,150}\" /tmp/v3.log)",
       "Bash(grep -oE \"LEAD_FALLBACK.{0,300}\" /tmp/v3.log)",
-      "Bash(xargs echo \"  вхождений на главной:\")"
+      "Bash(xargs echo \"  вхождений на главной:\")",
+      "Bash(Get-Date -Format \"yyyy-MM-dd HH:mm\")"
     ]
   }
 }

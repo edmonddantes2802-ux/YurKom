@@ -2,8 +2,10 @@
 
 import { useId, useRef, useState } from 'react';
 import Button from '@/components/ui/Button';
+import DraftText from '@/components/ui/DraftText';
 import { reachGoal, collectUtm } from '@/lib/analytics';
 import { SITUATION_MIN, SITUATION_MAX, PHONE_INPUT_MAX } from '@/lib/limits';
+import { PRIVACY_CONSENT_NOTICE, PRIVACY_LINK_LABEL } from '@/content/privacy-notice';
 
 type Status = 'idle' | 'sending' | 'success' | 'error';
 
@@ -177,6 +179,14 @@ export default function Qualifier({
             {status === 'sending' ? 'Отправляем…' : 'Получить оценку ситуации'}
           </Button>
         </div>
+
+        {/* Формулировку согласия утверждает юрист — она стоит плейсхолдером.
+            Ссылка на политику рабочая уже сейчас: человек должен иметь
+            возможность прочитать документ до того, как отправит данные. */}
+        <p className="qualifier-consent">
+          <DraftText text={PRIVACY_CONSENT_NOTICE} />{' '}
+          <a href="/privacy">{PRIVACY_LINK_LABEL}</a>
+        </p>
 
         {status === 'error' && <p className="qualifier-status error">{errorText}</p>}
       </form>

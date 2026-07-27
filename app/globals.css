@@ -735,6 +735,21 @@ a:hover { color: var(--color-accent-hover); }
   margin-top: 0.875rem;
 }
 
+/* Ссылка на политику под кнопкой. Золотом её красить нельзя — рядом основной
+   CTA, второй акцент разбивает фокус; но и просто текстом оставлять нельзя,
+   документ должен быть очевидно доступен до отправки данных. Отсюда
+   приглушённый цвет плюс подчёркивание. */
+.qualifier-consent a {
+  color: var(--color-text-muted);
+  border-bottom: 1px solid var(--color-accent-dim);
+  transition: color var(--t), border-color var(--t);
+}
+
+.qualifier-consent a:hover {
+  color: var(--color-accent-hover);
+  border-bottom-color: var(--color-accent);
+}
+
 .qualifier-status {
   margin-top: 1rem;
   font-size: 0.875rem;
@@ -1377,6 +1392,158 @@ a:hover { color: var(--color-accent-hover); }
   font-size: 0.9375rem;
   line-height: 1.65;
   color: var(--color-text-muted);
+}
+
+/* ==========================================================================
+   Правовые страницы (/privacy и последующие)
+   ========================================================================== */
+/* Шапка фиксированная и перекрывает начало документа: у посадочных отступ
+   даёт .hero, у текстовой страницы его нет. */
+.legal {
+  padding-top: calc(var(--header-h) + clamp(2.5rem, 6vw, 4.5rem));
+  max-width: 52rem;
+}
+
+.legal h1 {
+  font-size: clamp(1.85rem, 4.2vw, 2.9rem);
+  max-width: 20ch;
+}
+
+.legal-meta {
+  margin-top: 1.25rem;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-faint);
+}
+
+.legal-draft-notice {
+  margin-top: 2rem;
+  padding: 1rem 1.25rem;
+  border-left: 2px solid var(--color-accent);
+  background: var(--color-accent-faint);
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--color-text-body);
+}
+
+.legal-toc {
+  margin-top: clamp(2.5rem, 5vw, 3.5rem);
+  padding-top: 1.75rem;
+  border-top: 1px solid var(--color-border);
+  display: grid;
+  gap: 0.5rem;
+  list-style: none;
+  counter-reset: legal-toc;
+}
+
+.legal-toc li {
+  counter-increment: legal-toc;
+  font-size: 0.9375rem;
+}
+
+.legal-toc li::before {
+  content: counter(legal-toc) '.';
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--color-text-faint);
+  margin-right: 0.75rem;
+}
+
+.legal-toc a {
+  color: var(--color-text-muted);
+  text-decoration: none;
+}
+
+.legal-toc a:hover { color: var(--color-accent-hover); }
+
+.legal-section {
+  margin-top: clamp(2.5rem, 5vw, 3.5rem);
+  padding-top: clamp(1.75rem, 3vw, 2.25rem);
+  border-top: 1px solid var(--color-border);
+}
+
+.legal-section h2 {
+  font-size: clamp(1.25rem, 2.4vw, 1.6rem);
+  max-width: 28ch;
+}
+
+.legal-num {
+  color: var(--color-accent);
+  font-size: 0.7em;
+  letter-spacing: 0.04em;
+}
+
+.legal-section p {
+  max-width: 68ch;
+  margin-top: 1.125rem;
+  font-size: 0.9375rem;
+  line-height: 1.75;
+  color: var(--color-text-body);
+}
+
+.legal-list {
+  margin-top: 1.25rem;
+  display: grid;
+  gap: 0.75rem;
+  list-style: none;
+  max-width: 68ch;
+}
+
+.legal-list li {
+  position: relative;
+  padding-left: 1.375rem;
+  font-size: 0.9375rem;
+  line-height: 1.7;
+  color: var(--color-text-body);
+}
+
+.legal-list li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.65em;
+  width: 5px;
+  height: 5px;
+  border: 1px solid var(--color-accent);
+  transform: rotate(45deg);
+}
+
+.legal-back {
+  margin-top: clamp(3rem, 6vw, 4.5rem);
+  padding-top: 1.75rem;
+  border-top: 1px solid var(--color-border);
+  font-size: 0.9375rem;
+}
+
+/* Незаполненный фрагмент. Подсветка нужна, чтобы черновик нельзя было
+   принять за действующий текст — ни глазом, ни при копировании. */
+.draft-mark {
+  background: var(--color-accent-soft);
+  color: var(--color-accent-hover);
+  border-bottom: 1px dashed var(--color-accent-dim);
+  padding: 0.05em 0.2em;
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  line-height: inherit;
+}
+
+/* Текст только для скринридеров: скобки-плейсхолдеры глазами читаются как
+   разметка, диктору же нужно проговорить, что фрагмент не заполнен. */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  /* clip устарел, но его понимают старые движки; clip-path — актуальный
+     эквивалент. Оба нужны, чтобы скрытая строка ни при каких условиях не
+     растянула страницу по горизонтали. */
+  clip: rect(0, 0, 0, 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
 }
 
 /* Наведение тоже подчиняется reduced-motion: сдвиг карточки и стрелки

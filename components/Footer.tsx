@@ -3,6 +3,7 @@
 import { reachGoal } from '@/lib/analytics';
 import { PHONE, PHONE_HREF, TELEGRAM_URL } from '@/lib/contacts';
 import { COMPANY_NAME, COMPANY_TAGLINE } from '@/content/company';
+import { PRIVACY_LINK_LABEL } from '@/content/privacy-notice';
 
 export default function Footer() {
   return (
@@ -31,6 +32,7 @@ export default function Footer() {
 
           <div className="footer-col">
             <a href="#qualifier">Оценить ситуацию</a>
+            <a href="/privacy">{PRIVACY_LINK_LABEL}</a>
           </div>
         </div>
 
