@@ -5,7 +5,11 @@ import Button from '@/components/ui/Button';
 import DraftText from '@/components/ui/DraftText';
 import { reachGoal, collectUtm } from '@/lib/analytics';
 import { SITUATION_MIN, SITUATION_MAX, PHONE_INPUT_MAX } from '@/lib/limits';
-import { PRIVACY_CONSENT_NOTICE, PRIVACY_LINK_LABEL } from '@/content/privacy-notice';
+import {
+  PRIVACY_CONSENT_NOTICE,
+  PRIVACY_LINK_LABEL,
+  SITUATION_CAUTION_NOTICE,
+} from '@/content/privacy-notice';
 
 type Status = 'idle' | 'sending' | 'success' | 'error';
 
@@ -36,6 +40,7 @@ export default function Qualifier({
 
   const chipsLabelId = `${baseId}-chips`;
   const messageId = `${baseId}-message`;
+  const cautionId = `${baseId}-caution`;
   const phoneId = `${baseId}-phone`;
 
   function handleFocus() {
@@ -135,12 +140,19 @@ export default function Qualifier({
         <label className="qualifier-label" htmlFor={messageId}>
           Ситуация
         </label>
+        {/* Предупреждение стоит ДО поля, а не под ним: после того как человек
+            уже всё написал, читать его поздно. Формулировку утверждает
+            адвокат — пока плейсхолдер. */}
+        <p className="qualifier-field-hint" id={cautionId}>
+          <DraftText text={SITUATION_CAUTION_NOTICE} />
+        </p>
         {/* ym-disable-keys — Вебвизор Метрики не пишет то, что здесь набирают.
             В поле попадают персональные данные и обстоятельства дела. */}
         <textarea
           className="ym-disable-keys"
           ref={textareaRef}
           id={messageId}
+          aria-describedby={cautionId}
           name="message"
           required
           minLength={SITUATION_MIN}

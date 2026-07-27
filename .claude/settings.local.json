@@ -139,7 +139,10 @@
       "Bash(grep -oE \"BOT_REPLY.{0,150}\" /tmp/v3.log)",
       "Bash(grep -oE \"LEAD_FALLBACK.{0,300}\" /tmp/v3.log)",
       "Bash(xargs echo \"  вхождений на главной:\")",
-      "Bash(Get-Date -Format \"yyyy-MM-dd HH:mm\")"
+      "Bash(Get-Date -Format \"yyyy-MM-dd HH:mm\")",
+      "Bash(git branch *)",
+      "Bash(grep -E \"Compiled|error|Error|/\\\\[slug\\\\]|privacy|shared by all\")",
+      "Bash(grep -o 'qualifier-field-hint[^№]\\\\{0,220\\\\}' .next/server/app/arest-scheta.html)"
     ]
   }
 }
