@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { sendTelegramMessage, moscowTime } from '@/lib/telegram';
+import { sendTelegramMessage, sendChatAction, moscowTime } from '@/lib/telegram';
 import { composeReply } from '@/lib/bot-reply';
+import { deliverReply } from '@/lib/deliver';
 import { sanitizeText } from '@/lib/validation';
 import { SITUATION_MAX } from '@/lib/limits';
-import { aiReply } from '@/lib/ai';
+import { isAiConfigured } from '@/lib/ai';
+import { takeSummary } from '@/lib/ai-memory';
 
 export const runtime = 'nodejs';
 
@@ -117,12 +119,12 @@ export async function GET() {
     ok: true,
     route: 'telegram-webhook',
     /** Меняется при каждой правке этого файла — видно, что версия свежая. */
-    revision: 'diagnostics-1',
+    revision: 'ai-1',
     configured: {
       botToken: Boolean(process.env.TELEGRAM_BOT_TOKEN),
       chatId: Boolean(process.env.TELEGRAM_CHAT_ID),
       webhookSecret: Boolean(process.env.TELEGRAM_WEBHOOK_SECRET),
-      ai: Boolean(aiReply),
+      ai: isAiConfigured(),
     },
     now: new Date().toISOString(),
   });
@@ -177,9 +179,10 @@ export async function POST(req: NextRequest) {
 
   const isStart = text === '/start' || text.startsWith('/start ');
 
-  // Пересылка в группу и подготовка ответа идут параллельно: последовательно
-  // их таймауты складывались, и при медленной сети до api.telegram.org ответ
-  // клиенту успевал упереться в собственный лимит.
+  // Пересылка в группу, индикатор набора и подготовка ответа идут параллельно:
+  // последовательно их таймауты складывались, и при медленной сети до
+  // api.telegram.org ответ клиенту успевал упереться в собственный лимит.
+  const startedAt = Date.now();
   const [forward, reply] = await Promise.all([
     sendTelegramMessage(
       [
@@ -195,6 +198,9 @@ export async function POST(req: NextRequest) {
     isStart
       ? Promise.resolve({ text: START_REPLY, via: 'fallback' as const, reason: 'start command' })
       : composeReply({ text, chatId }),
+    // «Печатает…» сразу, пока думает модель. Результат не нужен: индикатор —
+    // украшение, и его отказ не должен ни задержать ответ, ни уронить обработку.
+    sendChatAction(chatId),
   ]);
 
   if (!forward.ok) {
@@ -213,15 +219,19 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  // Сводку по диалогу модель отдаёт отдельной служебной строкой; клиент её не
+  // видит, она уходит команде в рабочую группу вместе с доставкой ответа.
+  const summary = takeSummary(chatId);
+
   // Ответ клиенту — в ЕГО чат (chat.id из апдейта), не в рабочую группу.
-  let sent = await sendTelegramMessage(reply.text, { chatId });
-  let retried = false;
-  if (!sent.ok) {
-    // Одна повторная попытка: единственный шанс ответить у нас здесь, а самая
-    // частая причина отказа — сетевой таймаут, а не отказ Telegram.
-    retried = true;
-    sent = await sendTelegramMessage(reply.text, { chatId });
-  }
+  // Паузы внутри укорачиваются на уже потраченное время: эти секунды клиент
+  // и так провёл, глядя на «печатает…».
+  const [sent] = await Promise.all([
+    deliverReply(reply.text, chatId, { spentMs: Date.now() - startedAt }),
+    summary
+      ? sendTelegramMessage(['Сводка по диалогу', '', `Чат: ${chatId}`, '', summary].join('\n'))
+      : Promise.resolve(undefined),
+  ]);
 
   logExit({
     via: reply.via,
@@ -231,8 +241,10 @@ export async function POST(req: NextRequest) {
     forwarded: forward.ok,
     forwardError: forward.ok ? undefined : forward.reason,
     delivered: sent.ok,
-    retried,
+    chunks: sent.chunks,
+    retried: sent.retried,
     deliveryError: sent.ok ? undefined : sent.reason,
+    summarySent: Boolean(summary),
   });
 
   return ok();
