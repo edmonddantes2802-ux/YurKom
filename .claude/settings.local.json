@@ -181,7 +181,9 @@
       "Bash(rm -rf .next)",
       "Bash(sed -i \"s|^import { notFound } from 'next/navigation';|import { headers } from 'next/headers';\\\\nimport { notFound } from 'next/navigation';|\" app/\\\\[slug\\\\]/page.tsx)",
       "Bash(curl -s -o /dev/null -w 'server: %{http_code}\\\\n' -m 10 http://127.0.0.1:3171/)",
-      "Artifact"
+      "Artifact",
+      "Bash(rm -rf node_modules .next)",
+      "Bash(npm ci *)"
     ]
   }
 }
