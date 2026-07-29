@@ -66,6 +66,32 @@ export async function sendTelegramMessage(
   }
 }
 
+/**
+ * «Печатает…» в чате клиента.
+ *
+ * Статус живёт ~5 секунд или до первого сообщения, поэтому шлётся перед каждой
+ * порцией ответа. Таймаут короткий и ошибки глотаются: индикатор — украшение,
+ * из-за него нельзя задержать или сорвать сам ответ.
+ */
+export async function sendChatAction(
+  chatId: string,
+  action: 'typing' = 'typing',
+  timeoutMs = 2_000,
+): Promise<void> {
+  const token = process.env.TELEGRAM_BOT_TOKEN;
+  if (!token || !chatId) return;
+  try {
+    await fetch(`https://api.telegram.org/bot${token}/sendChatAction`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ chat_id: chatId, action }),
+      signal: AbortSignal.timeout(timeoutMs),
+    });
+  } catch {
+    // Молча: без индикатора ответ всё равно дойдёт.
+  }
+}
+
 export type LeadPayload = {
   situation: string;
   phone: string;
