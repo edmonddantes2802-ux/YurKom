@@ -5,6 +5,7 @@ import { tmpdir } from 'node:os';
 import { LANDING_SLUGS } from '@/content/landings';
 import { sendTelegramMessage, formatLead, type LeadPayload } from '@/lib/telegram';
 import { normalizePhone, sanitizeText, SITUATION_MIN, SITUATION_MAX } from '@/lib/validation';
+import { summarizeLead } from '@/lib/lead-summary';
 
 export const runtime = 'nodejs';
 
@@ -169,6 +170,19 @@ export async function POST(req: NextRequest) {
   }
 
   const lead: Lead = { situation: text, phone, source, utm };
+
+  // Классификация ИИ — необязательное украшение карточки, не часть контракта
+  // с клиентом: любой сбой (нет ключа, таймаут, ошибка, отказ модели) отдаёт
+  // null, и заявка уходит как раньше, сырым текстом. Постфильтр стоп-паттернов
+  // (как у бота) здесь не применяется — сводка идёт команде, не клиенту.
+  const summary = await summarizeLead(text);
+  if (summary) {
+    lead.aiSummary = {
+      directionLabel: summary.directionLabel,
+      urgency: summary.urgency,
+      summary: summary.summary,
+    };
+  }
 
   // Дальше клиент в любом случае получает успех: заявка либо ушла в Telegram,
   // либо легла в fallback-лог. Показывать посетителю в кризисе поломку

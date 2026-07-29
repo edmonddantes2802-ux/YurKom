@@ -66,13 +66,16 @@ export function isAiConfigured(): boolean {
 
 /**
  * Клиент создаётся лениво: на этапе сборки переменных окружения нет, а
- * конструктор SDK без ключа бросает исключение.
+ * конструктор SDK без ключа бросает исключение. Общий на бота и на
+ * классификацию заявок (`lib/lead-summary.ts`) — второй экземпляр SDK ради
+ * другого таймаута не нужен, таймаут переопределяется за запрос вторым
+ * аргументом `messages.create`.
  *
- * `maxRetries: 0` — ретраи всё равно не уложатся во внешние 8 секунд и лишь
- * добавят оплаченных токенов, которых никто не увидит.
+ * `maxRetries: 0` — ретраи всё равно не уложатся в внешний лимит времени и
+ * лишь добавят оплаченных токенов, которых никто не увидит.
  */
 let client: Anthropic | null = null;
-function getClient(apiKey: string): Anthropic {
+export function getClient(apiKey: string): Anthropic {
   if (!client) {
     client = new Anthropic({ apiKey, timeout: AI_REQUEST_TIMEOUT_MS, maxRetries: 0 });
   }

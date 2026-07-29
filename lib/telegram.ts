@@ -98,22 +98,41 @@ export type LeadPayload = {
   /** Слаг посадочной или `homepage`. */
   source: string;
   utm: Record<string, string>;
+  /**
+   * Классификация ИИ: направление, срочность, суть. Необязательна — сбой
+   * классификации (ключ не задан, таймаут, ошибка) не должен мешать
+   * заявке уйти: карточка просто выглядит как раньше, без этого блока.
+   */
+  aiSummary?: { directionLabel: string; urgency: string; summary: string };
 };
 
 /**
  * Человекочитаемая карточка заявки для рабочего чата. Без разметки: сообщение
  * уходит plain-текстом, поэтому содержимое заявки ничего не может сломать.
+ *
+ * Сводка ИИ (если есть) идёт сверху, но исходный текст клиента — ВСЕГДА,
+ * оригинал не теряется ни при удачной, ни при неудачной классификации.
  */
 export function formatLead(lead: LeadPayload, ip: string, now = new Date()): string {
-  const lines = [
-    'Заявка с сайта',
+  const lines = ['Заявка с сайта'];
+
+  if (lead.aiSummary) {
+    lines.push(
+      '',
+      `Направление: ${lead.aiSummary.directionLabel}`,
+      `Срочность: ${lead.aiSummary.urgency}`,
+      `Суть: ${lead.aiSummary.summary}`,
+    );
+  }
+
+  lines.push(
     '',
     'Ситуация:',
     lead.situation,
     '',
     `Телефон: ${lead.phone || 'не указан'}`,
     `Страница: ${lead.source}`,
-  ];
+  );
 
   const utmPairs = Object.entries(lead.utm);
   if (utmPairs.length > 0) {

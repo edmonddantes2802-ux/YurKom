@@ -187,7 +187,14 @@
       "Bash(powershell -NoProfile -Command \"\n\\\\$own = Get-NetTCPConnection -LocalPort 3171 -State Listen -ErrorAction SilentlyContinue | Select-Object -ExpandProperty OwningProcess -Unique\nforeach \\(\\\\$id in \\\\$own\\) { \\\\$p = Get-CimInstance Win32_Process -Filter \\\\\"ProcessId=\\\\$id\\\\\"; if \\(\\\\$p.CommandLine -like '*standalone/server.js*'\\) { \\\\\"гашу сервер PID \\\\$id\\\\\"; Stop-Process -Id \\\\$id -Force } }\n\")",
       "Bash(curl -s --noproxy '*' -o /dev/null -w 'server: %{http_code}\\\\n' -m 10 http://127.0.0.1:3171/arest-scheta)",
       "Bash(powershell -NoProfile -Command ' *)",
-      "Bash(cp /tmp/layout-after.tsx.bak app/layout.tsx)"
+      "Bash(cp /tmp/layout-after.tsx.bak app/layout.tsx)",
+      "Bash(cp \"C:/Users/edmon/AppData/Local/Temp/claude/C--Wibecoding-Work-YurKom/f8cc89b3-3420-4416-875d-4e05fef8a7f9/scratchpad/check-lead-call.mts\" ./_check-lead-call.mts)",
+      "Bash(npx --yes tsx@4 ./_check-lead-call.mts)",
+      "Bash(ANTHROPIC_API_KEY=sk-ant-mock ANTHROPIC_BASE_URL=http://127.0.0.1:4113 PORT=3171 HOSTNAME=127.0.0.1 node .next/standalone/server.js)",
+      "Bash(echo \"server pid=$!\")",
+      "Bash(curl -s --noproxy '*' -o /dev/null -w 'server: %{http_code}\\\\n' -m 10 http://127.0.0.1:3171/)",
+      "Bash(curl -s --noproxy * -m 15 -X POST http://127.0.0.1:3171/api/lead -H 'Content-Type: application/json' -d '{\"situation\":\"Пришло требование из налоговой на 6 млн рублей, счёт заблокирован сегодня утром\",\"phone\":\"\",\"source\":\"nalogovye-spory\",\"utm\":{}}')",
+      "Bash(curl -s --noproxy * -m 15 -X POST http://127.0.0.1:3171/api/lead -H 'Content-Type: application/json' -d '{\"situation\":\"проверка честпота, заявка не должна создаться\",\"phone\":\"\",\"source\":\"homepage\",\"utm\":{},\"honeypot\":\"bot\"}')"
     ]
   }
 }
