@@ -138,7 +138,12 @@
       "Bash(sed -i \"s#@/lib/limits#./limits#\" .tmp-v/validation.ts)",
       "Bash(grep -oE \"BOT_REPLY.{0,150}\" /tmp/v3.log)",
       "Bash(grep -oE \"LEAD_FALLBACK.{0,300}\" /tmp/v3.log)",
-      "Bash(xargs echo \"  вхождений на главной:\")"
+      "Bash(xargs echo \"  вхождений на главной:\")",
+      "Bash(cp -r public .next/standalone/)",
+      "Bash(cp -r .next/static .next/standalone/.next/)",
+      "Bash(PORT=3171 HOSTNAME=127.0.0.1 node .next/standalone/server.js)",
+      "Bash(curl -s -o /dev/null -w 'server: %{http_code}\\\\n' -m 10 http://127.0.0.1:3171/)",
+      "Artifact"
     ]
   }
 }
