@@ -138,7 +138,16 @@
       "Bash(sed -i \"s#@/lib/limits#./limits#\" .tmp-v/validation.ts)",
       "Bash(grep -oE \"BOT_REPLY.{0,150}\" /tmp/v3.log)",
       "Bash(grep -oE \"LEAD_FALLBACK.{0,300}\" /tmp/v3.log)",
-      "Bash(xargs echo \"  вхождений на главной:\")"
+      "Bash(xargs echo \"  вхождений на главной:\")",
+      "Bash(cp -r public .next/standalone/)",
+      "Bash(cp -r .next/static .next/standalone/.next/)",
+      "Bash(curl -s -m 10 http://127.0.0.1:3171/wp-admin)",
+      "Bash(curl -s -m 10 http://127.0.0.1:3171/a/b/c)",
+      "Bash(grep -n \"^h1\\\\|^h2\\\\|h1,\\\\|h1 {\" app/globals.css)",
+      "Bash(PORT=3171 HOSTNAME=127.0.0.1 node .next/standalone/server.js)",
+      "Bash(sed -i 's/^export const dynamicParams = true;$/export const dynamicParams = false;/' app/\\\\[slug\\\\]/page.tsx)",
+      "Bash(rm -rf .next)",
+      "Bash(sed -i \"s|^import { notFound } from 'next/navigation';|import { headers } from 'next/headers';\\\\nimport { notFound } from 'next/navigation';|\" app/\\\\[slug\\\\]/page.tsx)"
     ]
   }
 }

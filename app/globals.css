@@ -138,6 +138,8 @@ a:hover { color: var(--color-accent-hover); }
 
 .sec-head { margin-bottom: clamp(2.25rem, 5vw, 3.75rem); }
 .sec-head h2 { max-width: 18ch; }
+/* На 404 заголовок секции — h1: страница отдельная, а не блок внутри другой. */
+.sec-head h1 { max-width: 18ch; }
 .sec-head > p {
   color: var(--color-text-muted);
   max-width: 52ch;
