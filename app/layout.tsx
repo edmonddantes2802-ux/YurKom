@@ -6,14 +6,20 @@ import Metrika from '@/components/Metrika';
 import { Playfair_Display, Inter, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 
+// Начертания пином вместо вариативного шрифта: сайт нигде не рендерит
+// ничего, кроме 400/500(/600 у Inter) — проверено вычисленными стилями
+// браузера по всем семи страницам, а не чтением CSS. Вариативный файл несёт
+// весь диапазон 100–900 ради двух-трёх реально используемых точек.
 const heading = Playfair_Display({
   subsets: ['latin', 'cyrillic'],
+  weight: ['400', '500'],
   variable: '--font-heading',
   display: 'swap',
 });
 
 const body = Inter({
   subsets: ['latin', 'cyrillic'],
+  weight: ['400', '500', '600'],
   variable: '--font-body',
   display: 'swap',
 });
@@ -21,6 +27,7 @@ const body = Inter({
 // Утилитарная моногарнитура: метки, надзаголовки, числовые данные, телефон.
 const mono = JetBrains_Mono({
   subsets: ['latin', 'cyrillic'],
+  weight: ['400', '500'],
   variable: '--font-mono-face',
   display: 'swap',
 });

@@ -183,7 +183,11 @@
       "Bash(curl -s -o /dev/null -w 'server: %{http_code}\\\\n' -m 10 http://127.0.0.1:3171/)",
       "Artifact",
       "Bash(rm -rf node_modules .next)",
-      "Bash(npm ci *)"
+      "Bash(npm ci *)",
+      "Bash(powershell -NoProfile -Command \"\n\\\\$own = Get-NetTCPConnection -LocalPort 3171 -State Listen -ErrorAction SilentlyContinue | Select-Object -ExpandProperty OwningProcess -Unique\nforeach \\(\\\\$id in \\\\$own\\) { \\\\$p = Get-CimInstance Win32_Process -Filter \\\\\"ProcessId=\\\\$id\\\\\"; if \\(\\\\$p.CommandLine -like '*standalone/server.js*'\\) { \\\\\"гашу сервер PID \\\\$id\\\\\"; Stop-Process -Id \\\\$id -Force } }\n\")",
+      "Bash(curl -s --noproxy '*' -o /dev/null -w 'server: %{http_code}\\\\n' -m 10 http://127.0.0.1:3171/arest-scheta)",
+      "Bash(powershell -NoProfile -Command ' *)",
+      "Bash(cp /tmp/layout-after.tsx.bak app/layout.tsx)"
     ]
   }
 }
