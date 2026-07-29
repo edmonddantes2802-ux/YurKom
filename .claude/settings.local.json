@@ -179,7 +179,9 @@
       "Bash(PORT=3171 HOSTNAME=127.0.0.1 node .next/standalone/server.js)",
       "Bash(sed -i 's/^export const dynamicParams = true;$/export const dynamicParams = false;/' app/\\\\[slug\\\\]/page.tsx)",
       "Bash(rm -rf .next)",
-      "Bash(sed -i \"s|^import { notFound } from 'next/navigation';|import { headers } from 'next/headers';\\\\nimport { notFound } from 'next/navigation';|\" app/\\\\[slug\\\\]/page.tsx)"
+      "Bash(sed -i \"s|^import { notFound } from 'next/navigation';|import { headers } from 'next/headers';\\\\nimport { notFound } from 'next/navigation';|\" app/\\\\[slug\\\\]/page.tsx)",
+      "Bash(curl -s -o /dev/null -w 'server: %{http_code}\\\\n' -m 10 http://127.0.0.1:3171/)",
+      "Artifact"
     ]
   }
 }

@@ -1394,3 +1394,60 @@ a:hover { color: var(--color-accent-hover); }
     transition: background-color var(--t), border-color var(--t), color var(--t);
   }
 }
+
+/* ==========================================================================
+   Мобильные экраны: палец и читаемость.
+
+   Правки проверены CDP-эмуляцией устройства (Emulation.setDeviceMetricsOverride
+   + touch + мобильный UA) на 375, 390 и 414 px. Простой ресайз окна headless
+   этого не показывает: он отдаёт desktop-раскладку.
+   ========================================================================== */
+@media (max-width: 640px) {
+  /* Поля ввода ровно 16px. Меньше — iOS Safari при фокусе зумит страницу
+     целиком, и вёрстка уезжает вбок ровно в тот момент, когда человек начал
+     описывать ситуацию. Ради этого правила размер и задан в абсолютных
+     единицах, а не долей от базового. */
+  .qualifier textarea,
+  .qualifier input[type="tel"] {
+    font-size: 16px;
+  }
+
+  /* Тач-цели: минимум 44 px по высоте — иначе по ссылке промахиваются.
+     Инлайновым ссылкам min-height работает только вместе с inline-flex. */
+  .header-tg,
+  .footer-col a,
+  .footer-author,
+  .rail-contacts a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
+
+  .qualifier-chip {
+    min-height: 44px;
+    padding-block: 0.625rem;
+  }
+
+  /* Микро-подписи моно-капсом. На десктопе 10–11 px читаются, на телефоне
+     с его плотностью пикселей и расстоянием до глаза — уже нет. */
+  .service-tag,
+  .why-tag,
+  .kicker,
+  .qualifier-label,
+  .hero-trust-label,
+  .urgency-badge {
+    font-size: 0.75rem;
+  }
+}
+
+/* Логотип в шапке — отдельный случай: min-height оторвал бы золотую подводку
+   от текста (она позиционируется по нижней границе элемента). Поэтому зона
+   нажатия расширяется прозрачным псевдоэлементом, а сама надпись не меняется
+   ни на пиксель. */
+@media (max-width: 640px) {
+  .header-logo::before {
+    content: '';
+    position: absolute;
+    inset: -12px -10px;
+  }
+}

@@ -44,7 +44,12 @@ export default function Qualifier({
   }
 
   function handleChipClick(prefix: string) {
-    if (!message) {
+    // Своё, написанное руками, не затираем. Но если в поле лежит ровно
+    // подставленный ранее префикс, чип должен переключаться: на телефоне по
+    // 44-пиксельной кнопке промахиваются, и «нажал не туда — ничего не
+    // происходит» читается как сломанные чипы.
+    const untouched = !message || (chips ?? []).some((chip) => chip.prefix === message);
+    if (untouched) {
       setMessage(prefix);
     }
     handleFocus();
@@ -152,13 +157,17 @@ export default function Qualifier({
         <label className="qualifier-label" htmlFor={phoneId}>
           Телефон
         </label>
+        {/* Подсказка короткая намеренно: на телефоне поле набрано 16-м кеглем
+            (меньше — iOS зумит страницу при фокусе), и «Телефон для связи
+            (необязательно)» обрезалось на полуслове. Смысл тот же, а подпись
+            над полем и так есть. */}
         <input
           className="ym-disable-keys"
           id={phoneId}
           name="phone"
           type="tel"
           maxLength={PHONE_INPUT_MAX}
-          placeholder="Телефон для связи (необязательно)"
+          placeholder="Телефон (необязательно)"
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
           onFocus={handleFocus}
