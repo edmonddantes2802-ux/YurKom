@@ -170,7 +170,16 @@
       "Bash(node \"C:/Users/edmon/AppData/Local/Temp/claude/C--Wibecoding-Work-YurKom/f8cc89b3-3420-4416-875d-4e05fef8a7f9/scratchpad/mock-api.mjs\")",
       "Bash(echo \"mock pid=$!\")",
       "Bash(ANTHROPIC_API_KEY=sk-ant-mock ANTHROPIC_BASE_URL=http://127.0.0.1:4111 npm run start)",
-      "Bash(echo \"next pid=$!\")"
+      "Bash(echo \"next pid=$!\")",
+      "Bash(cp -r public .next/standalone/)",
+      "Bash(cp -r .next/static .next/standalone/.next/)",
+      "Bash(curl -s -m 10 http://127.0.0.1:3171/wp-admin)",
+      "Bash(curl -s -m 10 http://127.0.0.1:3171/a/b/c)",
+      "Bash(grep -n \"^h1\\\\|^h2\\\\|h1,\\\\|h1 {\" app/globals.css)",
+      "Bash(PORT=3171 HOSTNAME=127.0.0.1 node .next/standalone/server.js)",
+      "Bash(sed -i 's/^export const dynamicParams = true;$/export const dynamicParams = false;/' app/\\\\[slug\\\\]/page.tsx)",
+      "Bash(rm -rf .next)",
+      "Bash(sed -i \"s|^import { notFound } from 'next/navigation';|import { headers } from 'next/headers';\\\\nimport { notFound } from 'next/navigation';|\" app/\\\\[slug\\\\]/page.tsx)"
     ]
   }
 }

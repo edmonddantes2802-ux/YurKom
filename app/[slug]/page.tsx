@@ -20,7 +20,20 @@ export function generateStaticParams() {
   return Object.keys(landings).map((slug) => ({ slug }));
 }
 
-export const dynamicParams = false;
+/**
+ * НЕ СТАВИТЬ `false`. Кажется, что «только известные слаги» строже и дешевле,
+ * но на standalone-сервере получается наоборот: неизвестный путь не матчится
+ * вовсе, Next не находит для него преренденного варианта и на КАЖДЫЙ такой
+ * запрос валит в лог `Error: Internal: NoFallbackError`. Боты дёргают
+ * `/wp-admin`, `/.env` и подобное десятками в день — лог забивается мусором,
+ * за которым не видно настоящих ошибок.
+ *
+ * С `true` неизвестный слаг рендерится по запросу и `notFound()` ниже отдаёт
+ * `app/[slug]/not-found.tsx` со статусом 404 — без внутренней ошибки. Шесть
+ * реальных посадочных как были статикой из `generateStaticParams`, так и
+ * остались; рендер на лету достаётся только несуществующим адресам.
+ */
+export const dynamicParams = true;
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
