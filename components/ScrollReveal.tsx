@@ -32,22 +32,23 @@ export default function ScrollReveal() {
       { threshold: 0.1, rootMargin: '0px 0px -8% 0px' },
     );
 
+    // Сперва все чтения geometry, потом все записи classList — иначе на
+    // каждой итерации чтение после чужой записи форсирует синхронный layout
+    // (layout thrashing), и на N элементах это N лишних пересчётов подряд.
+    const viewportHeight = window.innerHeight;
+    const aboveFold: HTMLElement[] = [];
+    const belowFold: HTMLElement[] = [];
     els.forEach((el) => {
-      // Элемент уже в вьюпорте или выше него (в т.ч. после восстановления
-      // позиции прокрутки при перезагрузке) — показываем немедленно, иначе
-      // observer выдаст isIntersecting=false и элемент застрянет невидимым.
-      if (el.getBoundingClientRect().top < window.innerHeight) {
-        reveal(el);
-      } else {
-        observer.observe(el);
-      }
+      (el.getBoundingClientRect().top < viewportHeight ? aboveFold : belowFold).push(el);
     });
+    aboveFold.forEach(reveal);
+    belowFold.forEach((el) => observer.observe(el));
 
     // Страховочная сеть: ничего не должно остаться невидимым навсегда.
     const failSafe = window.setTimeout(() => {
-      els.forEach((el) => {
-        if (el.getBoundingClientRect().top < window.innerHeight) reveal(el);
-      });
+      const height = window.innerHeight;
+      const toReveal = els.filter((el) => el.getBoundingClientRect().top < height);
+      toReveal.forEach(reveal);
     }, 1200);
 
     return () => {
