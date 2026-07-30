@@ -14,9 +14,11 @@
  */
 
 import Anthropic from '@anthropic-ai/sdk';
-import { getClient } from '@/lib/ai';
+import { getClient, isRetryableAnthropicError } from '@/lib/ai';
 import {
+  AI_MAX_ATTEMPTS,
   AI_MODEL,
+  AI_RETRY_DELAY_MS,
   LEAD_DIRECTION_LABELS,
   LEAD_SUMMARY_MAX_TOKENS,
   LEAD_SUMMARY_SCHEMA,
@@ -24,6 +26,7 @@ import {
   LEAD_SUMMARY_TIMEOUT_MS,
 } from '@/lib/ai-config';
 import { sanitizeText } from '@/lib/validation';
+import { withRetry } from '@/lib/retry';
 
 export type LeadSummary = {
   /** Слаг направления либо `unknown`. */
@@ -51,30 +54,45 @@ export async function summarizeLead(situation: string): Promise<LeadSummary | nu
   const startedAt = Date.now();
   let response;
   try {
-    response = await getClient(apiKey).messages.create(
-      {
-        model: AI_MODEL,
-        max_tokens: LEAD_SUMMARY_MAX_TOKENS,
-        // Классификация из трёх коротких полей — глубина мышления не нужна,
-        // а при небольшом max_tokens она бы съела лимит (см. lib/ai.ts).
-        thinking: { type: 'disabled' },
-        output_config: {
-          effort: 'low',
-          format: { type: 'json_schema', schema: LEAD_SUMMARY_SCHEMA },
-        },
-        system: [
+    response = await withRetry(
+      async () => {
+        // Та же логика бюджета, что и у бота (lib/ai.ts): вторая попытка
+        // получает остаток LEAD_SUMMARY_TIMEOUT_MS, а не полный таймаут заново.
+        const remaining = LEAD_SUMMARY_TIMEOUT_MS - (Date.now() - startedAt);
+        if (remaining <= 0) {
+          throw new Anthropic.APIConnectionError({ message: 'no time left in retry budget' });
+        }
+        return await getClient(apiKey).messages.create(
           {
-            type: 'text',
-            text: LEAD_SUMMARY_SYSTEM_PROMPT,
-            cache_control: { type: 'ephemeral' },
+            model: AI_MODEL,
+            max_tokens: LEAD_SUMMARY_MAX_TOKENS,
+            // Классификация из трёх коротких полей — глубина мышления не нужна,
+            // а при небольшом max_tokens она бы съела лимит (см. lib/ai.ts).
+            thinking: { type: 'disabled' },
+            output_config: {
+              effort: 'low',
+              format: { type: 'json_schema', schema: LEAD_SUMMARY_SCHEMA },
+            },
+            system: [
+              {
+                type: 'text',
+                text: LEAD_SUMMARY_SYSTEM_PROMPT,
+                cache_control: { type: 'ephemeral' },
+              },
+            ],
+            // Текст заявки — отдельный пользовательский блок, не часть промпта.
+            messages: [{ role: 'user', content: situation }],
           },
-        ],
-        // Текст заявки — отдельный пользовательский блок, не часть промпта.
-        messages: [{ role: 'user', content: situation }],
+          // Свой таймаут короче, чем у бота: заявка не должна ждать классификацию
+          // дольше, чем нужно, — она и так готова уйти сырым текстом.
+          { timeout: Math.min(LEAD_SUMMARY_TIMEOUT_MS, remaining) },
+        );
       },
-      // Свой таймаут короче, чем у бота: заявка не должна ждать классификацию
-      // дольше, чем нужно, — она и так готова уйти сырым текстом.
-      { timeout: LEAD_SUMMARY_TIMEOUT_MS },
+      { attempts: AI_MAX_ATTEMPTS, delaysMs: [AI_RETRY_DELAY_MS], isRetryable: isRetryableAnthropicError },
+      (attempt, attempts, err, delay) => {
+        const reason = err instanceof Error ? `${err.name}: ${err.message}` : 'unknown error';
+        logLeadSummary({ via: 'retry', attempt, attempts, reason, nextDelayMs: delay });
+      },
     );
   } catch (err) {
     const reason = err instanceof Error ? `${err.name}: ${err.message}` : 'unknown error';
@@ -87,6 +105,9 @@ export async function summarizeLead(situation: string): Promise<LeadSummary | nu
     input: response.usage.input_tokens,
     output: response.usage.output_tokens,
     cacheRead: response.usage.cache_read_input_tokens ?? 0,
+    // См. lib/ai.ts: без этого поля запись кэша системного промпта выглядит
+    // в логе как «промпт не ушёл в запрос», хотя он просто оплачен иначе.
+    cacheWrite: response.usage.cache_creation_input_tokens ?? 0,
   };
 
   // Классификаторы модели могут отклонить запрос: HTTP 200, stop_reason

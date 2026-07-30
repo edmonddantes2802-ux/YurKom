@@ -105,6 +105,26 @@ const START_REPLY = [
   'Юрист прочитает и свяжется с вами.',
 ].join('\n');
 
+type PingResult = { ok: boolean; ms: number; status?: number; reason?: string };
+
+/**
+ * «Пинг» внешнего хоста: живой ли путь с VPS наружу и сколько это занимает.
+ * Любой HTTP-ответ (даже 404 — у обоих хостов нет открытого корня без
+ * авторизации) значит, что DNS/TCP/TLS прошли — именно это и требуется
+ * проверить, а не конкретный статус. `ok: false` — сеть не отвечает вовсе
+ * (сорвалось до HTTP-уровня: DNS, TCP, TLS, таймаут).
+ */
+async function pingHost(url: string, timeoutMs = 3_000): Promise<PingResult> {
+  const startedAt = Date.now();
+  try {
+    const res = await fetch(url, { method: 'GET', signal: AbortSignal.timeout(timeoutMs) });
+    return { ok: true, ms: Date.now() - startedAt, status: res.status };
+  } catch (err) {
+    const reason = err instanceof Error ? `${err.name}: ${err.message}` : 'unknown error';
+    return { ok: false, ms: Date.now() - startedAt, reason };
+  }
+}
+
 /**
  * Проверка живости роута снаружи, без секретов в ответе.
  *
@@ -113,19 +133,31 @@ const START_REPLY = [
  *   curl -s https://mitragost.ru/api/telegram/webhook
  *
  * Значения переменных не раскрываются — только факт, что они заданы.
+ *
+ * `network` — отдельный вопрос «жива ли сеть с VPS прямо сейчас»: конкретно
+ * этот разбор («AI_REPLY via: error, Connection error» + «fetch failed» на
+ * пересылке в Telegram) показал, что сеть с VPS до внешних API нестабильна,
+ * а увидеть это одним запросом было нечем — раньше приходилось гадать по
+ * логам постфактум.
  */
 export async function GET() {
+  const [anthropic, telegram] = await Promise.all([
+    pingHost('https://api.anthropic.com/'),
+    pingHost('https://api.telegram.org/'),
+  ]);
+
   return NextResponse.json({
     ok: true,
     route: 'telegram-webhook',
     /** Меняется при каждой правке этого файла — видно, что версия свежая. */
-    revision: 'ai-1',
+    revision: 'ai-2',
     configured: {
       botToken: Boolean(process.env.TELEGRAM_BOT_TOKEN),
       chatId: Boolean(process.env.TELEGRAM_CHAT_ID),
       webhookSecret: Boolean(process.env.TELEGRAM_WEBHOOK_SECRET),
       ai: isAiConfigured(),
     },
+    network: { anthropic, telegram },
     now: new Date().toISOString(),
   });
 }
@@ -184,6 +216,8 @@ export async function POST(req: NextRequest) {
   // api.telegram.org ответ клиенту успевал упереться в собственный лимит.
   const startedAt = Date.now();
   const [forward, reply] = await Promise.all([
+    // critical: потерянная пересылка — потерянное обращение, попыток больше
+    // и таймаут длиннее, чем у ответа клиенту (см. lib/telegram.ts).
     sendTelegramMessage(
       [
         'Сообщение боту',
@@ -194,6 +228,7 @@ export async function POST(req: NextRequest) {
         '',
         `Время: ${moscowTime()} МСК`,
       ].join('\n'),
+      { critical: true },
     ),
     isStart
       ? Promise.resolve({ text: START_REPLY, via: 'fallback' as const, reason: 'start command' })
@@ -205,6 +240,9 @@ export async function POST(req: NextRequest) {
 
   if (!forward.ok) {
     // Обращение не должно пропасть молча: тот же маркер, что и у формы.
+    // Отдельная заметная строка сверху — LEAD_FALLBACK легко потерять при
+    // разборе инцидента среди прочих логов.
+    console.error(`LEAD_FORWARD_FAILED !!! сообщение боту не доехало до рабочей группы: ${forward.reason}`);
     console.error(
       'LEAD_FALLBACK',
       JSON.stringify({
@@ -242,7 +280,6 @@ export async function POST(req: NextRequest) {
     forwardError: forward.ok ? undefined : forward.reason,
     delivered: sent.ok,
     chunks: sent.chunks,
-    retried: sent.retried,
     deliveryError: sent.ok ? undefined : sent.reason,
     summarySent: Boolean(summary),
   });

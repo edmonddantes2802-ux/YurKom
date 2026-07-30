@@ -90,6 +90,10 @@ type Lead = LeadPayload;
  */
 async function logFallback(lead: Lead, ip: string, reason: string) {
   const record = { ...lead, ip, reason, createdAt: new Date().toISOString() };
+  // Отдельный заметный маркер: LEAD_FALLBACK легко потерять среди прочих
+  // логов при разборе инцидента, а это ВСЕГДА означает, что заявка не
+  // доехала до рабочей группы вживую — только в лог/файл.
+  console.error(`LEAD_FORWARD_FAILED !!! заявка не доехала до рабочей группы: ${reason}`);
   console.error('LEAD_FALLBACK', JSON.stringify(record));
 
   const file = process.env.LEAD_FALLBACK_FILE || join(tmpdir(), 'lead-fallback.log');
@@ -187,7 +191,10 @@ export async function POST(req: NextRequest) {
   // Дальше клиент в любом случае получает успех: заявка либо ушла в Telegram,
   // либо легла в fallback-лог. Показывать посетителю в кризисе поломку
   // интеграции бессмысленно — он просто уйдёт к конкуренту.
-  const result = await sendTelegramMessage(formatLead(lead, ip));
+  // critical: пересылка заявки в рабочую группу — потерянная пересылка это
+  // потерянный лид, поэтому попыток больше и таймаут длиннее, чем у обычной
+  // отправки (см. lib/telegram.ts).
+  const result = await sendTelegramMessage(formatLead(lead, ip), { critical: true });
   if (!result.ok) {
     await logFallback(lead, ip, result.reason);
   }

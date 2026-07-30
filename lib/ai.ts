@@ -23,14 +23,18 @@
 
 import Anthropic from '@anthropic-ai/sdk';
 import {
+  AI_MAX_ATTEMPTS,
   AI_MAX_TOKENS,
   AI_MODEL,
   AI_REQUEST_TIMEOUT_MS,
+  AI_RETRY_DELAY_MS,
+  AI_TOTAL_BUDGET_MS,
   SUMMARY_MARKER,
   SYSTEM_PROMPT,
   findStopPattern,
 } from '@/lib/ai-config';
 import { consumeQuota, getHistory, putSummary, rememberExchange } from '@/lib/ai-memory';
+import { withRetry } from '@/lib/retry';
 
 export type AiReplyInput = {
   /** Текст сообщения клиента. */
@@ -60,6 +64,33 @@ function logAi(fields: { via: AiRoute; chatId: string } & Record<string, unknown
   console.error('AI_REPLY', JSON.stringify(fields));
 }
 
+/**
+ * Лог промежуточной (не последней) попытки — отдельным маркером, а не через
+ * `via` в AI_REPLY: `via` там означает ИТОГ обращения, а ретрай — ещё не итог.
+ */
+function logAiRetry(fields: {
+  chatId: string;
+  attempt: number;
+  attempts: number;
+  reason: string;
+  nextDelayMs: number;
+}): void {
+  console.error('AI_RETRY', JSON.stringify(fields));
+}
+
+/**
+ * Ретраим сетевые сбои (`APIConnectionError`, включая таймаут — его подкласс
+ * `APIConnectionTimeoutError`) и 5xx. НЕ ретраим 4xx: неверный ключ, лимит
+ * контекста, отклонённый запрос — то же самое повторится один в один.
+ */
+export function isRetryableAnthropicError(err: unknown): boolean {
+  if (err instanceof Anthropic.APIConnectionError) return true;
+  if (err instanceof Anthropic.APIError && typeof err.status === 'number' && err.status >= 500) {
+    return true;
+  }
+  return false;
+}
+
 export function isAiConfigured(): boolean {
   return Boolean(process.env.ANTHROPIC_API_KEY);
 }
@@ -71,8 +102,10 @@ export function isAiConfigured(): boolean {
  * другого таймаута не нужен, таймаут переопределяется за запрос вторым
  * аргументом `messages.create`.
  *
- * `maxRetries: 0` — ретраи всё равно не уложатся в внешний лимит времени и
- * лишь добавят оплаченных токенов, которых никто не увидит.
+ * `maxRetries: 0` — ретраи свои, снаружи (см. `isRetryableAnthropicError` и
+ * вызов `withRetry` в `aiReply`): собственный ретрай SDK не знает про общий
+ * бюджет времени и не смог бы урезать таймаут второй попытки по остатку —
+ * бился бы во внешний восьмисекундный лимит `lib/bot-reply.ts` вслепую.
  */
 let client: Anthropic | null = null;
 export function getClient(apiKey: string): Anthropic {
@@ -123,28 +156,48 @@ export const aiReply: AiReply = async ({ text, chatId }) => {
 
   let response;
   try {
-    response = await getClient(apiKey).messages.create({
-      model: AI_MODEL,
-      max_tokens: AI_MAX_TOKENS,
-      // Мышление выключено осознанно: при max_tokens 400 оно съело бы лимит и
-      // обрезало ответ. Глубина здесь не нужна — бот задаёт уточняющий вопрос.
-      thinking: { type: 'disabled' },
-      output_config: { effort: 'low' },
-      system: [
-        {
-          type: 'text',
-          text: SYSTEM_PROMPT,
-          // Промпт неизменен от запроса к запросу — кешируем: он крупнее самого
-          // диалога и иначе оплачивался бы полностью на каждое сообщение.
-          cache_control: { type: 'ephemeral' },
-        },
-      ],
-      messages: [
-        ...history.map((turn) => ({ role: turn.role, content: turn.text })),
-        // Сообщение клиента — отдельный пользовательский блок, не часть промпта.
-        { role: 'user' as const, content: text },
-      ],
-    });
+    response = await withRetry(
+      async () => {
+        // Урезаем таймаут попытки по остатку общего бюджета: без этого вторая
+        // попытка после медленного первого сбоя гарантированно упёрлась бы во
+        // внешний восьмисекундный таймаут `lib/bot-reply.ts`, так и не успев
+        // ответить, — деньги за токены те же, а ответа клиент всё равно не видит.
+        const remaining = AI_TOTAL_BUDGET_MS - (Date.now() - startedAt);
+        if (remaining <= 0) {
+          throw new Anthropic.APIConnectionError({ message: 'no time left in retry budget' });
+        }
+        return await getClient(apiKey).messages.create(
+          {
+            model: AI_MODEL,
+            max_tokens: AI_MAX_TOKENS,
+            // Мышление выключено осознанно: при max_tokens 400 оно съело бы лимит
+            // и обрезало ответ. Глубина здесь не нужна — бот задаёт уточняющий вопрос.
+            thinking: { type: 'disabled' },
+            output_config: { effort: 'low' },
+            system: [
+              {
+                type: 'text',
+                text: SYSTEM_PROMPT,
+                // Промпт неизменен от запроса к запросу — кешируем: он крупнее
+                // самого диалога и иначе оплачивался бы полностью на каждое сообщение.
+                cache_control: { type: 'ephemeral' },
+              },
+            ],
+            messages: [
+              ...history.map((turn) => ({ role: turn.role, content: turn.text })),
+              // Сообщение клиента — отдельный пользовательский блок, не часть промпта.
+              { role: 'user' as const, content: text },
+            ],
+          },
+          { timeout: Math.min(AI_REQUEST_TIMEOUT_MS, remaining) },
+        );
+      },
+      { attempts: AI_MAX_ATTEMPTS, delaysMs: [AI_RETRY_DELAY_MS], isRetryable: isRetryableAnthropicError },
+      (attempt, attempts, err, delay) => {
+        const reason = err instanceof Error ? `${err.name}: ${err.message}` : 'unknown error';
+        logAiRetry({ chatId, attempt, attempts, reason, nextDelayMs: delay });
+      },
+    );
   } catch (err) {
     const reason = err instanceof Error ? `${err.name}: ${err.message}` : 'unknown error';
     logAi({ via: 'error', chatId, reason, ms: Date.now() - startedAt });
@@ -156,6 +209,12 @@ export const aiReply: AiReply = async ({ text, chatId }) => {
     input: response.usage.input_tokens,
     output: response.usage.output_tokens,
     cacheRead: response.usage.cache_read_input_tokens ?? 0,
+    // Токены ПЕРВОЙ записи промпта в кэш — отдельное поле у Anthropic, не
+    // input_tokens и не cache_read_input_tokens. Без него после рестарта
+    // контейнера (кэш пуст) в логе виден подозрительно маленький input и
+    // cacheRead:0, будто промпт не ушёл в запрос вовсе — на деле он просто
+    // оплачен как запись кэша, это поле было не залогировано.
+    cacheWrite: response.usage.cache_creation_input_tokens ?? 0,
   };
 
   // Классификаторы модели могут отклонить запрос: это HTTP 200 со stop_reason

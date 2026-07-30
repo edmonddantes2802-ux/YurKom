@@ -83,7 +83,6 @@ export type DeliveryResult = {
   /** Сколько сообщений реально ушло. */
   sent: number;
   chunks: number;
-  retried: boolean;
   reason?: string;
 };
 
@@ -102,7 +101,6 @@ export async function deliverReply(
   let budget = Math.max(0, (options.budgetMs ?? DELIVERY_BUDGET_MS) - (options.spentMs ?? 0));
 
   let sent = 0;
-  let retried = false;
   let reason: string | undefined;
 
   for (const chunk of chunks) {
@@ -113,13 +111,9 @@ export async function deliverReply(
     await sendChatAction(chatId, 'typing');
     await sleep(pause);
 
-    let result: TelegramResult = await sendTelegramMessage(chunk, { chatId });
-    if (!result.ok) {
-      // Одна повторная попытка: единственный шанс ответить у нас здесь, а самая
-      // частая причина отказа — сетевой таймаут, а не отказ Telegram.
-      retried = true;
-      result = await sendTelegramMessage(chunk, { chatId });
-    }
+    // sendTelegramMessage ретраит сама (3 попытки, 300/900 мс — см.
+    // lib/telegram.ts), отдельный ручной повтор здесь больше не нужен.
+    const result: TelegramResult = await sendTelegramMessage(chunk, { chatId });
 
     if (!result.ok) {
       reason = result.reason;
@@ -129,5 +123,5 @@ export async function deliverReply(
     sent += 1;
   }
 
-  return { ok: sent === chunks.length, sent, chunks: chunks.length, retried, reason };
+  return { ok: sent === chunks.length, sent, chunks: chunks.length, reason };
 }
