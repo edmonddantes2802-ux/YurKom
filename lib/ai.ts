@@ -33,7 +33,7 @@ import {
   SYSTEM_PROMPT,
   findStopPattern,
 } from '@/lib/ai-config';
-import { consumeQuota, getHistory, putSummary, rememberExchange } from '@/lib/ai-memory';
+import { consumeQuota, getHistory, putSummary } from '@/lib/ai-memory';
 import { withRetry } from '@/lib/retry';
 
 export type AiReplyInput = {
@@ -246,7 +246,9 @@ export const aiReply: AiReply = async ({ text, chatId }) => {
   }
 
   if (summary) putSummary(chatId, summary);
-  rememberExchange(chatId, text, reply);
+  // История диалога пишется в lib/bot-reply.ts, не здесь: там известен ФАКТИЧЕСКИ
+  // отправленный клиенту текст (включая случаи, когда деградация подменяет его на
+  // шаблон), а aiReply знает только собственный, ещё не факт что дошедший результат.
 
   logAi({
     via: 'ai',
