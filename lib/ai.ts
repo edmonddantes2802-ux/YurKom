@@ -3,8 +3,9 @@
  *
  * ИИ здесь — НЕОБЯЗАТЕЛЬНОЕ звено. Контракт с `lib/bot-reply.ts` жёсткий:
  * функция либо возвращает текст ответа, либо бросает исключение. Всё остальное
- * (таймаут 8 секунд, ошибки, пустой ответ) обрабатывает деградация — клиент в
- * любом случае получает ответ, в худшем случае шаблон.
+ * (таймаут `AI_TIMEOUT_MS` в `lib/bot-reply.ts`, ошибки, пустой ответ)
+ * обрабатывает деградация — клиент в любом случае получает ответ, в худшем
+ * случае шаблон.
  *
  * Поэтому каждая «штатная причина не отвечать» — не настроен ключ, исчерпана
  * квота, ответ зарезан постфильтром — это тоже исключение (`AiSkip`): так в
@@ -27,7 +28,7 @@ import {
   AI_MAX_TOKENS,
   AI_MODEL,
   AI_REQUEST_TIMEOUT_MS,
-  AI_RETRY_DELAY_MS,
+  AI_RETRY_DELAYS_MS,
   AI_TOTAL_BUDGET_MS,
   SUMMARY_MARKER,
   SYSTEM_PROMPT,
@@ -62,6 +63,15 @@ class AiSkip extends Error {
  */
 function logAi(fields: { via: AiRoute; chatId: string } & Record<string, unknown>): void {
   console.error('AI_REPLY', JSON.stringify(fields));
+}
+
+/**
+ * Доля общего бюджета ретраев (`AI_TOTAL_BUDGET_MS`), уже потраченная к этому
+ * моменту, в процентах — чтобы приближение к лимиту было видно в логе ДО
+ * того, как начнутся сбои по таймауту, а не постфактум по факту самого сбоя.
+ */
+function budgetPct(ms: number): number {
+  return Math.round((ms / AI_TOTAL_BUDGET_MS) * 100);
 }
 
 /**
@@ -104,8 +114,8 @@ export function isAiConfigured(): boolean {
  *
  * `maxRetries: 0` — ретраи свои, снаружи (см. `isRetryableAnthropicError` и
  * вызов `withRetry` в `aiReply`): собственный ретрай SDK не знает про общий
- * бюджет времени и не смог бы урезать таймаут второй попытки по остатку —
- * бился бы во внешний восьмисекундный лимит `lib/bot-reply.ts` вслепую.
+ * бюджет времени и не смог бы урезать таймаут следующей попытки по остатку —
+ * бился бы во внешний лимит `AI_TIMEOUT_MS` (`lib/bot-reply.ts`) вслепую.
  */
 let client: Anthropic | null = null;
 export function getClient(apiKey: string): Anthropic {
@@ -158,10 +168,10 @@ export const aiReply: AiReply = async ({ text, chatId }) => {
   try {
     response = await withRetry(
       async () => {
-        // Урезаем таймаут попытки по остатку общего бюджета: без этого вторая
-        // попытка после медленного первого сбоя гарантированно упёрлась бы во
-        // внешний восьмисекундный таймаут `lib/bot-reply.ts`, так и не успев
-        // ответить, — деньги за токены те же, а ответа клиент всё равно не видит.
+        // Урезаем таймаут попытки по остатку общего бюджета: без этого
+        // следующая попытка после медленного сбоя гарантированно упёрлась бы
+        // во внешний таймаут `AI_TIMEOUT_MS` (`lib/bot-reply.ts`), так и не
+        // успев ответить, — деньги за токены те же, а ответа клиент всё равно не видит.
         const remaining = AI_TOTAL_BUDGET_MS - (Date.now() - startedAt);
         if (remaining <= 0) {
           throw new Anthropic.APIConnectionError({ message: 'no time left in retry budget' });
@@ -192,7 +202,7 @@ export const aiReply: AiReply = async ({ text, chatId }) => {
           { timeout: Math.min(AI_REQUEST_TIMEOUT_MS, remaining) },
         );
       },
-      { attempts: AI_MAX_ATTEMPTS, delaysMs: [AI_RETRY_DELAY_MS], isRetryable: isRetryableAnthropicError },
+      { attempts: AI_MAX_ATTEMPTS, delaysMs: AI_RETRY_DELAYS_MS, isRetryable: isRetryableAnthropicError },
       (attempt, attempts, err, delay) => {
         const reason = err instanceof Error ? `${err.name}: ${err.message}` : 'unknown error';
         logAiRetry({ chatId, attempt, attempts, reason, nextDelayMs: delay });
@@ -200,7 +210,8 @@ export const aiReply: AiReply = async ({ text, chatId }) => {
     );
   } catch (err) {
     const reason = err instanceof Error ? `${err.name}: ${err.message}` : 'unknown error';
-    logAi({ via: 'error', chatId, reason, ms: Date.now() - startedAt });
+    const ms = Date.now() - startedAt;
+    logAi({ via: 'error', chatId, reason, ms, budgetPct: budgetPct(ms) });
     throw err;
   }
 
@@ -220,7 +231,7 @@ export const aiReply: AiReply = async ({ text, chatId }) => {
   // Классификаторы модели могут отклонить запрос: это HTTP 200 со stop_reason
   // refusal и пустым content — читать content[0] без проверки нельзя.
   if (response.stop_reason === 'refusal') {
-    logAi({ via: 'refusal', chatId, ms, usage, details: response.stop_details ?? undefined });
+    logAi({ via: 'refusal', chatId, ms, budgetPct: budgetPct(ms), usage, details: response.stop_details ?? undefined });
     throw new AiSkip('model refused to answer');
   }
 
@@ -233,7 +244,7 @@ export const aiReply: AiReply = async ({ text, chatId }) => {
   const { reply, summary } = splitSummary(raw);
 
   if (!reply) {
-    logAi({ via: 'empty', chatId, ms, usage, stopReason: response.stop_reason });
+    logAi({ via: 'empty', chatId, ms, budgetPct: budgetPct(ms), usage, stopReason: response.stop_reason });
     throw new AiSkip('model returned empty text');
   }
 
@@ -241,7 +252,7 @@ export const aiReply: AiReply = async ({ text, chatId }) => {
   if (matched) {
     // Ответ не отправляем целиком: вырезать «плохой» кусок нельзя — вместе с
     // ним потеряется смысл фразы, а клиент получит обрывок.
-    logAi({ via: 'filtered', chatId, ms, usage, pattern: matched, text: reply });
+    logAi({ via: 'filtered', chatId, ms, budgetPct: budgetPct(ms), usage, pattern: matched, text: reply });
     throw new AiSkip(`filtered by stop pattern ${matched}`);
   }
 
@@ -254,6 +265,7 @@ export const aiReply: AiReply = async ({ text, chatId }) => {
     via: 'ai',
     chatId,
     ms,
+    budgetPct: budgetPct(ms),
     usage,
     stopReason: response.stop_reason,
     hasSummary: Boolean(summary),

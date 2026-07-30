@@ -157,6 +157,25 @@ export async function sendChatAction(
   }
 }
 
+/** Telegram гасит «печатает…» через ~5 с — обновляем чаще, с запасом. */
+const TYPING_REFRESH_MS = 4_000;
+
+/**
+ * Держит «печатает…» живым на время ожидания долгого ответа (до 25 с у
+ * `AI_TIMEOUT_MS` в `lib/bot-reply.ts`) — без повторной отправки индикатор
+ * погас бы через ~5 с, и клиент решил бы, что бот перестал печатать на
+ * середине ожидания. Возвращает функцию остановки — вызвать сразу, как
+ * только ответ (успешный или деградация) готов, чтобы не слать лишние
+ * запросы после того, как ждать уже нечего.
+ */
+export function keepTyping(chatId: string, intervalMs = TYPING_REFRESH_MS): () => void {
+  void sendChatAction(chatId, 'typing');
+  const timer = setInterval(() => {
+    void sendChatAction(chatId, 'typing');
+  }, intervalMs);
+  return () => clearInterval(timer);
+}
+
 export type LeadPayload = {
   situation: string;
   phone: string;

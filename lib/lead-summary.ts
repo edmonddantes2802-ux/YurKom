@@ -18,7 +18,7 @@ import { getClient, isRetryableAnthropicError } from '@/lib/ai';
 import {
   AI_MAX_ATTEMPTS,
   AI_MODEL,
-  AI_RETRY_DELAY_MS,
+  AI_RETRY_DELAYS_MS,
   LEAD_DIRECTION_LABELS,
   LEAD_SUMMARY_MAX_TOKENS,
   LEAD_SUMMARY_SCHEMA,
@@ -88,7 +88,7 @@ export async function summarizeLead(situation: string): Promise<LeadSummary | nu
           { timeout: Math.min(LEAD_SUMMARY_TIMEOUT_MS, remaining) },
         );
       },
-      { attempts: AI_MAX_ATTEMPTS, delaysMs: [AI_RETRY_DELAY_MS], isRetryable: isRetryableAnthropicError },
+      { attempts: AI_MAX_ATTEMPTS, delaysMs: AI_RETRY_DELAYS_MS, isRetryable: isRetryableAnthropicError },
       (attempt, attempts, err, delay) => {
         const reason = err instanceof Error ? `${err.name}: ${err.message}` : 'unknown error';
         logLeadSummary({ via: 'retry', attempt, attempts, reason, nextDelayMs: delay });

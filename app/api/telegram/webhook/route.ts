@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { sendTelegramMessage, sendChatAction, moscowTime } from '@/lib/telegram';
+import { sendTelegramMessage, keepTyping, moscowTime } from '@/lib/telegram';
 import { composeReply } from '@/lib/bot-reply';
 import { deliverReply } from '@/lib/deliver';
 import { sanitizeText } from '@/lib/validation';
@@ -211,10 +211,16 @@ export async function POST(req: NextRequest) {
 
   const isStart = text === '/start' || text.startsWith('/start ');
 
-  // Пересылка в группу, индикатор набора и подготовка ответа идут параллельно:
-  // последовательно их таймауты складывались, и при медленной сети до
-  // api.telegram.org ответ клиенту успевал упереться в собственный лимит.
+  // Пересылка в группу и подготовка ответа идут параллельно: последовательно
+  // их таймауты складывались, и при медленной сети до api.telegram.org ответ
+  // клиенту успевал упереться в собственный лимит.
+  //
+  // Индикатор «печатает…» — ОТДЕЛЬНО и не в этом Promise.all: Telegram гасит
+  // его через ~5 с, а модель может думать до AI_TIMEOUT_MS (25 с) — без
+  // повторной отправки клиент увидел бы, что бот «перестал печатать» на
+  // середине ожидания. keepTyping сам шлёт его каждые 4 с, пока не остановлен.
   const startedAt = Date.now();
+  const stopTyping = keepTyping(chatId);
   const [forward, reply] = await Promise.all([
     // critical: потерянная пересылка — потерянное обращение, попыток больше
     // и таймаут длиннее, чем у ответа клиенту (см. lib/telegram.ts).
@@ -233,10 +239,8 @@ export async function POST(req: NextRequest) {
     isStart
       ? Promise.resolve({ text: START_REPLY, via: 'fallback' as const, reason: 'start command' })
       : composeReply({ text, chatId }),
-    // «Печатает…» сразу, пока думает модель. Результат не нужен: индикатор —
-    // украшение, и его отказ не должен ни задержать ответ, ни уронить обработку.
-    sendChatAction(chatId),
   ]);
+  stopTyping();
 
   if (!forward.ok) {
     // Обращение не должно пропасть молча: тот же маркер, что и у формы.
