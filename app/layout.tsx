@@ -32,6 +32,11 @@ const mono = JetBrains_Mono({
   display: 'swap',
 });
 
+// Токены верификации Вебмастера/Search Console — из env, чтобы вставить их
+// без правки кода. Не заданы — Next просто не рендерит тег <meta name="...">.
+const GOOGLE_SITE_VERIFICATION = process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION;
+const YANDEX_VERIFICATION = process.env.NEXT_PUBLIC_YANDEX_VERIFICATION;
+
 export const metadata: Metadata = {
   // Без базы относительные пути в og:image остаются относительными, и соцсети
   // их не разворачивают. Берётся из того же источника, что канонические ссылки.
@@ -39,6 +44,10 @@ export const metadata: Metadata = {
   title: 'Митрагост — антикризисная юридическая защита бизнеса',
   description: 'Экстренная юридическая помощь бизнесу и частным лицам.',
   manifest: '/manifest.json',
+  verification:
+    GOOGLE_SITE_VERIFICATION || YANDEX_VERIFICATION
+      ? { google: GOOGLE_SITE_VERIFICATION, yandex: YANDEX_VERIFICATION }
+      : undefined,
   icons: {
     icon: [
       { url: '/favicon.ico', sizes: '16x16 32x32 48x48' },

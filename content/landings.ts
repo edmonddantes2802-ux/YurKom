@@ -32,6 +32,8 @@ export type Landing = {
   qualifierNote?: string;
   /** Текст правого рельса секции «Что вы получите». */
   offerRailText?: string;
+  /** Слаги смежных по смыслу посадочных для перелинковки. Не заданы — блок не рендерится. */
+  related?: string[];
 };
 
 /**
@@ -94,6 +96,7 @@ export const landings: Record<string, Landing> = {
     qualifierPlaceholder: 'Например: вчера банк заблокировал расчётный счёт…',
     qualifierNote: 'Реагируем в течение 30 минут — при аресте каждый день на счету',
     offerRailText: 'Опишите, что произошло. Разберём основания ареста и вернём план действий.',
+    related: ['nalogovye-spory', 'subsidiarnaya-otvetstvennost', 'abonentskoe-obsluzhivanie'],
   },
 
   'subsidiarnaya-otvetstvennost': {
@@ -152,6 +155,7 @@ export const landings: Record<string, Landing> = {
       'Например: управляющий подал заявление о привлечении меня к субсидиарной ответственности на 12 млн...',
     qualifierNote: 'Чем раньше выстроена защита, тем больше шансов сохранить активы',
     offerRailText: 'Опишите ситуацию. Оценим основания и покажем, чем реально рискуете.',
+    related: ['arest-scheta', 'korporativnye-spory', 'ekonomicheskaya-ugolovka'],
   },
 
   'nalogovye-spory': {
@@ -208,6 +212,7 @@ export const landings: Record<string, Landing> = {
       'Например: по итогам выездной проверки доначислили НДС и налог на прибыль на 8 млн, получили решение…',
     qualifierNote: 'Возражения и жалобы связаны сроками — чем раньше начнём, тем шире защита',
     offerRailText: 'Опишите ситуацию с проверкой. Разберём акт и покажем, что можно оспорить.',
+    related: ['arest-scheta', 'ekonomicheskaya-ugolovka', 'subsidiarnaya-otvetstvennost'],
   },
 
   'ekonomicheskaya-ugolovka': {
@@ -265,6 +270,7 @@ export const landings: Record<string, Landing> = {
     qualifierNote: 'Позиция защиты закладывается на первом допросе — не идите на него без адвоката',
     offerRailText:
       'Опишите, что происходит по делу. Оценим стадию и риски, предложим линию защиты.',
+    related: ['nalogovye-spory', 'subsidiarnaya-otvetstvennost', 'korporativnye-spory'],
   },
 
   'korporativnye-spory': {
@@ -322,6 +328,7 @@ export const landings: Record<string, Landing> = {
       'Например: партнёр с долей 50% заключает сделки в обход меня и готовит вывод активов…',
     qualifierNote: 'Чем раньше зафиксирована позиция, тем меньше оппонент успеет вывести',
     offerRailText: 'Опишите суть конфликта. Оценим расстановку сил и предложим стратегию.',
+    related: ['subsidiarnaya-otvetstvennost', 'ekonomicheskaya-ugolovka', 'abonentskoe-obsluzhivanie'],
   },
 
   'abonentskoe-obsluzhivanie': {
@@ -387,6 +394,7 @@ export const landings: Record<string, Landing> = {
       'Например: компания в оптовой торговле, около 30 договоров в месяц, нужен постоянный юрист…',
     qualifierNote: 'Расскажите о задачах — предложим формат под ваш объём',
     offerRailText: 'Опишите бизнес и объём задач. Предложим формат сопровождения под вас.',
+    related: ['arest-scheta', 'nalogovye-spory', 'korporativnye-spory'],
   },
 };
 

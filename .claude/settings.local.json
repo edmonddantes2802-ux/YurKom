@@ -194,7 +194,19 @@
       "Bash(echo \"server pid=$!\")",
       "Bash(curl -s --noproxy '*' -o /dev/null -w 'server: %{http_code}\\\\n' -m 10 http://127.0.0.1:3171/)",
       "Bash(curl -s --noproxy * -m 15 -X POST http://127.0.0.1:3171/api/lead -H 'Content-Type: application/json' -d '{\"situation\":\"Пришло требование из налоговой на 6 млн рублей, счёт заблокирован сегодня утром\",\"phone\":\"\",\"source\":\"nalogovye-spory\",\"utm\":{}}')",
-      "Bash(curl -s --noproxy * -m 15 -X POST http://127.0.0.1:3171/api/lead -H 'Content-Type: application/json' -d '{\"situation\":\"проверка честпота, заявка не должна создаться\",\"phone\":\"\",\"source\":\"homepage\",\"utm\":{},\"honeypot\":\"bot\"}')"
+      "Bash(curl -s --noproxy * -m 15 -X POST http://127.0.0.1:3171/api/lead -H 'Content-Type: application/json' -d '{\"situation\":\"проверка честпота, заявка не должна создаться\",\"phone\":\"\",\"source\":\"homepage\",\"utm\":{},\"honeypot\":\"bot\"}')",
+      "Bash(where chrome *)",
+      "Bash(where chrome.exe)",
+      "Read(//c/Program Files \\\\\\(x86\\\\\\)/Google/Chrome/Application/**)",
+      "Bash(echo \"started pid=$!\")",
+      "Bash(curl -s --noproxy '*' -o /dev/null -w 'server: %{http_code}\\\\n' -m 5 http://127.0.0.1:3171/)",
+      "Bash(mkdir -p /c/temp/chrome-debug-yurkom)",
+      "Bash(\"/c/Program Files/Google/Chrome/Application/chrome.exe\" --headless=new --disable-gpu --remote-debugging-port=9222 --user-data-dir=C:\\\\\\\\temp\\\\\\\\chrome-debug-yurkom --no-first-run --no-default-browser-check)",
+      "Bash(echo \"chrome pid=$!\")",
+      "Bash(curl -s http://127.0.0.1:9222/json/version)",
+      "Bash(\"/c/Program Files/Google/Chrome/Application/chrome.exe\" --headless=new --disable-gpu --remote-debugging-port=9222 --user-data-dir=C:\\\\\\\\temp\\\\\\\\chrome-debug-yurkom --no-first-run --no-default-browser-check --dump-dom about:blank)",
+      "Bash(disown)",
+      "Bash(taskkill //PID 12264 //F)"
     ]
   }
 }

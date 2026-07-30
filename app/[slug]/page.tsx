@@ -12,6 +12,7 @@ import Cases from '@/components/Cases';
 import RepeatCTA from '@/components/RepeatCTA';
 import Steps from '@/components/Steps';
 import FAQ from '@/components/FAQ';
+import RelatedLandings from '@/components/RelatedLandings';
 import Footer from '@/components/Footer';
 
 type Props = { params: Promise<{ slug: string }> };
@@ -64,6 +65,9 @@ export default async function LandingPage({ params }: Props) {
 
   const jsonLd = [legalServiceSchema(landing), faqSchema(landing.faq)].filter(Boolean);
   const hasFaq = answeredFaq(landing.faq).length > 0;
+  const relatedLandings = (landing.related ?? [])
+    .map((slug) => landings[slug])
+    .filter((l): l is NonNullable<typeof l> => Boolean(l));
 
   return (
     <>
@@ -84,6 +88,7 @@ export default async function LandingPage({ params }: Props) {
         {/* Обычно последний призыв перед футером даёт рельс FAQ. Если отвечать
             нечем и секция не рендерится, призыв возвращает CTA-полоса. */}
         {hasFaq ? <FAQ faq={landing.faq} /> : <RepeatCTA />}
+        <RelatedLandings landings={relatedLandings} />
       </main>
       <Footer />
     </>

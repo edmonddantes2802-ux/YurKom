@@ -1,7 +1,12 @@
 import type { Landing } from '@/content/landings';
 import { answeredFaq } from '@/lib/faq';
 import { COMPANY_NAME, COMPANY_TAGLINE } from '@/content/company';
+import { PHONE_HREF } from '@/lib/contacts';
 import { SITE_URL } from '@/lib/site';
+
+/** Реальная география обслуживания (см. CLAUDE.md), а не вся РФ. */
+const AREA_SERVED = 'Москва и Московская область';
+const TELEPHONE = PHONE_HREF.replace(/^tel:/, '');
 
 /**
  * Сериализация для <script type="application/ld+json">. Экранируем "<",
@@ -19,7 +24,8 @@ export function organizationSchema() {
     name: COMPANY_NAME,
     description: COMPANY_TAGLINE,
     url: SITE_URL,
-    areaServed: 'RU',
+    telephone: TELEPHONE,
+    areaServed: AREA_SERVED,
   };
 }
 
@@ -31,7 +37,8 @@ export function homeLegalServiceSchema(description: string) {
     name: COMPANY_NAME,
     description,
     url: SITE_URL,
-    areaServed: 'RU',
+    telephone: TELEPHONE,
+    areaServed: AREA_SERVED,
   };
 }
 
@@ -42,7 +49,8 @@ export function legalServiceSchema(landing: Landing) {
     name: landing.h1,
     description: landing.metaDescription,
     url: `${SITE_URL}/${landing.slug}`,
-    areaServed: 'RU',
+    telephone: TELEPHONE,
+    areaServed: AREA_SERVED,
   };
 }
 

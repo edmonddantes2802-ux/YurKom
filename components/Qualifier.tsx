@@ -98,7 +98,7 @@ export default function Qualifier({
     return (
       <div className="qualifier-wrap" id="qualifier" data-reveal data-reveal-delay="3">
         <div className="qualifier notched qualifier-success">
-          <h3>Заявка отправлена</h3>
+          <h2>Заявка отправлена</h2>
           <p className="qualifier-status success">
             Мы изучим вашу ситуацию и свяжемся с вами в ближайшее время.
           </p>
@@ -110,7 +110,7 @@ export default function Qualifier({
   return (
     <div className="qualifier-wrap" id="qualifier" data-reveal data-reveal-delay="3">
       <form className="qualifier notched" onSubmit={handleSubmit}>
-        <h3>Опишите ситуацию</h3>
+        <h2>Опишите ситуацию</h2>
         <p className="qualifier-hint">{prompt}</p>
 
         {/* Чипы — подсказка под конкретную боль. Не заданы в конфиге —
