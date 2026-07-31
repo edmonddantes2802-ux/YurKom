@@ -365,8 +365,13 @@ async function checkHistory() {
   for (const f of files.slice(0, 500)) {
     const hist = git(`log --all --no-color -p -- "${f}"`);
     if (!hist) continue;
+    // Заглушки отсеиваются построчно, как в основном сканере. Проверять
+    // PLACEHOLDER_RE на всём выводе нельзя: одна заглушка амнистировала бы
+    // весь файл. Строки склеиваются обратно, чтобы многострочные шаблоны
+    // (service_role + JWT) продолжали работать.
+    const clean = hist.split('\n').filter((l) => !PLACEHOLDER_RE.test(l)).join('\n');
     for (const pat of patterns) {
-      if (pat.re.test(hist)) {
+      if (pat.re.test(clean)) {
         problem('ИСТОРИЯ', f, `${pat.name} встречается в истории коммитов. Отозвать значение, потом чистить историю.`);
         found++;
         break;
