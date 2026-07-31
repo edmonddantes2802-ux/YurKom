@@ -1421,3 +1421,17 @@ Lighthouse, n=10 на сторону, медиана (диапазон):
 
 **Коммит:** `2cdf87e`
 
+
+## 2026-07-31 05:29 — ARG/ENV для верификационных переменных в Dockerfile
+
+**Что просили:** добавить в Dockerfile ARG/ENV для `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION` и `NEXT_PUBLIC_YANDEX_VERIFICATION` рядом с существующими для METRIKA_ID и SITE_URL. Работать в ветке.
+
+**Контекст:** диагностика «Google-верификация не проходит». Локальная сборка с обеими переменными подтвердила, что `app/layout.tsx` рендерит оба тега корректно (`meta name="google-site-verification"` и `meta name="yandex-verification"` в собранном HTML главной). Причина на проде — гугловой переменной не было на момент сборки образа (echo в контейнере показывает runtime-окружение, а теги запекаются при билде, страницы SSG). Правка делает доставку buildtime-переменных в Docker-сборку явной, не зависящей от механизма Coolify.
+
+**Что сделал:** в стадию builder добавлены `ARG NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION`, `ARG NEXT_PUBLIC_YANDEX_VERIFICATION` и соответствующие `ENV` — рядом с METRIKA_ID/SITE_URL.
+
+**Затронутые файлы:** `Dockerfile`, `WORKLOG.md`.
+
+**Отступления и спорные решения:** нет. Ветка `fix/dockerfile-verification-args`, в `main` не мержил (по правилу — мерж только по команде). Полную Docker-сборку локально не гонял: правка не меняет ни один слой до `RUN npm run build`, а `npm run build` с этими переменными прогнан и проверен грепом в рамках диагностики выше.
+
+**Коммит:** `c347e07` (правка Dockerfile), запись worklog — отдельным коммитом следом.
