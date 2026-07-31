@@ -8,6 +8,7 @@
     "start": "next start -p 3171",
     "lint": "next lint",
     "guard": "node scripts/guard.mjs",
+    "prepare": "git config core.hooksPath .githooks || exit 0",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },

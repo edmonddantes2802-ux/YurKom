@@ -1,0 +1,3 @@
+#!/bin/sh
+# Гейт секретов по файлам в индексе. Обход в крайнем случае: git commit --no-verify.
+npm run guard -- --staged
