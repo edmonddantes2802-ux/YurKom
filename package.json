@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start -p 3171",
     "lint": "next lint",
+    "guard": "node scripts/guard.mjs",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },
