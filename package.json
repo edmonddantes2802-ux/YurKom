@@ -6,6 +6,7 @@
     "dev": "next dev -p 3170",
     "build": "next build",
     "start": "next start -p 3171",
+    "test": "node --experimental-transform-types --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --disable-warning=ExperimentalWarning --import ./scripts/module-hooks.mjs --test",
     "lint": "next lint",
     "guard": "node scripts/guard.mjs",
     "prepare": "git config core.hooksPath .githooks || exit 0",

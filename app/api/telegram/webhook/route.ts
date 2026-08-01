@@ -6,6 +6,12 @@ import { sanitizeText } from '@/lib/validation';
 import { SITUATION_MAX } from '@/lib/limits';
 import { isAiConfigured } from '@/lib/ai';
 import { takeSummary } from '@/lib/ai-memory';
+import {
+  isWebhookSecretConfigured,
+  verifyWebhookSecret,
+  warnIfWebhookSecretMissing,
+} from '@/lib/webhook-auth';
+import { allowWebhookRequest } from '@/lib/webhook-rate-limit';
 
 export const runtime = 'nodejs';
 
@@ -50,6 +56,11 @@ function ok(): NextResponse {
 function logExit(fields: Record<string, unknown>): void {
   console.error('BOT_REPLY', JSON.stringify(fields));
 }
+
+// Загрузка модуля роута = старт приложения. Если секрет не задан, вебхук
+// теперь отвечает 401 всем подряд — без этой строки в логе будет только поток
+// отказов, а причина останется неочевидной.
+warnIfWebhookSecretMissing();
 
 type TelegramUser = {
   id?: number;
@@ -126,39 +137,52 @@ async function pingHost(url: string, timeoutMs = 3_000): Promise<PingResult> {
 }
 
 /**
- * Проверка живости роута снаружи, без секретов в ответе.
+ * Проверка живости роута.
  *
- * Отвечает на вопрос «доехала ли сборка и что в ней настроено» одной
- * командой с любой машины:
+ * Публично — только факт, что сборка доехала и роут отвечает:
  *   curl -s https://mitragost.ru/api/telegram/webhook
  *
- * Значения переменных не раскрываются — только факт, что они заданы.
+ * Состав настроенных переменных и пинги наружу спрятаны за тем же секретом,
+ * что и POST. Раньше они отдавались всем, и это было двумя разными проблемами
+ * сразу. Во-первых, `configured.webhookSecret: false` — прямая наводка, что
+ * защита бота сейчас не настроена, доступная кому угодно одной командой.
+ * Во-вторых, `pingHost` на каждый запрос — это два исходящих соединения с
+ * таймаутом 3 секунды, то есть дешёвый публичный запрос удерживал серверные
+ * ресурсы кратно дольше собственной стоимости.
  *
- * `network` — отдельный вопрос «жива ли сеть с VPS прямо сейчас»: конкретно
- * этот разбор («AI_REPLY via: error, Connection error» + «fetch failed» на
- * пересылке в Telegram) показал, что сеть с VPS до внешних API нестабильна,
- * а увидеть это одним запросом было нечем — раньше приходилось гадать по
- * логам постфактум.
+ * Сама диагностика при этом сохранена: `network` отвечает на вопрос «жива ли
+ * сеть с VPS прямо сейчас», и без неё разбор вида «AI_REPLY via: error,
+ * Connection error» + «fetch failed» на пересылке снова придётся вести
+ * гаданием по логам постфактум. Команде она доступна с тем же заголовком:
+ *   curl -s -H "X-Telegram-Bot-Api-Secret-Token: <секрет>" https://mitragost.ru/api/telegram/webhook
  */
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const base = {
+    ok: true,
+    route: 'telegram-webhook',
+    /** Меняется при каждой правке этого файла — видно, что версия свежая. */
+    revision: 'ai-3',
+    now: new Date().toISOString(),
+  };
+
+  if (!verifyWebhookSecret(req.headers.get('x-telegram-bot-api-secret-token'))) {
+    return NextResponse.json(base);
+  }
+
   const [anthropic, telegram] = await Promise.all([
     pingHost('https://api.anthropic.com/'),
     pingHost('https://api.telegram.org/'),
   ]);
 
   return NextResponse.json({
-    ok: true,
-    route: 'telegram-webhook',
-    /** Меняется при каждой правке этого файла — видно, что версия свежая. */
-    revision: 'ai-2',
+    ...base,
     configured: {
       botToken: Boolean(process.env.TELEGRAM_BOT_TOKEN),
       chatId: Boolean(process.env.TELEGRAM_CHAT_ID),
-      webhookSecret: Boolean(process.env.TELEGRAM_WEBHOOK_SECRET),
+      webhookSecret: isWebhookSecretConfigured(),
       ai: isAiConfigured(),
     },
     network: { anthropic, telegram },
-    now: new Date().toISOString(),
   });
 }
 
@@ -171,12 +195,25 @@ export async function POST(req: NextRequest) {
     contentLength: req.headers.get('content-length') ?? undefined,
   });
 
-  // Вебхук открыт наружу, поэтому сверяем секрет. Не задан — пропускаем
-  // проверку, но это допустимо только на стенде (см. .env.example).
-  const secret = process.env.TELEGRAM_WEBHOOK_SECRET;
-  if (secret && req.headers.get('x-telegram-bot-api-secret-token') !== secret) {
-    logExit({ via: 'rejected', reason: 'secret mismatch' });
+  // Вебхук открыт наружу, поэтому сверяем секрет. Проверка fail-closed: секрет
+  // не задан — отвечаем 401 всем, включая настоящий Telegram. Прежний вариант
+  // при незаданной переменной пропускал вообще всё (см. lib/webhook-auth.ts).
+  if (!verifyWebhookSecret(req.headers.get('x-telegram-bot-api-secret-token'))) {
+    logExit({ via: 'rejected', reason: 'secret mismatch or not configured' });
     return NextResponse.json({ ok: false }, { status: 401 });
+  }
+
+  // Потолок на весь роут, а не на клиента: единственный идентификатор в
+  // апдейте — chat.id из тела, и ограничивать по нему бессмысленно (см.
+  // lib/webhook-rate-limit.ts). Проверяется ПОСЛЕ секрета, чтобы поток
+  // неаутентифицированных запросов не съедал лимит настоящего Telegram.
+  //
+  // 429, а не 200: Telegram доставит такой апдейт повторно. Настоящее
+  // обращение при всплеске задержится, но не пропадёт — а это единственный
+  // исход, который здесь недопустим.
+  if (!allowWebhookRequest()) {
+    logExit({ via: 'rejected', reason: 'rate limited' });
+    return NextResponse.json({ ok: false }, { status: 429 });
   }
 
   let update: TelegramUpdate;

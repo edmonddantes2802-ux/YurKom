@@ -34,7 +34,7 @@ import {
   SYSTEM_PROMPT,
   findStopPattern,
 } from '@/lib/ai-config';
-import { consumeQuota, getHistory, putSummary } from '@/lib/ai-memory';
+import { consumeGlobalQuota, consumeQuota, getHistory, putSummary } from '@/lib/ai-memory';
 import { withRetry } from '@/lib/retry';
 
 export type AiReplyInput = {
@@ -159,6 +159,15 @@ export const aiReply: AiReply = async ({ text, chatId }) => {
   if (!quota.allowed) {
     logAi({ via: 'quota', chatId, used: quota.used, limit: quota.limit });
     throw new AiSkip(`quota exceeded: ${quota.used}/${quota.limit} per hour`);
+  }
+
+  // Личная квота считается на chatId, а он приходит в теле апдейта — сменой
+  // значения она обходится целиком. Общий потолок ни к чему из запроса не
+  // привязан, поэтому проверяется вторым и закрывает именно этот обход.
+  const global = consumeGlobalQuota();
+  if (!global.allowed) {
+    logAi({ via: 'quota', chatId, used: global.used, limit: global.limit, scope: 'global' });
+    throw new AiSkip(`global quota exceeded: ${global.used}/${global.limit} per hour`);
   }
 
   const history = getHistory(chatId);

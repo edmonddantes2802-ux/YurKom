@@ -211,7 +211,9 @@
       "PowerShell(node app/scripts/guard.mjs)",
       "Bash(git -C /c/Wibecoding/Work/YurKom status --short)",
       "Bash(git -C /c/Wibecoding/Work/YurKom diff --stat)",
-      "Bash(git -C /c/Wibecoding/Work/YurKom diff .claude/settings.local.json)"
+      "Bash(git -C /c/Wibecoding/Work/YurKom diff .claude/settings.local.json)",
+      "Bash(grep -Ei 'config|\\\\.mjs|\\\\.js$')",
+      "Bash(npm test *)"
     ]
   }
 }

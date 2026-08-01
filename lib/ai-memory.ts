@@ -12,10 +12,12 @@
 import {
   AI_CONTEXT_MESSAGES,
   AI_CONTEXT_TTL_MS,
+  AI_GLOBAL_QUOTA_LIMIT,
   AI_MAX_TRACKED_CHATS,
   AI_QUOTA_LIMIT,
   AI_QUOTA_WINDOW_MS,
 } from '@/lib/ai-config';
+import { createWindowLimiter } from '@/lib/rate-limit';
 
 export type ChatTurn = { role: 'user' | 'assistant'; text: string };
 
@@ -103,6 +105,28 @@ export function consumeQuota(chatId: string, now = Date.now()): QuotaCheck {
   return { allowed: true, used: chat.calls.length, limit: AI_QUOTA_LIMIT };
 }
 
+/**
+ * Общий потолок обращений к API на весь процесс.
+ *
+ * Считается ОТДЕЛЬНО от `chats`: вытеснение по TTL и по числу чатов не должно
+ * возвращать израсходованный общий лимит. Именно поэтому он живёт не в
+ * `ChatState` — иначе смена `chat.id` в теле апдейта заводила бы новую запись
+ * с нулевым счётчиком, то есть ровно тот обход, который потолок и закрывает.
+ */
+const globalCalls = createWindowLimiter(AI_GLOBAL_QUOTA_LIMIT, AI_QUOTA_WINDOW_MS);
+
+/**
+ * Расход общего потолка. Проверяется ПОСЛЕ личной квоты чата: чат, уже
+ * выбравший свою, не должен вдобавок тратить общий бюджет.
+ */
+export function consumeGlobalQuota(now = Date.now()): QuotaCheck {
+  const used = globalCalls.used(now);
+  if (!globalCalls.tryConsume(now)) {
+    return { allowed: false, used, limit: AI_GLOBAL_QUOTA_LIMIT };
+  }
+  return { allowed: true, used: used + 1, limit: AI_GLOBAL_QUOTA_LIMIT };
+}
+
 /** Сводка для команды: кладём при разборе ответа модели. */
 export function putSummary(chatId: string, summary: string, now = Date.now()): void {
   state(chatId, now).summary = summary;
@@ -120,4 +144,5 @@ export function takeSummary(chatId: string): string | undefined {
 /** Только для тестов и диагностики. */
 export function resetAiMemory(): void {
   chats.clear();
+  globalCalls.reset();
 }
