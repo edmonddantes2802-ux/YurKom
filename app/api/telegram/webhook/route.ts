@@ -105,6 +105,39 @@ function describeSender(from: TelegramUser | undefined, chatId: string): string 
 }
 
 /**
+ * Типы чатов, где `from.id` и `chat.id` заведомо разные: `chat.id` там —
+ * идентификатор группы или канала, а `from.id` — конкретного участника.
+ */
+const GROUP_CHAT_TYPES = new Set(['group', 'supergroup', 'channel']);
+
+/**
+ * Совпадает ли отправитель с чатом, за который себя выдаёт.
+ *
+ * В приватном чате `from.id` у настоящего сообщения ВСЕГДА равен `chat.id`:
+ * диалог один на один, и писать в него может только собеседник бота. Ответ же
+ * уходит по `chat.id` из тела апдейта, поэтому без этой проверки тот, у кого
+ * есть секрет вебхука, отправляет произвольный текст любому человеку от имени
+ * официального бота службы — а `chat.id` в Telegram перебираемый.
+ *
+ * Секрет вебхука эту дыру закрывает лишь до первой утечки: он один на весь
+ * трафик бота и не ротируется. Здесь — второй, независимый рубеж.
+ *
+ * Тип чата не назван — считаем чат приватным и проверяем. Иначе правило
+ * обходилось бы простым отбрасыванием поля `type` из тела запроса. Настоящий
+ * Telegram `chat.type` присылает всегда, так что живой трафик это не задевает.
+ */
+function senderOwnsChat(message: TelegramMessage | undefined): boolean {
+  const type = message?.chat?.type;
+  if (typeof type === 'string' && GROUP_CHAT_TYPES.has(type)) return true;
+
+  const fromId = message?.from?.id;
+  // Отправителя нет — проверить принадлежность нечем, значит не пропускаем.
+  if (typeof fromId !== 'number') return false;
+
+  return fromId === message?.chat?.id;
+}
+
+/**
  * Первое сообщение новому боту всегда `/start` — на него отвечаем как на
  * обычное обращение, но без слов «заявка принята»: человек ещё ничего не
  * рассказал. Остальные команды идут обычным путём.
@@ -244,6 +277,21 @@ export async function POST(req: NextRequest) {
       chatType: message?.chat?.type,
     });
     return ok();
+  }
+
+  // Единственная проверка принадлежности в этом роуте: тот ли это чат, за
+  // который себя выдаёт отправитель. Всё, что ниже, действует от имени
+  // `chatId` — отвечает клиенту, читает и дополняет память диалога, тратит
+  // квоту, — а сам `chatId` приходит в теле запроса.
+  if (!senderOwnsChat(message)) {
+    logExit({
+      via: 'rejected',
+      reason: 'sender does not match private chat',
+      chatId,
+      fromId: message?.from?.id,
+      chatType: message?.chat?.type,
+    });
+    return NextResponse.json({ ok: false }, { status: 403 });
   }
 
   const isStart = text === '/start' || text.startsWith('/start ');
