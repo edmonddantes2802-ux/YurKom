@@ -206,7 +206,12 @@
       "Bash(curl -s http://127.0.0.1:9222/json/version)",
       "Bash(\"/c/Program Files/Google/Chrome/Application/chrome.exe\" --headless=new --disable-gpu --remote-debugging-port=9222 --user-data-dir=C:\\\\\\\\temp\\\\\\\\chrome-debug-yurkom --no-first-run --no-default-browser-check --dump-dom about:blank)",
       "Bash(disown)",
-      "Bash(taskkill //PID 12264 //F)"
+      "Bash(taskkill //PID 12264 //F)",
+      "Bash(git pull *)",
+      "PowerShell(node app/scripts/guard.mjs)",
+      "Bash(git -C /c/Wibecoding/Work/YurKom status --short)",
+      "Bash(git -C /c/Wibecoding/Work/YurKom diff --stat)",
+      "Bash(git -C /c/Wibecoding/Work/YurKom diff .claude/settings.local.json)"
     ]
   }
 }

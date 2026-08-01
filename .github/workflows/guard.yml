@@ -1,0 +1,25 @@
+name: guard
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  guard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # полная история: guard --history на поверхностном клоне сам падает
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run guard -- --history
+      - run: npm audit --audit-level=high
+        continue-on-error: true

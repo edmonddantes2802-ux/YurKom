@@ -350,6 +350,12 @@ async function checkHistory() {
     warn('ИСТОРИЯ', 'git', 'Репозиторий недоступен, история не проверена.');
     return;
   }
+  // Поверхностный клон (CI по умолчанию) истории не содержит: проверка
+  // «прошла» бы, ничего не увидев. Молчаливый зелёный статус хуже красного.
+  if ((git('rev-parse --is-shallow-repository') || '').trim() === 'true') {
+    problem('ИСТОРИЯ', 'git', 'Поверхностный клон: истории нет, проверять нечего. В CI задать fetch-depth: 0, иначе результат ничего не значит.');
+    return;
+  }
   const patterns = SECRET_PATTERNS.filter((p) => !p.clientOnly);
   let found = 0;
 
