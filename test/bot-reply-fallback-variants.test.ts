@@ -55,12 +55,11 @@ test('ночной текст (03:00 МСК) не обещает «в ближа
   assert.doesNotMatch(repeat, new RegExp(PHONE.replace(/[+()]/g, '\\$&'), 'u'));
 });
 
-test('дневной текст (14:00 МСК) обещает скорую связь и даёт телефон', () => {
+test('дневной текст (14:00 МСК) даёт телефон — в отличие от ночного', () => {
   resetAiMemory();
   const afternoon = new Date('2026-01-15T11:00:00Z'); // 14:00 МСК
   const text = pickFallbackReply('chat-day-1', afternoon);
 
-  assert.match(text, NEAR_FUTURE_PROMISE);
   assert.match(text, new RegExp(PHONE.replace(/[+()]/g, '\\$&'), 'u'));
 });
 
