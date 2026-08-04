@@ -12,6 +12,8 @@ import {
   warnIfWebhookSecretMissing,
 } from '@/lib/webhook-auth';
 import { allowWebhookRequest } from '@/lib/webhook-rate-limit';
+import { isDuplicateUpdate } from '@/lib/webhook-dedup';
+import { trackBackground } from '@/lib/background-work';
 
 export const runtime = 'nodejs';
 
@@ -258,6 +260,15 @@ export async function POST(req: NextRequest) {
     return ok();
   }
 
+  // Повтор доставки того же update_id — Telegram ретраит, если не дождался
+  // 200 вовремя. Без этой проверки весь конвейер ниже прогонялся бы заново:
+  // вторая пересылка в группу и второй ответ клиенту на одно и то же
+  // сообщение (см. lib/webhook-dedup.ts).
+  if (isDuplicateUpdate(update.update_id)) {
+    logExit({ via: 'skipped', reason: 'duplicate update_id', updateId: update.update_id });
+    return ok();
+  }
+
   // Берём и отредактированные сообщения: для человека это то же обращение.
   const message = update.message ?? update.edited_message ?? update.channel_post;
   const chatId = message?.chat?.id !== undefined ? String(message.chat.id) : '';
@@ -296,9 +307,49 @@ export async function POST(req: NextRequest) {
 
   const isStart = text === '/start' || text.startsWith('/start ');
 
+  // Ответ Telegram уходит СРАЗУ после приёма — пересылка в группу, ИИ и
+  // доставка идут уже ПОСЛЕ него, в фоне. Раньше ok() возвращался только по
+  // готовности всего конвейера (до ~32 с: AI_TIMEOUT_MS + DELIVERY_BUDGET_MS)
+  // — Telegram не всегда дожидался и ретраил сам апдейт; с шагом 1 (см.
+  // lib/webhook-dedup.ts) повтор больше не прогоняет конвейер заново, но
+  // лишнее ожидание и сам факт ретрая это не убирает.
+  const response = ok();
+  trackBackground(
+    processUpdate({ chatId, text, message, isStart }).catch((err) => {
+      // Страховка: processUpdate сам ловит все свои ошибки (композиция и
+      // доставка ответа не бросают наружу), но необработанное исключение
+      // здесь молча уронило бы фоновую задачу без единой строки в логе.
+      logExit({
+        via: 'error',
+        reason: 'unhandled background failure',
+        chatId,
+        error: err instanceof Error ? `${err.name}: ${err.message}` : String(err),
+      });
+    }),
+  );
+  return response;
+}
+
+/**
+ * Пересылка в группу, подготовка ответа, доставка клиенту — весь конвейер,
+ * который раньше блокировал ответ Telegram, а теперь идёт после него.
+ * Не бросает исключений: композиция и доставка сами ловят свои ошибки,
+ * а обёртка в POST — дополнительная страховка на случай программной ошибки.
+ */
+async function processUpdate({
+  chatId,
+  text,
+  message,
+  isStart,
+}: {
+  chatId: string;
+  text: string;
+  message: TelegramMessage | undefined;
+  isStart: boolean;
+}): Promise<void> {
   // Пересылка в группу и подготовка ответа идут параллельно: последовательно
-  // их таймауты складывались, и при медленной сети до api.telegram.org ответ
-  // клиенту успевал упереться в собственный лимит.
+  // их таймауты складывались бы без нужды — теперь это уже не влияет на ответ
+  // Telegram (он ушёл раньше), но всё ещё сокращает время до ответа клиенту.
   //
   // Индикатор «печатает…» — ОТДЕЛЬНО и не в этом Promise.all: Telegram гасит
   // его через ~5 с, а модель может думать до AI_TIMEOUT_MS (25 с) — без
@@ -350,6 +401,20 @@ export async function POST(req: NextRequest) {
   // видит, она уходит команде в рабочую группу вместе с доставкой ответа.
   const summary = takeSummary(chatId);
 
+  // Раньше команда видела только сообщение клиента и не знала, что именно
+  // ему ответил бот — в частности, что клиенту дважды подряд ушёл один и тот
+  // же шаблон деградации (см. разбор в WORKLOG, инцидент 13:37–13:38).
+  // /start — не сбой модели, а штатная ветка (см. isStart выше), пометкой не
+  // отмечается, хотя формально тоже идёт через via: 'fallback'.
+  const isDegradedReply = reply.via === 'fallback' && reply.reason !== 'start command';
+  const replyReport = [
+    'Ответ бота',
+    '',
+    `Чат: ${chatId}`,
+    '',
+    isDegradedReply ? `[ШАБЛОН] ${reply.text}` : reply.text,
+  ].join('\n');
+
   // Ответ клиенту — в ЕГО чат (chat.id из апдейта), не в рабочую группу.
   // Паузы внутри укорачиваются на уже потраченное время: эти секунды клиент
   // и так провёл, глядя на «печатает…».
@@ -358,6 +423,7 @@ export async function POST(req: NextRequest) {
     summary
       ? sendTelegramMessage(['Сводка по диалогу', '', `Чат: ${chatId}`, '', summary].join('\n'))
       : Promise.resolve(undefined),
+    sendTelegramMessage(replyReport),
   ]);
 
   logExit({
@@ -372,6 +438,4 @@ export async function POST(req: NextRequest) {
     deliveryError: sent.ok ? undefined : sent.reason,
     summarySent: Boolean(summary),
   });
-
-  return ok();
 }

@@ -14,6 +14,7 @@ import { NextRequest } from 'next/server';
 import { POST } from '@/app/api/telegram/webhook/route';
 import { consumeQuota, consumeGlobalQuota, resetAiMemory } from '@/lib/ai-memory';
 import { resetWebhookRateLimit, WEBHOOK_MAX_PER_WINDOW } from '@/lib/webhook-rate-limit';
+import { resetWebhookDedup } from '@/lib/webhook-dedup';
 import { AI_GLOBAL_QUOTA_LIMIT } from '@/lib/ai-config';
 
 const SECRET = 'example-webhook-secret-value';
@@ -27,6 +28,7 @@ function isolate(t: TestContext): void {
   delete process.env.ANTHROPIC_API_KEY;
   resetAiMemory();
   resetWebhookRateLimit();
+  resetWebhookDedup();
 }
 
 /**

@@ -18,8 +18,10 @@ import { test, type TestContext } from 'node:test';
 import assert from 'node:assert/strict';
 import { NextRequest } from 'next/server';
 import { POST } from '@/app/api/telegram/webhook/route';
+import { waitForBackgroundWork } from '@/lib/background-work';
 import { resetWebhookRateLimit } from '@/lib/webhook-rate-limit';
 import { resetAiMemory } from '@/lib/ai-memory';
+import { resetWebhookDedup } from '@/lib/webhook-dedup';
 
 const SECRET = 'example-webhook-secret-value';
 const HEADER = 'x-telegram-bot-api-secret-token';
@@ -53,6 +55,13 @@ function isolate(t: TestContext) {
   delete process.env.ANTHROPIC_API_KEY;
   resetAiMemory();
   resetWebhookRateLimit();
+  // update_id в makeRequest фиксирован (1) — без сброса второй тест этого
+  // файла получил бы «уже видели» вместо настоящей проверки.
+  resetWebhookDedup();
+  // Ответ POST больше не ждёт конвейер (см. шаг 2) — без этого фоновая
+  // задача (реальные паузы deliverReply, 1,5–4 с) дожила бы до следующего
+  // теста и дёргала fetch уже после того, как его мок здесь восстановлен.
+  t.after(() => waitForBackgroundWork());
   return t.mock.method(globalThis, 'fetch', async () =>
     Response.json({ ok: true, result: { message_id: 1 } }),
   );

@@ -127,6 +127,19 @@ export function consumeGlobalQuota(now = Date.now()): QuotaCheck {
   return { allowed: true, used: used + 1, limit: AI_GLOBAL_QUOTA_LIMIT };
 }
 
+/**
+ * Последняя реплика ассистента в истории чата — то, что реально ушло
+ * клиенту (успешный ответ ИИ или шаблон деградации, см. rememberExchange).
+ * Используется, чтобы не повторять дословно один и тот же fallback на два
+ * сбоя подряд (см. lib/bot-reply.ts).
+ */
+export function getLastAssistantReply(chatId: string): string | undefined {
+  const chat = chats.get(chatId);
+  if (!chat || chat.history.length === 0) return undefined;
+  const last = chat.history[chat.history.length - 1];
+  return last.role === 'assistant' ? last.text : undefined;
+}
+
 /** Сводка для команды: кладём при разборе ответа модели. */
 export function putSummary(chatId: string, summary: string, now = Date.now()): void {
   state(chatId, now).summary = summary;

@@ -11,6 +11,8 @@ import { test, type TestContext } from 'node:test';
 import assert from 'node:assert/strict';
 import { NextRequest } from 'next/server';
 import { POST } from '@/app/api/telegram/webhook/route';
+import { waitForBackgroundWork } from '@/lib/background-work';
+import { resetWebhookDedup } from '@/lib/webhook-dedup';
 
 /** Заглушка, а не настоящее значение: в окружении оно приходит из Coolify. */
 const SECRET = 'example-webhook-secret-value';
@@ -49,6 +51,13 @@ function isolate(t: TestContext): void {
   delete process.env.TELEGRAM_BOT_TOKEN;
   delete process.env.TELEGRAM_CHAT_ID;
   delete process.env.ANTHROPIC_API_KEY;
+  // update_id в UPDATE фиксирован — без сброса второй тест, дошедший до этой
+  // точки (в этом файле или в другом, дедуп общий на процесс), получил бы
+  // «уже видели» вместо настоящей проверки.
+  resetWebhookDedup();
+  // Ответ POST больше не ждёт конвейер (см. шаг 2) — без этого фоновая
+  // задача дожила бы до следующего теста.
+  t.after(() => waitForBackgroundWork());
 }
 
 test('POST без TELEGRAM_WEBHOOK_SECRET в окружении отвергается с 401', async (t) => {
