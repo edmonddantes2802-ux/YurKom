@@ -34,6 +34,7 @@ export default function NotFoundScreen() {
               </p>
             </div>
 
+            <h2 className="visually-hidden">Возможно, вам подойдёт один из разделов</h2>
             <div className="services-grid">
               {servicesWithPage.map((service, i) => (
                 <Link
